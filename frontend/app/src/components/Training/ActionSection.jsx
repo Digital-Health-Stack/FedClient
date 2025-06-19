@@ -9,6 +9,7 @@ import {
   InformationCircleIcon,
   CogIcon,
   ArrowDownTrayIcon,
+  ArrowPathIcon,
 } from "@heroicons/react/24/outline";
 
 import {
@@ -17,7 +18,7 @@ import {
   submitTrainingAcceptanceResponse,
 } from "../../services/federatedService";
 
-import { createQPDataset } from "../../services/privateService";
+import { createQPDataset, getDatasetDetails } from "../../services/privateService";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 
@@ -28,11 +29,18 @@ const ActionSection = ({ data, sessionId }) => {
     training_status: trainingStatus,
     client_status: clientStatus,
     session_price: sessionPrice,
+    federated_info: fedInfo,
   } = data || {};
   const { api } = useAuth();
   const navigate = useNavigate();
   const [isDownloading, setIsDownloading] = useState(false);
   const [error, setError] = useState(null);
+  const [clientFilename, setClientFilename] = useState("");
+  const [errorClient, setErrorClient] = useState(null);
+  const [clientStats, setClientStats] = useState(null);
+  const [loadingClient, setLoadingClient] = useState(false);
+  const [serverStats, _] = useState(fedInfo?.dataset_info.server_stats || null);
+
   const handleCreateQpd = async () => {
     try {
       const qpdDataRequest = {
@@ -78,6 +86,35 @@ const ActionSection = ({ data, sessionId }) => {
     }
   };
 
+  const fetchClientDatasetStats = async () => {
+    if (!clientFilename) return;
+
+    setLoadingClient(true);
+    setErrorClient(null);
+
+    try {
+      const response = await getDatasetDetails(clientFilename);
+      const data = response.data;
+
+      console.log("Client dataset stats received: ", data);
+
+      if (data.details) {
+        throw new Error(data.details);
+      }
+
+      setClientStats(data);
+      // setValue("dataset_info.client_stats", data.datastats);
+      setErrorClient(null);
+    } catch (err) {
+      const errorMessage = err.response?.data?.details || err.message || "Failed to fetch client dataset stats";
+      setErrorClient(errorMessage);
+      setClientStats(null);
+      // setValue("dataset_info.client_stats", null);
+    } finally {
+      setLoadingClient(false);
+    }
+  };
+
   const onSubmitPriceAcceptance = async (data) => {
     try {
       const requestData = {
@@ -96,11 +133,97 @@ const ActionSection = ({ data, sessionId }) => {
     }
   };
 
+  const columnsMatch = () => {
+    if (!clientStats || !serverStats) return false;
+    const clientColumns = clientStats.datastats.columnStats.map((c) => c.name);
+    const serverColumns = serverStats.columnStats.map((c) => c.name);
+    return JSON.stringify(clientColumns) === JSON.stringify(serverColumns);
+  };
+
   const renderPriceAcceptanceForm = () => (
     <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
       <h3 className="text-lg font-semibold text-gray-800 mb-4">
         Set Training Price
       </h3>
+      {/* Client Dataset Section */}
+      <div className="bg-white p-4 rounded-lg mb-3 shadow-sm border border-gray-200">
+        <div className="space-y-3">
+          <label className="block text-sm font-medium text-gray-700">
+            Client Dataset
+          </label>
+          <div className="flex space-x-2">
+            <input
+              type="text"
+              placeholder="Enter client filename"
+              value={clientFilename}
+              onChange={(e) => setClientFilename(e.target.value)}
+              className="flex-1 p-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            />
+            <button
+              type="button"
+              onClick={fetchClientDatasetStats}
+              disabled={loadingClient || !clientFilename}
+              className="px-4 py-2.5 bg-blue-600 text-white rounded-md hover:bg-blue-700 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              {loadingClient ? (
+                <ArrowPathIcon className="h-4 w-4 animate-spin" />
+              ) : (
+                <ArrowPathIcon className="h-4 w-4" />
+              )}
+              <span className="ml-2">Fetch</span>
+            </button>
+          </div>
+
+          {errorClient && (
+            <div className="mt-2 p-2 bg-red-50 text-red-600 text-sm rounded-md flex items-start">
+              <ExclamationTriangleIcon className="h-4 w-4 mt-0.5 mr-2 flex-shrink-0" />
+              {errorClient}
+            </div>
+          )}
+
+          {clientStats && (
+            <div className="mt-2 p-2 bg-green-50 text-green-700 text-sm rounded-md flex items-start">
+              <CheckCircleIcon className="h-4 w-4 mt-0.5 mr-2 flex-shrink-0" />
+              <span>
+                Successfully loaded dataset with{" "}
+                {clientStats.datastats.numRows} rows and{" "}
+                {clientStats.datastats.numColumns} columns
+              </span>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Column Matching Status */}
+      {console.log(serverStats, clientStats)}
+      {clientStats && serverStats && <div
+        className={`p-3 mb-3 rounded-md border ${columnsMatch()
+            ? "bg-green-50 border-green-200 text-green-800"
+            : "bg-yellow-50 border-yellow-200 text-yellow-800"
+          }`}
+      >
+        <div className="flex items-start">
+          {columnsMatch() ? (
+            <CheckCircleIcon className="h-5 w-5 mr-2 mt-0.5 flex-shrink-0" />
+          ) : (
+            <ExclamationTriangleIcon className="h-5 w-5 mr-2 mt-0.5 flex-shrink-0" />
+          )}
+          <div>
+            <p className="font-medium">
+              {columnsMatch()
+                ? "Column names match between client and server datasets"
+                : "Column names do not match between client and server datasets"}
+            </p>
+            {!columnsMatch() && (
+              <p className="text-sm mt-1">
+                statistics for client and server datasets are different.
+                <br />
+              </p>
+            )}
+          </div>
+        </div>
+      </div>}
+
       <form onSubmit={handleSubmit(onSubmitPriceAcceptance)}>
         <div className="space-y-4">
           <div className="p-4 bg-gray-50 rounded-lg flex justify-between items-center">
@@ -112,8 +235,9 @@ const ActionSection = ({ data, sessionId }) => {
             </div>
             <button
               type="button"
+              disabled={!clientStats || !columnsMatch()}
               onClick={handleCreateQpd}
-              className="h-fit py-2 px-4 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+              className="h-fit py-2 px-4 disabled:cursor-not-allowed disabled:bg-blue-300 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
             >
               Contribute Dataset
             </button>
@@ -148,11 +272,10 @@ const ActionSection = ({ data, sessionId }) => {
           <button
             type="submit"
             disabled={!isQpdCreated}
-            className={`w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white ${
-              isQpdCreated
-                ? "bg-blue-600 hover:bg-blue-700 focus:ring-blue-500"
-                : "bg-gray-400 cursor-not-allowed focus:ring-gray-500"
-            } focus:outline-none focus:ring-2 focus:ring-offset-2`}
+            className={`w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white ${isQpdCreated
+              ? "bg-blue-600 hover:bg-blue-700 focus:ring-blue-500"
+              : "bg-gray-400 cursor-not-allowed focus:ring-gray-500"
+              } focus:outline-none focus:ring-2 focus:ring-offset-2`}
           >
             Submit Price Decision
           </button>
@@ -273,9 +396,8 @@ const ActionSection = ({ data, sessionId }) => {
         <button
           onClick={handleDownload}
           disabled={isDownloading}
-          className={`inline-flex items-center px-3 py-1 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 ${
-            isDownloading ? "opacity-75 cursor-not-allowed" : ""
-          }`}
+          className={`inline-flex items-center px-3 py-1 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 ${isDownloading ? "opacity-75 cursor-not-allowed" : ""
+            }`}
         >
           {isDownloading ? (
             <>

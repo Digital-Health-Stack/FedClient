@@ -32,7 +32,7 @@ export default function SelectDatasetsStep() {
   const [errorServer, setErrorServer] = useState(null);
   const [errorTasks, setErrorTasks] = useState(null);
   const [outputColumns, setOutputColumns] = useState([]);
-  const [showColumnSelection, setShowColumnSelection] = useState(false);
+  const [showColumnSelection, setShowColumnSelection] = useState(true);
 
   const clientFilename = watch("dataset_info.client_filename");
   const serverFilename = watch("dataset_info.server_filename");
@@ -159,8 +159,8 @@ export default function SelectDatasetsStep() {
   };
 
   const getAvailableColumns = () => {
-    if (columnsMatch() && clientStats) {
-      return clientStats.datastats.columnStats.map((c) => c.name);
+    if (serverStats) {
+      return serverStats.datastats.columnStats.map((c) => c.name);
     }
     return [];
   };
@@ -183,7 +183,7 @@ export default function SelectDatasetsStep() {
       <div className="space-y-6">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Client Dataset Section */}
-          <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
+          {/* <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
             <div className="space-y-3">
               <label className="block text-sm font-medium text-gray-700">
                 Client Dataset
@@ -230,7 +230,7 @@ export default function SelectDatasetsStep() {
                 </div>
               )}
             </div>
-          </div>
+          </div> */}
 
           {/* Server Dataset Section */}
           <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
@@ -284,17 +284,17 @@ export default function SelectDatasetsStep() {
         </div>
 
         {/* Dataset Comparison and Task Selection */}
-        {clientStats && serverStats && (
+        {serverStats && (
           <div className="space-y-6">
             {/* Column Matching Status */}
-            <div
+            {/* <div
               className={`p-3 rounded-md border ${
                 columnsMatch()
                   ? "bg-green-50 border-green-200 text-green-800"
                   : "bg-yellow-50 border-yellow-200 text-yellow-800"
               }`}
             >
-              <div className="flex items-start">
+               <div className="flex items-start">
                 {columnsMatch() ? (
                   <CheckCircleIcon className="h-5 w-5 mr-2 mt-0.5 flex-shrink-0" />
                 ) : (
@@ -313,11 +313,11 @@ export default function SelectDatasetsStep() {
                     </p>
                   )}
                 </div>
-              </div>
-            </div>
+              </div> 
+            </div> */}
 
             {/* Column Selection */}
-            {columnsMatch() && (
+            {(
               <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
                 <button
                   type="button"
@@ -426,7 +426,8 @@ export default function SelectDatasetsStep() {
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                   <button
-                    onClick={() => {
+                    onClick={(e) => {
+                      e.preventDefault();
                       handleTaskChange(task.task_id);
                       setValue("dataset_info.task_id", task.task_id); // Update form value if using react-hook-form
                     }}

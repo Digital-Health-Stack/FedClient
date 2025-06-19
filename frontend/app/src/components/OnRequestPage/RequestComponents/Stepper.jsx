@@ -1,7 +1,7 @@
 import React from "react";
 import { CheckIcon } from "@heroicons/react/24/outline";
 
-export default function Stepper({ steps, currentStep }) {
+export default function Stepper({ steps, currentStep, setCurrentStep }) {
   return (
     <div className="w-50 space-y-15 ml-10 mt-10">
       <h2 className="text-2xl font-bold mb-8 text-blue-600">
@@ -9,7 +9,7 @@ export default function Stepper({ steps, currentStep }) {
       </h2>
       <div className="space-y-6">
         {steps.map((step, index) => (
-          <div key={step.id} className="flex items-center space-x-4">
+          <div key={step.id} className="flex items-center space-x-4 cursor-pointer" onClick={() => setCurrentStep(step.id)}>
             <div
               className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors duration-200
               ${

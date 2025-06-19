@@ -5,6 +5,7 @@ import OrganizationDetailsStep from "../components/OnRequestPage/RequestComponen
 import SelectDatasetsStep from "../components/OnRequestPage/RequestComponents/SelectDatasetsStep";
 import StatisticalInfoStep from "../components/OnRequestPage/RequestComponents/StatisticalInfoStep";
 import ModelSelectionStep from "../components/OnRequestPage/RequestComponents/ModelSelectionStep";
+import HyperparametersInfoStep from "../components/OnRequestPage/RequestComponents/Hyperparameters";
 import { useAuth } from "../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { createSession } from "../services/federatedService";
@@ -15,13 +16,16 @@ import {
   ChartBarIcon,
   ArrowRightIcon,
   ArrowLeftIcon,
+  WrenchScrewdriverIcon,
 } from "@heroicons/react/24/outline";
+import { toast } from "react-toastify";
 
 const steps = [
   { id: 0, label: "Organization Details", icon: BuildingOfficeIcon },
   { id: 1, label: "Dataset Information", icon: FolderIcon },
   { id: 2, label: "Model Selection", icon: CpuChipIcon },
   { id: 3, label: "Statistical Info", icon: ChartBarIcon },
+  { id: 4, label: "Hyperparameters", icon: WrenchScrewdriverIcon }
 ];
 
 export default function Request() {
@@ -39,7 +43,37 @@ export default function Request() {
   const handlePrev = () => setCurrentStep((prev) => Math.max(prev - 1, 0));
 
   const onSubmit = async (data) => {
+    if (data.organisation_name === "") {
+      toast.error("Please enter your organization name.")
+      return setCurrentStep(0);
+    }
+    if (!data.dataset_info.server_stats) {
+      toast.error("Please fetch at least one dataset.")
+      return setCurrentStep(1);
+    }
+    if (!data.dataset_info.task_id) {
+      toast.error("Please select a task for the dataset.")
+      return setCurrentStep(1);
+    }
+    if (!data.dataset_info.output_columns || data.dataset_info.output_columns.length === 0) {
+      toast.error("Please select at least one output column.")
+      return setCurrentStep(1);
+    }
+    if (!data.model_name || data.model_name === "" || !data.model_info) {
+      toast.error("Please select a model.")
+      return setCurrentStep(2);
+    }
+    if (!data.expected_results || !data.expected_results.std_mean || !data.expected_results.std_deviation) {
+      toast.error("Please provide expected results.")
+      return setCurrentStep(3);
+    }
     console.log("Request JSON: ", data);
+    if (!data.hyperparameters || !data.hyperparameters.wait_time || !data.hyperparameters.no_of_rounds) {
+      toast.error("Please provide hyperparameters.")
+      return setCurrentStep(4);
+    }
+
+
     const requestData = {
       fed_info: data,
       // client_token: api.getAccessToken(),
@@ -56,7 +90,7 @@ export default function Request() {
   return (
     <FormProvider {...methods}>
       <div className="flex bg-gray-50 w-full">
-        <Stepper steps={steps} currentStep={currentStep} />
+        <Stepper steps={steps} currentStep={currentStep} setCurrentStep={setCurrentStep} />
 
         <div className="flex-1 p-8 ml-0">
           <form
@@ -76,6 +110,8 @@ export default function Request() {
                   "Choose the machine learning model architecture"}
                 {currentStep === 3 &&
                   "Configure statistical parameters for model training"}
+                {currentStep === 4 &&
+                  "Set hyperparameters for the training process"}
               </p>
             </div>
 
@@ -84,6 +120,7 @@ export default function Request() {
               {currentStep === 1 && <SelectDatasetsStep />}
               {currentStep === 2 && <ModelSelectionStep />}
               {currentStep === 3 && <StatisticalInfoStep />}
+              {currentStep === 4 && <HyperparametersInfoStep />}
             </div>
 
             <div className="mt-12 pt-8 border-t border-gray-100 flex justify-between">
@@ -108,12 +145,12 @@ export default function Request() {
                   <ArrowRightIcon className="w-5 h-5 ml-2" />
                 </button>
               ) : (
-                <button
+                <input
+                  {...methods.register("submit")}
                   type="submit"
                   className="px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium flex items-center transition-colors"
-                >
-                  Submit Request
-                </button>
+                  value={"Submit Request"}
+                />
               )}
             </div>
           </form>
