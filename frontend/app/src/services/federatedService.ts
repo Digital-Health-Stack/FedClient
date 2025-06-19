@@ -6,7 +6,7 @@ export const createSession = async (
     fed_info: any;
   }
 ) => {
-  return api.post("create-federated-session", session_data);
+  return api.post("/v2/create-federated-session/", session_data);
 };
 
 export const getAllSessions = async (api, page = 1, perPage = 6) => {
@@ -38,7 +38,7 @@ export const submitPriceAcceptanceResponse = (
   api: AxiosInstance,
   data: { session_id: number; decision: number }
 ) => {
-  return api.post("submit-client-price-acceptance-response", data);
+  return api.post("/v2/submit-client-price-acceptance/", data);
 };
 
 // export const sendModelInitiation = (
