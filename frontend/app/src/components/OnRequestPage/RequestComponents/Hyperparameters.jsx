@@ -45,7 +45,6 @@ export default function HyperparametersInfoStep() {
             />
           </label>
         </div>
-        
       </div>
     </div>
   );

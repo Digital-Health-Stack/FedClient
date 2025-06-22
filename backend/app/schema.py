@@ -11,9 +11,11 @@ class Parameter(BaseModel):
     client_parameter: dict
     client_id: int
 
+
 class ModelConfig(BaseModel):
     model: str
     config: dict
+
 
 # Define the request body schema
 class DownloadCombineRequest(BaseModel):
@@ -21,7 +23,7 @@ class DownloadCombineRequest(BaseModel):
     session_id: str
     output_column: list
 
-    
+
 # modelConfig = {
 #     "model": "LandMarkSVM",
 #     "config": {

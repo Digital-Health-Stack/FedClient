@@ -8,10 +8,11 @@ from contextlib import asynccontextmanager
 import asyncio
 from api import preprocessing_routes
 from api import model_training_routes
-from api import confidential_routers    
+from api import confidential_routers
 from api import qpd_routers
 from api import testing_routers
 from api.Notification import notification_router, redis_listener
+
 """
   Don't start this server from terminal without specifying port (9000 or something unused) in the command,
   otherwise by default 8000 port will conflict with federated server
@@ -23,7 +24,8 @@ from api.Notification import notification_router, redis_listener
   NOTE: adjust the directory of training_script
 """
 load_dotenv()
-environment = os.getenv('ENVIRONMENT')
+environment = os.getenv("ENVIRONMENT")
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -38,6 +40,7 @@ async def lifespan(app: FastAPI):
     except asyncio.CancelledError:
         # This is expected
         pass
+
 
 app = FastAPI(lifespan=lifespan)
 
@@ -58,6 +61,7 @@ app.include_router(qpd_routers.qpd_router)
 app.include_router(testing_routers.test_router)
 app.include_router(notification_router)
 
+
 # Temporary testing endpoints
 @app.get("/testing")
 def testing():
@@ -68,7 +72,6 @@ def testing():
     except Exception as e:
         return f"Error Connecting to FedServer: {e}"
 
+
 if __name__ == "__main__":
     uvicorn.run(app, host="localhost", port=9090)
-
-

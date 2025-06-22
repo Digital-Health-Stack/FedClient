@@ -60,8 +60,8 @@ const PreprocessingOptions = ({
     columnType === "all_columns"
       ? options.all_columns
       : ["IntegerType()", "FloatType()", "DoubleType()"].includes(columnType)
-      ? options.numeric
-      : options.string;
+        ? options.numeric
+        : options.string;
 
   const [selectedOperation, setSelectedOperation] = useState("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);

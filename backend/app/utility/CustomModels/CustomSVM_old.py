@@ -22,7 +22,9 @@ import warnings
 
 
 class CustomSVM:
-    def __init__(self, C=1.0, is_binary=False, lr=0.01, n_iters=100, weights_shape=None):
+    def __init__(
+        self, C=1.0, is_binary=False, lr=0.01, n_iters=100, weights_shape=None
+    ):
         self.C = C
         self.weights = None
         self.biases = None
@@ -94,14 +96,17 @@ class CustomSVM:
         return np.argmax(decision_values, axis=1)
 
     def update_parameters(self, parameters):
-        """ parameters should be a dictionary with keys 'weights' and 'biases' where values are lists """
-        self.weights = np.array(parameters['weights'])
-        self.biases = np.array(parameters['biases'])
+        """parameters should be a dictionary with keys 'weights' and 'biases' where values are lists"""
+        self.weights = np.array(parameters["weights"])
+        self.biases = np.array(parameters["biases"])
 
     def get_parameters(self):
         if self.weights is None and self.biases is None:
             raise ValueError("Parameters are None")
-        local_parameter = {'weights': self.weights.tolist(), 'biases': self.biases.tolist()}
+        local_parameter = {
+            "weights": self.weights.tolist(),
+            "biases": self.biases.tolist(),
+        }
         return local_parameter
 
     #  ==================================================================================================
@@ -115,8 +120,8 @@ class CustomSVM:
         except FileNotFoundError:
             raise FileNotFoundError(f"File {file_path} not found.")
 
-        self.weights = data['weights']
-        self.biases = data['biases']
+        self.weights = data["weights"]
+        self.biases = data["biases"]
         return self.weights, self.biases
 
     def change_n_iters(self, client_iter):
@@ -133,9 +138,9 @@ class CustomSVM:
         return self.biases
 
     def update_weights(self, new_weights):
-        """ new weights should be a numpy array """
+        """new weights should be a numpy array"""
         self.weights = new_weights
 
     def update_biases(self, new_biases):
-        """ new biases should be a numpy array """
+        """new biases should be a numpy array"""
         self.biases = new_biases

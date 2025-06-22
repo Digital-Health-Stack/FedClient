@@ -25,7 +25,7 @@ const steps = [
   { id: 1, label: "Dataset Information", icon: FolderIcon },
   { id: 2, label: "Model Selection", icon: CpuChipIcon },
   { id: 3, label: "Statistical Info", icon: ChartBarIcon },
-  { id: 4, label: "Hyperparameters", icon: WrenchScrewdriverIcon }
+  { id: 4, label: "Hyperparameters", icon: WrenchScrewdriverIcon },
 ];
 
 export default function Request() {
@@ -44,35 +44,45 @@ export default function Request() {
 
   const onSubmit = async (data) => {
     if (data.organisation_name === "") {
-      toast.error("Please enter your organization name.")
+      toast.error("Please enter your organization name.");
       return setCurrentStep(0);
     }
     if (!data.dataset_info.server_stats) {
-      toast.error("Please fetch at least one dataset.")
+      toast.error("Please fetch at least one dataset.");
       return setCurrentStep(1);
     }
     if (!data.dataset_info.task_id) {
-      toast.error("Please select a task for the dataset.")
+      toast.error("Please select a task for the dataset.");
       return setCurrentStep(1);
     }
-    if (!data.dataset_info.output_columns || data.dataset_info.output_columns.length === 0) {
-      toast.error("Please select at least one output column.")
+    if (
+      !data.dataset_info.output_columns ||
+      data.dataset_info.output_columns.length === 0
+    ) {
+      toast.error("Please select at least one output column.");
       return setCurrentStep(1);
     }
     if (!data.model_name || data.model_name === "" || !data.model_info) {
-      toast.error("Please select a model.")
+      toast.error("Please select a model.");
       return setCurrentStep(2);
     }
-    if (!data.expected_results || !data.expected_results.std_mean || !data.expected_results.std_deviation) {
-      toast.error("Please provide expected results.")
+    if (
+      !data.expected_results ||
+      !data.expected_results.std_mean ||
+      !data.expected_results.std_deviation
+    ) {
+      toast.error("Please provide expected results.");
       return setCurrentStep(3);
     }
     console.log("Request JSON: ", data);
-    if (!data.hyperparameters || !data.hyperparameters.wait_time || !data.hyperparameters.no_of_rounds) {
-      toast.error("Please provide hyperparameters.")
+    if (
+      !data.hyperparameters ||
+      !data.hyperparameters.wait_time ||
+      !data.hyperparameters.no_of_rounds
+    ) {
+      toast.error("Please provide hyperparameters.");
       return setCurrentStep(4);
     }
-
 
     const requestData = {
       fed_info: data,
@@ -90,7 +100,11 @@ export default function Request() {
   return (
     <FormProvider {...methods}>
       <div className="flex bg-gray-50 w-full">
-        <Stepper steps={steps} currentStep={currentStep} setCurrentStep={setCurrentStep} />
+        <Stepper
+          steps={steps}
+          currentStep={currentStep}
+          setCurrentStep={setCurrentStep}
+        />
 
         <div className="flex-1 p-8 ml-0">
           <form

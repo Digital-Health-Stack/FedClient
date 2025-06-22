@@ -48,3 +48,4 @@ Client/*.local
 __pycache__
 data
 logs
+.vscode

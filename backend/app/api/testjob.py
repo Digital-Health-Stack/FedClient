@@ -1,6 +1,7 @@
 from pyspark.sql import SparkSession
 import os
 from dotenv import load_dotenv
+
 load_dotenv()
 
 
@@ -22,7 +23,10 @@ spark = SparkSession.builder.getOrCreate()
 
 print(f"Deploy mode: {spark.sparkContext.deployMode}")
 
-df = spark.read.csv(f"{HDFS_FILE_READ_URL}/{RECENTLY_UPLOADED_DATASETS_DIR}/{filename}",header=True,inferSchema=True)
+df = spark.read.csv(
+    f"{HDFS_FILE_READ_URL}/{RECENTLY_UPLOADED_DATASETS_DIR}/{filename}",
+    header=True,
+    inferSchema=True,
+)
 df.show(5)
 print(f"Total rows: {df.count()}")
-

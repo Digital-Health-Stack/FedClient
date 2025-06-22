@@ -10,12 +10,13 @@ from sqlalchemy.orm import Session
 from models.Trainings import CurrentTrainings
 from dotenv import load_dotenv
 import tensorflow as tf
+
 load_dotenv()
 
 
 # Start from the current script's file location
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-print("SCRIPT_Working_DIR",SCRIPT_DIR)
+print("SCRIPT_Working_DIR", SCRIPT_DIR)
 
 # Go three directories up
 BASE_DIR = os.path.abspath(os.path.join(SCRIPT_DIR, "..", "..", ".."))
@@ -45,13 +46,14 @@ def sanitize_parameters(params):
     else:
         return params
 
+
 def sanitize_history(history):
     """Convert history metrics to JSON-serializable format"""
     sanitized = {}
     for metric, values in history.items():
         sanitized_values = []
         for value in values:
-            if hasattr(value, 'numpy'):
+            if hasattr(value, "numpy"):
                 value = value.numpy()
             if isinstance(value, np.ndarray):
                 if value.size == 1:
@@ -60,7 +62,9 @@ def sanitize_history(history):
                     sanitized_values.append([float(x) for x in value])
             else:
                 sanitized_values.append(float(value))
-        sanitized[metric] = sanitized_values[0] if len(sanitized_values) == 1 else sanitized_values
+        sanitized[metric] = (
+            sanitized_values[0] if len(sanitized_values) == 1 else sanitized_values
+        )
     return sanitized
 
 
@@ -74,37 +78,43 @@ def get_model_config(session_id: int):
     finally:
         db.close()
 
-def receive_global_parameters(url,session_id,client_token):
+
+def receive_global_parameters(url, session_id, client_token):
     try:
-        response = requests.get(url+"/"+session_id)
-        response.raise_for_status()  # Raise an HTTPError for bad responses 
+        response = requests.get(url + "/" + session_id)
+        response.raise_for_status()  # Raise an HTTPError for bad responses
         data = response.json()  # Assuming the response is in JSON format
         return data
     except requests.exceptions.RequestException as e:
         print(f"Error fetching data from {url}: {e}")
         return None
 
+
 def send_updated_parameters(url, payload, client_token):
     try:
         headers = {
             "Authorization": f"Bearer {client_token}",  # Using Bearer token
-            "Content-Type": "application/json"         # Specify the payload format
+            "Content-Type": "application/json",  # Specify the payload format
         }
         print("Payload : ", type(payload["client_parameter"]))
         response = requests.post(url, json=payload, headers=headers)
         # Debug output
         print("Status Code:", response.status_code)
         print("Response Text:", response.text)
-        
+
         response.raise_for_status()  # Raise an HTTPError for bad responses
-        print("Response.json() - ", response.json())  # Assuming the response is in JSON format
+        print(
+            "Response.json() - ", response.json()
+        )  # Assuming the response is in JSON format
     except requests.exceptions.RequestException as e:
         print(f"Error posting data to {url}: {e}")
 
 
 def compare_parameters(before, after):
     all_same = True
-    for layer_idx, (b_layer, a_layer) in enumerate(zip(before["weights"], after["weights"])):
+    for layer_idx, (b_layer, a_layer) in enumerate(
+        zip(before["weights"], after["weights"])
+    ):
         for weight_idx, (b_weight, a_weight) in enumerate(zip(b_layer, a_layer)):
             b_array = np.array(b_weight)
             a_array = np.array(a_weight)
@@ -130,12 +140,7 @@ def inspect_model_config(model):
     Returns:
         A dictionary containing model configuration details.
     """
-    config = {
-        "optimizer": None,
-        "learning_rate": None,
-        "loss": None,
-        "layers": []
-    }
+    config = {"optimizer": None, "learning_rate": None, "loss": None, "layers": []}
 
     # --- Get optimizer and learning rate ---
     if hasattr(model, "optimizer"):
@@ -172,6 +177,7 @@ def inspect_model_config(model):
         config["layers"].append(layer_config)
 
     return config
+
 
 def print_model_config(model, file_path: str = "model_config.txt"):
     """
@@ -215,11 +221,11 @@ def print_model_config(model, file_path: str = "model_config.txt"):
     # Join the list into a single string with newlines
     output_str = "\n".join(output)
 
-
     # Write to file
     with open(file_path, "w") as f:
         f.write(output_str)
     print(f"\nConfiguration saved to {file_path}")
+
 
 def main(session_id, client_token):
     try:
@@ -228,56 +234,52 @@ def main(session_id, client_token):
         print("Starting training script...")
         get_url = f"{BASE_URL}/get-model-parameters"
         post_url = f"{BASE_URL}/receive-client-parameters"
-        
+
         model_config = get_model_config(session_id)
-        test_metrics = model_config.get('model_info').get('test_metrics')
+        test_metrics = model_config.get("model_info").get("test_metrics")
         print("Test Metrics : ", test_metrics)
-        
 
         # ==== Load model ====
         model = model_instance_from_config(model_config)
         if model is None:
             raise ValueError("Model creation returned None")
         print("Model built successfully")
-        
+
         # Save Model Config
         # filename = "model_config.txt"
         # print_model_config(model.model,filename)
 
         X_path = os.path.join("data", f"X_{session_id}.npy")
         Y_path = os.path.join("data", f"Y_{session_id}.npy")
-        
+
         # Load data
         X = np.load(X_path)
         Y = np.load(Y_path)
-        
 
         # ==== Load and update global parameters ====
         global_parameters = receive_global_parameters(get_url, session_id, client_token)
         print("Checkpoint isFirst : ", global_parameters["is_first"])
-        if global_parameters and global_parameters['is_first'] == 0:
+        if global_parameters and global_parameters["is_first"] == 0:
             print("Checkpint global_parameters: ", len)
-            model.update_parameters(global_parameters['global_parameters'])
+            model.update_parameters(global_parameters["global_parameters"])
 
         # ==== Save current local parameters ====
         # with open("local_parameters.txt", "a", encoding="utf-8") as f:
         #     f.write("\n---\n")
         #     f.write(json.dumps(model.get_parameters()))
         #     f.write("\n")
-         
 
         # print("Local parameters saved to local_parameters.txt")
         before_training = model.get_parameters()
-        
+
         print(f"X dtype: {X.dtype}, Y dtype: {Y.dtype}")
         print(f"X shape: {X.shape}, Y shape: {Y.shape}")
-        
+
         # ==== Train ====
         model.fit(X, Y)
-        
-        after_training = model.get_parameters()  
+
+        after_training = model.get_parameters()
         compare_parameters(before_training, after_training)
-        
 
         # Save updated parameters after training
         # with open("updated_parameters.txt", "a", encoding="utf-8") as f:
@@ -286,14 +288,14 @@ def main(session_id, client_token):
         #     f.write("\n")
         # ==== Send updated parameters ====
         updated_parameters = model.get_parameters()
-        
+
         # Model Evaluation
-        results = model.evaluate(X,Y)
-        
+        results = model.evaluate(X, Y)
+
         payload = {
             "session_id": int(session_id),
             "client_parameter": sanitize_parameters(updated_parameters),
-            "metrics_report": results
+            "metrics_report": results,
         }
         print("Payload : ", results)
         send_updated_parameters(post_url, payload, client_token)
@@ -302,11 +304,11 @@ def main(session_id, client_token):
     except Exception as e:
         print(f"Error from training_script: {e}")
 
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--session_id", required=True, help="Session ID")
-    parser.add_argument("--client_token", required=True, help="Client Token")  
+    parser.add_argument("--client_token", required=True, help="Client Token")
     args = parser.parse_args()
 
     main(args.session_id, args.client_token)
-
