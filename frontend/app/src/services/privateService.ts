@@ -16,7 +16,7 @@ export const trainModelService = (data: {
 
 export const getRawDatasets = (skip = 0, limit = 5) => {
   return PrivateHTTPService.get(
-    `/list-raw-datasets?skip=${skip}&limit=${limit}`
+    `/list-raw-datasets?skip=${skip}&limit=${limit}`,
   );
 };
 

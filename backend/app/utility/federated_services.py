@@ -5,8 +5,9 @@ import shutil
 import numpy as np
 import requests
 
-HDFS_PROCESSED_DATASETS_DIR = os.getenv('HDFS_PROCESSED_DATASETS_DIR')
-REACT_APP_SERVER_BASE_URL = os.getenv('REACT_APP_SERVER_BASE_URL')
+HDFS_PROCESSED_DATASETS_DIR = os.getenv("HDFS_PROCESSED_DATASETS_DIR")
+REACT_APP_SERVER_BASE_URL = os.getenv("REACT_APP_SERVER_BASE_URL")
+
 
 def send_client_initialize_model_signal(session_id: int, client_token: str) -> bool:
     """
@@ -18,27 +19,30 @@ def send_client_initialize_model_signal(session_id: int, client_token: str) -> b
             "Authorization": f"Bearer {client_token}",
             "Content-Type": "application/json",
         }
-        
+
         data = {"session_id": session_id}
-        
+
         response = requests.post(
             f"{REACT_APP_SERVER_BASE_URL}/client-initialize-model",
             json=data,
-            headers=headers
+            headers=headers,
         )
         response.raise_for_status()
         return True
-        
+
     except Exception as e:
         print(f"Error notifying remote server: {e}")
         return False
 
+
 def reshape_image(img_array):
     img_array = np.stack([np.stack(row, axis=0) for row in img_array], axis=0)
     return img_array.astype(np.float32)
-        
 
-def process_parquet_and_save_xy(filename: str, session_id: str, output_column: list, client_token: str):
+
+def process_parquet_and_save_xy(
+    filename: str, session_id: str, output_column: list, client_token: str
+):
     """
     Download and combine multiple parquet files from HDFS,
     extract X and Y arrays, save them, and return metadata.
@@ -71,7 +75,7 @@ def process_parquet_and_save_xy(filename: str, session_id: str, output_column: l
 
     for root, _, files in os.walk(temp_download_dir):
         for file in files:
-            if file.endswith('.parquet'):
+            if file.endswith(".parquet"):
                 file_path = os.path.join(root, file)
                 parquet_files.append(file_path)
 
@@ -86,10 +90,9 @@ def process_parquet_and_save_xy(filename: str, session_id: str, output_column: l
     if not parquet_files:
         raise Exception("No parquet files found in the downloaded folder")
 
-    
     print(f"Combined DataFrame Shape: {combined_df.shape}")
     print(f"DataFrame Column Labels: {combined_df.columns.tolist()}")
-    
+
     # Check if all output columns exist
     missing_cols = [col for col in output_column if col not in combined_df.columns]
     if missing_cols:
@@ -98,20 +101,20 @@ def process_parquet_and_save_xy(filename: str, session_id: str, output_column: l
     print(combined_df.dtypes)
     print("Check head", combined_df.head())
 
-    X = np.array([reshape_image(img) for img in combined_df['image']])
+    X = np.array([reshape_image(img) for img in combined_df["image"]])
     Y = combined_df[output_column].values
-    
+
     print(f"X shape: {X.shape}")
     print(f"Y shape: {Y.shape}")
-    print(type(Y[0]),type(Y[0][0]))
+    print(type(Y[0]), type(Y[0][0]))
     print("Head Data Y: ", Y[:5])
-    
+
     # print("First Array : ", type(X), getattr(X, 'shape', 'no shape'))
     # print("Second Array : ", type(X[0]), getattr(X[0], 'shape', 'no shape'))
     # print("Third Array : ", type(X[0][0]), getattr(X[0][0], 'shape', 'no shape'))
     # print("Third Array : ", type(X[0][0][0]), getattr(X[0][0][0], 'shape', 'no shape'))
     # print("Fourth Element : ", type(X[0][0][0][0]))
-    
+
     # Save to local_dir
     X_filename = os.path.join(local_dir, f"X_{session_id}.npy")
     Y_filename = os.path.join(local_dir, f"Y_{session_id}.npy")
@@ -121,4 +124,4 @@ def process_parquet_and_save_xy(filename: str, session_id: str, output_column: l
 
     # Sending Model Initialization signal to server
     send_client_initialize_model_signal(session_id, client_token)
-    return 
+    return

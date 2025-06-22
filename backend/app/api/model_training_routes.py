@@ -16,7 +16,7 @@ from datetime import datetime
 from utility.federated_services import process_parquet_and_save_xy
 
 
-model_router = APIRouter(tags = ["Model Training"])
+model_router = APIRouter(tags=["Model Training"])
 BASE_URL = os.getenv("REACT_APP_SERVER_BASE_URL")
 get_training_url = f"{BASE_URL}/get-federated-session"
 get_params_url = f"{BASE_URL}/get-model-parameters"
@@ -24,7 +24,6 @@ post_params_url = f"{BASE_URL}/receive-client-parameters"
 
 # In-memory process store (replace with DB in production)
 process_store: Dict[str, dict] = {}
-
 
 
 @model_router.post("/initiate-model")
@@ -35,7 +34,7 @@ def initiate_model(request: InitiateModelRequest, db: Session = Depends(get_db))
         # ------------------------------------------
         session_id = request.session_id
         client_token = request.client_token
-        
+
         headers = {
             "Authorization": f"Bearer {client_token}",
             "Content-Type": "application/json",
@@ -46,19 +45,21 @@ def initiate_model(request: InitiateModelRequest, db: Session = Depends(get_db))
         response.raise_for_status()  # Raises HTTPError if not 2xx
 
         result = response.json()
-        
+
         # Read output column from it
         federated_info = result.get("federated_info")
         dataset_info = federated_info.get("dataset_info")
         client_filename = dataset_info.get("client_filename")
         output_columns = dataset_info.get("output_columns")
-        process_parquet_and_save_xy(client_filename, session_id, output_columns,client_token)
-        
+        process_parquet_and_save_xy(
+            client_filename, session_id, output_columns, client_token
+        )
+
         training_details = {
             "session_id": session_id,
-            "training_details": federated_info 
+            "training_details": federated_info,
         }
-        
+
         # Store in DB
         db_training = create_training(db, training_details)
 
@@ -72,7 +73,6 @@ def initiate_model(request: InitiateModelRequest, db: Session = Depends(get_db))
     except Exception as e:
         print(f"Error initiating model: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")
-    
 
 
 def _run_script(process_id: str, session_id: int, client_token: str):
@@ -82,122 +82,88 @@ def _run_script(process_id: str, session_id: int, client_token: str):
         "status": "running",
         "start_time": datetime.now(),
         "session_id": session_id,
-        "output": {"stdout": "", "stderr": ""}
+        "output": {"stdout": "", "stderr": ""},
     }
-    
+
     try:
         proc = subprocess.Popen(
-            [sys.executable, "-m", "utility.training_script", 
-             "--session_id", str(session_id),
-             "--client_token", client_token],
+            [
+                sys.executable,
+                "-m",
+                "utility.training_script",
+                "--session_id",
+                str(session_id),
+                "--client_token",
+                client_token,
+            ],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             text=True,
-            env=env
+            env=env,
         )
-        
+
         # Stream output while process runs
         stdout, stderr = proc.communicate()
-        
-        process_store[process_id].update({
-            "status": "completed" if proc.returncode == 0 else "failed",
-            "end_time": datetime.now(),
-            "return_code": proc.returncode,
-            "output": {"stdout": stdout, "stderr": stderr}
-        })
-        
+
+        process_store[process_id].update(
+            {
+                "status": "completed" if proc.returncode == 0 else "failed",
+                "end_time": datetime.now(),
+                "return_code": proc.returncode,
+                "output": {"stdout": stdout, "stderr": stderr},
+            }
+        )
+
     except Exception as e:
-        process_store[process_id].update({
-            "status": "failed",
-            "end_time": datetime.now(),
-            "error": str(e)
-        })
+        process_store[process_id].update(
+            {"status": "failed", "end_time": datetime.now(), "error": str(e)}
+        )
+
 
 @model_router.get("/execute-round")
 async def execute_round(
-    session_id: int, 
-    client_token: str,
-    background_tasks: BackgroundTasks
+    session_id: int, client_token: str, background_tasks: BackgroundTasks
 ):
     """Launch script in background and return process ID"""
     process_id = str(uuid.uuid4())
     background_tasks.add_task(
-        _run_script, 
+        _run_script,
         process_id=process_id,
         session_id=session_id,
-        client_token=client_token
+        client_token=client_token,
     )
-    
+
     return {
         "message": "Script execution started",
         "process_id": process_id,
-        "status_endpoint": f"/process-status/{process_id}"
+        "status_endpoint": f"/process-status/{process_id}",
     }
+
 
 @model_router.get("/process-status/{process_id}")
 def get_process_status(process_id: str):
     """Check status of a background process"""
     if process_id not in process_store:
         return {"error": "Process not found"}, 404
-    
+
     process_info = process_store[process_id]
     response = {
         "process_id": process_id,
         "status": process_info["status"],
         "start_time": process_info["start_time"],
-        "session_id": process_info["session_id"]
+        "session_id": process_info["session_id"],
     }
-    
+
     if "end_time" in process_info:
         response["duration_seconds"] = (
             process_info["end_time"] - process_info["start_time"]
         ).total_seconds()
         response["return_code"] = process_info.get("return_code")
-    
+
     if process_info["status"] in ("completed", "failed"):
-        response.update({
-            "output": process_info["output"]
-        })
-    
+        response.update({"output": process_info["output"]})
+
     return response
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 # # Paths for model configuration and training data
@@ -242,8 +208,4 @@ def get_process_status(process_id: str):
 #     # Run the script using subprocess
 #     model_path_with_id = f"{model_path}/{local_model_id}.json"
 #     result = subprocess.run(["python", training_script_path, model_path_with_id, train_X_path, train_Y_path, server_argument], capture_output=True, text=True, encoding='utf-8')
-#     return {"stdout": result.stdout, "stderr": result.stderr, "returncode": result.returncode}  
-
-
-
-
+#     return {"stdout": result.stdout, "stderr": result.stderr, "returncode": result.returncode}

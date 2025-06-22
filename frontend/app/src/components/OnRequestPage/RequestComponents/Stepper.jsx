@@ -9,7 +9,11 @@ export default function Stepper({ steps, currentStep, setCurrentStep }) {
       </h2>
       <div className="space-y-6">
         {steps.map((step, index) => (
-          <div key={step.id} className="flex items-center space-x-4 cursor-pointer" onClick={() => setCurrentStep(step.id)}>
+          <div
+            key={step.id}
+            className="flex items-center space-x-4 cursor-pointer"
+            onClick={() => setCurrentStep(step.id)}
+          >
             <div
               className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors duration-200
               ${

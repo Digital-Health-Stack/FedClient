@@ -47,7 +47,7 @@ export default function DetailsPopUp({ selectedDetails, handleClose }) {
                         ))}
                       </ul>
                     </li>
-                  )
+                  ),
                 )}
               </ul>
             ) : (

@@ -1,23 +1,23 @@
 import axios from "axios";
 
-export const BASE_URL = process.env.REACT_APP_SERVER_BASE_URL
-export const PRIVATE_BASE_URL = process.env.REACT_APP_PRIVATE_SERVER_BASE_URL
+export const BASE_URL = process.env.REACT_APP_SERVER_BASE_URL;
+export const PRIVATE_BASE_URL = process.env.REACT_APP_PRIVATE_SERVER_BASE_URL;
 
 export const HTTPService = axios.create({
-    baseURL: BASE_URL,
-    // timeout: 50000,
-    headers: {
-        "Content-Type": "application/json",
-    },
+  baseURL: BASE_URL,
+  // timeout: 50000,
+  headers: {
+    "Content-Type": "application/json",
+  },
 });
 
 export const PrivateHTTPService = axios.create({
-    baseURL: PRIVATE_BASE_URL,
-    // timeout: 50000,
-    headers: {
-        "Content-Type": "application/json"
-    }
-})
+  baseURL: PRIVATE_BASE_URL,
+  // timeout: 50000,
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
 
 // export const getAuthHTTPService = () => {
 //     const user = JSON.parse(localStorage.getItem('user')); // Getting the user from local storage
@@ -29,7 +29,6 @@ export const PrivateHTTPService = axios.create({
 //             'Authorization': `Bearer ${user ? user.access_token : ''}` // Add the token
 //         },
 //     });
-
 
 //     api.interceptors.response.use(
 //         (response) => {

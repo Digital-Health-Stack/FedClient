@@ -121,13 +121,13 @@ const MultiLayerPerceptron = () => {
               className="border rounded p-2 flex-1"
               placeholder="Number of Nodes"
               {...register(
-                `model_info.intermediate_layer.${index}.feature_name`
+                `model_info.intermediate_layer.${index}.feature_name`,
               )}
             />
             <select
               className="border rounded p-2"
               {...register(
-                `model_info.intermediate_layer.${index}.activation_function`
+                `model_info.intermediate_layer.${index}.activation_function`,
               )}
             >
               <option value="select-activation">Activation Function</option>

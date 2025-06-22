@@ -194,7 +194,7 @@ export const AuthProvider = ({ children }) => {
       }
       return config;
     },
-    (error) => Promise.reject(error)
+    (error) => Promise.reject(error),
   );
 
   api.interceptors.response.use(
@@ -249,7 +249,7 @@ export const AuthProvider = ({ children }) => {
         });
       }
       return Promise.reject(error); // Optionally, you can also return a custom error message here
-    }
+    },
   );
 
   const sseApi = axios.create({
@@ -267,7 +267,7 @@ export const AuthProvider = ({ children }) => {
       }
       return config;
     },
-    (error) => Promise.reject(error)
+    (error) => Promise.reject(error),
   );
 
   return (
@@ -287,7 +287,6 @@ const setUpModel = async (user, sessionId, api) => {
 
   initializeModel(data).then(({ data }) => {
     console.log(data.message);
-
 
     // Send Model Initiation is now done by backend
     // const status_four_data = {
@@ -314,7 +313,7 @@ const trainModel = (user, sessionId) => {
       } else {
         console.error(
           "Failed to start the execution on the private server",
-          data
+          data,
         );
       }
     })

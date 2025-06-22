@@ -24,7 +24,6 @@ import ActionSection from "../components/Training/ActionSection";
 import Result from "../components/Training/Result";
 import TrainingProgress from "../components/Training/TrainingProgress";
 
-
 const statusConfig = {
   1: {
     text: "Pending Start",
@@ -81,7 +80,6 @@ export default function TrainingDetails() {
     fetchFederatedSessionData();
   }, [sessionId]);
 
-
   const sections = [
     {
       id: "session-info",
@@ -103,17 +101,17 @@ export default function TrainingDetails() {
       label: "Logs",
       icon: <ChartBarIcon className="h-5 w-5" />,
     },
-      {
-        id: "results",
-        label: "Results",
-        icon: <ChartBarIcon className="h-5 w-5" />,
-      },
+    {
+      id: "results",
+      label: "Results",
+      icon: <ChartBarIcon className="h-5 w-5" />,
+    },
     { id: "actions", label: "Actions", icon: <BoltIcon className="h-5 w-5" /> },
     {
-      id: "training-progress",  // New section
+      id: "training-progress", // New section
       label: "Training Progress",
       icon: <ArrowPathIcon className="h-5 w-5" />,
-    }
+    },
   ];
 
   const renderStatusBadge = () => {
@@ -201,14 +199,9 @@ export default function TrainingDetails() {
             <ModelConfig data={federatedSessionData.federated_info} />
           )}
           {currentSection === "actions" && (
-            <ActionSection
-              data={federatedSessionData}
-              sessionId={sessionId}
-            />
+            <ActionSection data={federatedSessionData} sessionId={sessionId} />
           )}
-          {currentSection === "results"  && (
-            <Result sessionId={sessionId} />  
-          )}
+          {currentSection === "results" && <Result sessionId={sessionId} />}
           {currentSection === "training-progress" && (
             <TrainingProgress sessionId={sessionId} />
           )}

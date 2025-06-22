@@ -8,6 +8,7 @@ import os
 import asyncio
 from concurrent.futures import ThreadPoolExecutor
 from dotenv import load_dotenv
+
 load_dotenv()
 
 # instead ensure max free cpu, if no one is free wait !!
@@ -19,7 +20,9 @@ BASE_URL = os.getenv("REACT_APP_SERVER_BASE_URL")
 spark_client = SparkSessionManager()
 
 
-async def create_qpd_dataset_from_client_data(fed_info, num_points, client_token, session_id):
+async def create_qpd_dataset_from_client_data(
+    fed_info, num_points, client_token, session_id
+):
     try:
         filename = fed_info.get("dataset_info", {}).get("client_filename")
         parent_filename = fed_info.get("dataset_info", {}).get("server_filename")
@@ -33,7 +36,7 @@ async def create_qpd_dataset_from_client_data(fed_info, num_points, client_token
             datastats=overview,
             federated_session_id=int(session_id),
         )
-        
+
         headers = {
             "Authorization": f"Bearer {client_token}",
             "Content-Type": "application/json",
@@ -41,7 +44,9 @@ async def create_qpd_dataset_from_client_data(fed_info, num_points, client_token
 
         create_qpd_data_url = f"{BASE_URL}/create-transferred-data"
 
-        response = requests.post(create_qpd_data_url, json=qpd_data.dict(), headers=headers)
+        response = requests.post(
+            create_qpd_data_url, json=qpd_data.dict(), headers=headers
+        )
         response.raise_for_status()  # Raises HTTPError if not 2xx
         result = response.json()
         print(f"QPD Dataset {filename} created in server DB successfully.")
@@ -75,8 +80,10 @@ def create_qpd_dataset_endpoint(request: SubmitPrice):
     fed_info = result.get("federated_info")
 
     executor.submit(
-        asyncio.run, 
-        create_qpd_dataset_from_client_data(fed_info, num_points, client_token, session_id)
+        asyncio.run,
+        create_qpd_dataset_from_client_data(
+            fed_info, num_points, client_token, session_id
+        ),
     )
 
     print(f"QPD Dataset creation started for session ID: {session_id}")

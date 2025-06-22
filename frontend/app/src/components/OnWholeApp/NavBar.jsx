@@ -35,7 +35,7 @@ const NavBar = () => {
 
   useEffect(() => {
     connectWebSocket((data, id) => {
-      setNotifications(prev => [...prev, {data, id}]);
+      setNotifications((prev) => [...prev, { data, id }]);
     });
 
     return () => closeWebSocket();
@@ -44,13 +44,16 @@ const NavBar = () => {
   // Close notifications when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (notificationsOpen && !event.target.closest('.notification-container')) {
+      if (
+        notificationsOpen &&
+        !event.target.closest(".notification-container")
+      ) {
         setNotificationsOpen(false);
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [notificationsOpen]);
 
   return (
@@ -123,7 +126,9 @@ const NavBar = () => {
               {notificationsOpen && (
                 <div className="absolute top-full right-0 mt-2 w-80 bg-white border border-gray-200 rounded-lg shadow-lg z-50 max-h-96">
                   <div className="p-3 border-b border-gray-200 flex justify-between items-center">
-                    <h3 className="text-sm font-semibold text-gray-800">Notifications</h3>
+                    <h3 className="text-sm font-semibold text-gray-800">
+                      Notifications
+                    </h3>
                     <button
                       onClick={handleNotificationClose}
                       className="text-gray-400 hover:text-gray-600"
@@ -142,12 +147,15 @@ const NavBar = () => {
                           key={index}
                           className="px-3 py-2 hover:bg-gray-100 cursor-pointer block text-black flex justify-between items-center"
                         >
-                            {notification.data}
-                            <Link to={`/trainings/${notification.id}`} onClick={() => setNotificationsOpen(false)}>
-                              <button className="rounded-full bg-blue-500 text-white px-4 py-1">
-                                Join
-                              </button>
-                            </Link>
+                          {notification.data}
+                          <Link
+                            to={`/trainings/${notification.id}`}
+                            onClick={() => setNotificationsOpen(false)}
+                          >
+                            <button className="rounded-full bg-blue-500 text-white px-4 py-1">
+                              Join
+                            </button>
+                          </Link>
                         </div>
                       ))
                     )}

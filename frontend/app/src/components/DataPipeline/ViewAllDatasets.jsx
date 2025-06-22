@@ -133,7 +133,7 @@ const ViewAllDatasets = () => {
                     onDelete={handleDelete}
                     onClick={() =>
                       navigate(
-                        `${endpoints[selectedFolder].overview}/${dataset.filename}`
+                        `${endpoints[selectedFolder].overview}/${dataset.filename}`,
                       )
                     }
                     onEditSuccess={fetchData}

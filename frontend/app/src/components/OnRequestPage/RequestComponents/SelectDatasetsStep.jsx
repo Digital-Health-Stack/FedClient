@@ -10,7 +10,10 @@ import {
 } from "@heroicons/react/24/outline";
 import { useFormContext } from "react-hook-form";
 
-import { getDatasetOverview, getDatasetTasksById } from "../../../services/fedServerService";
+import {
+  getDatasetOverview,
+  getDatasetTasksById,
+} from "../../../services/fedServerService";
 import { getDatasetDetails } from "../../../services/privateService";
 
 // Environment variables
@@ -64,7 +67,10 @@ export default function SelectDatasetsStep() {
         }
       } catch (err) {
         console.error("Error fetching tasks: ", err);
-        const errorMessage = err.response?.data?.detail || err.message || "Failed to fetch tasks for this dataset";
+        const errorMessage =
+          err.response?.data?.detail ||
+          err.message ||
+          "Failed to fetch tasks for this dataset";
         setErrorTasks(errorMessage);
         setTasks([]);
       } finally {
@@ -95,7 +101,10 @@ export default function SelectDatasetsStep() {
       setValue("dataset_info.client_stats", data.datastats);
       setErrorClient(null);
     } catch (err) {
-      const errorMessage = err.response?.data?.details || err.message || "Failed to fetch client dataset stats";
+      const errorMessage =
+        err.response?.data?.details ||
+        err.message ||
+        "Failed to fetch client dataset stats";
       setErrorClient(errorMessage);
       setClientStats(null);
       setValue("dataset_info.client_stats", null);
@@ -126,7 +135,10 @@ export default function SelectDatasetsStep() {
       setErrorServer(null);
     } catch (err) {
       console.error("Error fetching server dataset stats: ", err);
-      const errorMessage = err.response?.data?.details || err.message || "Failed to fetch server dataset stats";
+      const errorMessage =
+        err.response?.data?.details ||
+        err.message ||
+        "Failed to fetch server dataset stats";
       setErrorServer(errorMessage);
       setServerStats(null);
       setValue("dataset_info.server_stats", null);
@@ -317,7 +329,7 @@ export default function SelectDatasetsStep() {
             </div> */}
 
             {/* Column Selection */}
-            {(
+            {
               <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
                 <button
                   type="button"
@@ -359,7 +371,7 @@ export default function SelectDatasetsStep() {
                   </div>
                 )}
               </div>
-            )}
+            }
 
             {/* Task Selection */}
             <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
@@ -377,90 +389,118 @@ export default function SelectDatasetsStep() {
                   </div>
                 </div>
               ) : tasks.length > 0 ? (
-                
-                
                 <div className="space-y-6">
-  <div className="bg-white shadow-sm rounded-lg border border-gray-200 overflow-hidden">
-    <div className="px-6 py-4 border-b border-gray-200">
-      <h3 className="text-lg font-medium text-gray-900">Available Tasks</h3>
-    </div>
-    <div className="px-6 py-4">
-      <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
-            <tr>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Task Name
-              </th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Metric
-              </th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Benchmark (Std Mean)
-              </th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Benchmark (Std Dev)
-              </th>
-              <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Action
-              </th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {tasks.map((task) => (
-              <tr 
-                key={task.task_id}
-                className={selectedTaskId === task.task_id ? 'bg-blue-50' : ''}
-              >
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                  {task.task_name}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {task.metric}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {task.benchmark[task.metric]?.std_mean || 'N/A'}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {task.benchmark[task.metric]?.std_dev || 'N/A'}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                  <button
-                    onClick={(e) => {
-                      e.preventDefault();
-                      handleTaskChange(task.task_id);
-                      setValue("dataset_info.task_id", task.task_id); // Update form value if using react-hook-form
-                    }}
-                    className={`px-4 py-2 rounded-md text-sm font-medium transition-colors duration-150 ${
-                      selectedTaskId === task.task_id
-                        ? 'bg-blue-600 text-white hover:bg-blue-700'
-                        : 'text-blue-600 hover:text-blue-900 bg-blue-50 hover:bg-blue-100'
-                    }`}
-                  >
-                    {selectedTaskId === task.task_id ? 'Selected' : 'Select'}
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
-    {selectedTaskId && (
-      <div className="bg-gray-50 px-6 py-3 border-t border-gray-200">
-        <div className="flex items-center">
-          <InformationCircleIcon className="h-5 w-5 text-blue-500 mr-2 flex-shrink-0" />
-          <p className="text-sm text-gray-600">
-            Selected task uses <strong className="font-medium">{getSelectedTaskMetric()}</strong> as its evaluation metric. 
-            Please ensure you select this metric in the model selection step.
-          </p>
-        </div>
-      </div>
-    )}
-  </div>
-</div>
-
-                
+                  <div className="bg-white shadow-sm rounded-lg border border-gray-200 overflow-hidden">
+                    <div className="px-6 py-4 border-b border-gray-200">
+                      <h3 className="text-lg font-medium text-gray-900">
+                        Available Tasks
+                      </h3>
+                    </div>
+                    <div className="px-6 py-4">
+                      <div className="overflow-x-auto">
+                        <table className="min-w-full divide-y divide-gray-200">
+                          <thead className="bg-gray-50">
+                            <tr>
+                              <th
+                                scope="col"
+                                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                              >
+                                Task Name
+                              </th>
+                              <th
+                                scope="col"
+                                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                              >
+                                Metric
+                              </th>
+                              <th
+                                scope="col"
+                                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                              >
+                                Benchmark (Std Mean)
+                              </th>
+                              <th
+                                scope="col"
+                                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                              >
+                                Benchmark (Std Dev)
+                              </th>
+                              <th
+                                scope="col"
+                                className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
+                              >
+                                Action
+                              </th>
+                            </tr>
+                          </thead>
+                          <tbody className="bg-white divide-y divide-gray-200">
+                            {tasks.map((task) => (
+                              <tr
+                                key={task.task_id}
+                                className={
+                                  selectedTaskId === task.task_id
+                                    ? "bg-blue-50"
+                                    : ""
+                                }
+                              >
+                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                  {task.task_name}
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                  {task.metric}
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                  {task.benchmark[task.metric]?.std_mean ||
+                                    "N/A"}
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                  {task.benchmark[task.metric]?.std_dev ||
+                                    "N/A"}
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                  <button
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      handleTaskChange(task.task_id);
+                                      setValue(
+                                        "dataset_info.task_id",
+                                        task.task_id,
+                                      ); // Update form value if using react-hook-form
+                                    }}
+                                    className={`px-4 py-2 rounded-md text-sm font-medium transition-colors duration-150 ${
+                                      selectedTaskId === task.task_id
+                                        ? "bg-blue-600 text-white hover:bg-blue-700"
+                                        : "text-blue-600 hover:text-blue-900 bg-blue-50 hover:bg-blue-100"
+                                    }`}
+                                  >
+                                    {selectedTaskId === task.task_id
+                                      ? "Selected"
+                                      : "Select"}
+                                  </button>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                    {selectedTaskId && (
+                      <div className="bg-gray-50 px-6 py-3 border-t border-gray-200">
+                        <div className="flex items-center">
+                          <InformationCircleIcon className="h-5 w-5 text-blue-500 mr-2 flex-shrink-0" />
+                          <p className="text-sm text-gray-600">
+                            Selected task uses{" "}
+                            <strong className="font-medium">
+                              {getSelectedTaskMetric()}
+                            </strong>{" "}
+                            as its evaluation metric. Please ensure you select
+                            this metric in the model selection step.
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
               ) : (
                 <div className="p-3 bg-yellow-50 text-yellow-700 rounded-md flex items-start">
                   <ExclamationTriangleIcon className="h-5 w-5 mr-2 mt-0.5 flex-shrink-0" />
@@ -473,8 +513,6 @@ export default function SelectDatasetsStep() {
                 </div>
               )}
             </div>
-
-
           </div>
         )}
       </div>

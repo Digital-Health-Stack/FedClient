@@ -6,7 +6,10 @@ import {
   Cog6ToothIcon,
 } from "@heroicons/react/24/solid";
 import EditDatasetModal from "./EditDatasetModal";
-import { ClipboardDocumentListIcon,  CheckCircleIcon } from "@heroicons/react/24/outline";
+import {
+  ClipboardDocumentListIcon,
+  CheckCircleIcon,
+} from "@heroicons/react/24/outline";
 import { toast } from "react-toastify";
 
 const RAW_DATASET_RENAME_URL =
@@ -69,11 +72,11 @@ const FileCard = ({ dataset, isRaw, onDelete, onClick, onEditSuccess }) => {
     >
       <div className="flex justify-between items-start gap-3">
         <div className="flex-col flex gap-1 items-start min-w-0">
-          {(
+          {
             <span className="text-xs font-medium text-gray-500 px-2 py-1 bg-gray-100 rounded-full">
               ID: {dataset.dataset_id}
             </span>
-          )}
+          }
           <div className="flex items-center gap-2">
             <h3 className="text-lg font-semibold text-gray-800 truncate">
               {displayName.length > 30
