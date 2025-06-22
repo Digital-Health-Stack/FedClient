@@ -4,11 +4,14 @@ import os
 from dotenv import load_dotenv
 import uvicorn
 import requests
+from contextlib import asynccontextmanager
+import asyncio
 from api import preprocessing_routes
 from api import model_training_routes
 from api import confidential_routers    
 from api import qpd_routers
 from api import testing_routers
+from api.Notification import notification_router, redis_listener
 """
   Don't start this server from terminal without specifying port (9000 or something unused) in the command,
   otherwise by default 8000 port will conflict with federated server
@@ -22,7 +25,21 @@ from api import testing_routers
 load_dotenv()
 environment = os.getenv('ENVIRONMENT')
 
-app = FastAPI()
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup
+    print("Starting Redis listener")
+    task = asyncio.create_task(redis_listener())
+    yield
+    # Shutdown
+    task.cancel()
+    try:
+        await task
+    except asyncio.CancelledError:
+        # This is expected
+        pass
+
+app = FastAPI(lifespan=lifespan)
 
 origins = ["*"]
 app.add_middleware(
@@ -39,6 +56,7 @@ app.include_router(model_training_routes.model_router)
 app.include_router(confidential_routers.confidential_router)
 app.include_router(qpd_routers.qpd_router)
 app.include_router(testing_routers.test_router)
+app.include_router(notification_router)
 
 # Temporary testing endpoints
 @app.get("/testing")

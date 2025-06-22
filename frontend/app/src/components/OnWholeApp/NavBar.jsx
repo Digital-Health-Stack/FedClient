@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { NavLink } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { Link, NavLink } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import {
   Bars3Icon,
@@ -10,15 +10,48 @@ import {
   DocumentArrowUpIcon,
   ChartBarSquareIcon,
   ServerStackIcon,
+  ArrowRightIcon,
 } from "@heroicons/react/24/solid";
+import { closeWebSocket, connectWebSocket } from "../../services/redisSocket";
+import { toast } from "react-toastify";
+import { BellIcon } from "@heroicons/react/24/outline";
 
 const NavBar = () => {
   const [isNavbarOpen, setIsNavbarOpen] = useState(false);
   const { logout, user } = useAuth();
-
+  const [notifications, setNotifications] = useState([]);
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
   const handleToggle = () => {
     setIsNavbarOpen(!isNavbarOpen);
   };
+
+  const handleNotificationClick = () => {
+    setNotificationsOpen(!notificationsOpen);
+  };
+
+  const handleNotificationClose = () => {
+    setNotificationsOpen(false);
+  };
+
+  useEffect(() => {
+    connectWebSocket((data, id) => {
+      setNotifications(prev => [...prev, {data, id}]);
+    });
+
+    return () => closeWebSocket();
+  }, []);
+
+  // Close notifications when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (notificationsOpen && !event.target.closest('.notification-container')) {
+        setNotificationsOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [notificationsOpen]);
 
   return (
     <nav className="bg-gray-900 border-b border-gray-700 text-white">
@@ -73,7 +106,55 @@ const NavBar = () => {
                 <ServerStackIcon className="w-5 h-5" /> Manage Data
               </NavLink>
             </li>
-            
+            <li className="notification-container relative">
+              <div
+                className="flex items-center gap-2 py-2 px-4 hover:text-gray-400 relative cursor-pointer"
+                onClick={handleNotificationClick}
+              >
+                <div className="relative">
+                  <BellIcon className="w-5 h-5" />
+                  {notifications.length > 0 && (
+                    <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold">
+                      {notifications.length}
+                    </span>
+                  )}
+                </div>
+              </div>
+              {notificationsOpen && (
+                <div className="absolute top-full right-0 mt-2 w-80 bg-white border border-gray-200 rounded-lg shadow-lg z-50 max-h-96">
+                  <div className="p-3 border-b border-gray-200 flex justify-between items-center">
+                    <h3 className="text-sm font-semibold text-gray-800">Notifications</h3>
+                    <button
+                      onClick={handleNotificationClose}
+                      className="text-gray-400 hover:text-gray-600"
+                    >
+                      <XMarkIcon className="w-4 h-4" />
+                    </button>
+                  </div>
+                  <div>
+                    {notifications.length === 0 ? (
+                      <div className="text-center py-4 text-gray-500 text-sm">
+                        No notifications
+                      </div>
+                    ) : (
+                      notifications.map((notification, index) => (
+                        <div
+                          key={index}
+                          className="px-3 py-2 hover:bg-gray-100 cursor-pointer block text-black flex justify-between items-center"
+                        >
+                            {notification.data}
+                            <Link to={`/trainings/${notification.id}`} onClick={() => setNotificationsOpen(false)}>
+                              <button className="rounded-full bg-blue-500 text-white px-4 py-1">
+                                Join
+                              </button>
+                            </Link>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+              )}
+            </li>
             <li>
               <NavLink
                 className="flex items-center gap-2 py-2 px-4 hover:text-gray-400"
