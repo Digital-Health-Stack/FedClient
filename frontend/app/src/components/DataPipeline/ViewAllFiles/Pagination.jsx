@@ -1,7 +1,7 @@
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/solid";
 
 const Pagination = ({ currentPage, totalCount, pageSize, onPageChange }) => {
-  const totalPages = Math.ceil(totalCount / pageSize);
+  const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
 
   return (
     <div className="flex items-center justify-between bg-white px-6 py-3 rounded-lg border">

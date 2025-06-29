@@ -11,6 +11,7 @@ from api import model_training_routes
 from api import confidential_routers
 from api import qpd_routers
 from api import testing_routers
+from api import file_upload_routes
 from api.Notification import notification_router, redis_listener
 
 """
@@ -59,6 +60,7 @@ app.include_router(model_training_routes.model_router)
 app.include_router(confidential_routers.confidential_router)
 app.include_router(qpd_routers.qpd_router)
 app.include_router(testing_routers.test_router)
+app.include_router(file_upload_routes.file_upload_router)
 app.include_router(notification_router)
 
 

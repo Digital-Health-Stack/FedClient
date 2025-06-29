@@ -16,7 +16,7 @@ export default function Dashboard() {
   const [datasets, setDatasets] = useState({ uploads: [], processed: [] });
   const [sessions, setSessions] = useState([]);
   const { api } = useAuth();
-
+  const user = JSON.parse(localStorage.getItem("user"));
   // Update fetchInitiatedSession
   const fetchInitiatedSession = async () => {
     try {
@@ -74,11 +74,31 @@ export default function Dashboard() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
+    <div className="min-h-[calc(100vh-57px)] bg-gray-50 p-8">
       <div className="max-w-7xl mx-auto">
-        {/* <h1 className="text-3xl font-bold text-gray-900 mb-8">
-          FedClient Dashboard
-        </h1> */}
+        <h1 className="text-3xl font-bold text-gray-900 mb-8">
+          {(() => {
+            const getGreeting = () => {
+              const now = new Date();
+              const hour = now.getHours();
+              if (hour >= 5 && hour < 12) {
+                return "Good Morning";
+              } else if (hour >= 12 && hour < 16) {
+                return "Good Afternoon";
+              } else if (hour >= 16 && hour < 20) {
+                return "Good Evening";
+              } else if (hour >= 20 && hour < 24) {
+                return "Welcome back";
+              } else {
+                const lateNightGreetings = ["Still up?", "Working late?"];
+                return lateNightGreetings[
+                  Math.floor(Math.random() * lateNightGreetings.length)
+                ];
+              }
+            };
+            return getGreeting() + ", " + user.username + "!";
+          })()}
+        </h1>
 
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
@@ -453,7 +473,7 @@ export default function Dashboard() {
         {/* Floating Action Button */}
         <div className="fixed bottom-8 right-8">
           <Link to="/request">
-            <button className="bg-blue-600 hover:bg-blue-700 text-white p-4 rounded-full shadow-lg transition-all transform hover:scale-105">
+            <button className="bg-blue-600 flex items-center hover:bg-blue-700 text-white p-4 rounded-full shadow-lg transition-all transform hover:scale-105">
               <svg
                 className="w-6 h-6"
                 fill="none"
@@ -467,6 +487,7 @@ export default function Dashboard() {
                   d="M12 4v16m8-8H4"
                 />
               </svg>
+              <span className="ml-2 font-semibold text-lg">Add Training</span>
             </button>
           </Link>
         </div>
