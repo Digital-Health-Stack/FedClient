@@ -14,7 +14,12 @@ import axios from "axios";
 import { BASE_URL, PRIVATE_BASE_URL } from "../services/config";
 import { toast } from "react-toastify";
 import { useLocation, useNavigate } from "react-router-dom";
-import { initializeModel, trainModelService } from "../services/privateService";
+import {
+  initializeModel,
+  removeToken,
+  saveToken,
+  trainModelService,
+} from "../services/privateService";
 // import { sendModelInitiation } from "../services/federatedService";
 
 const AuthContext = createContext();
@@ -103,9 +108,8 @@ export const AuthProvider = ({ children }) => {
 
   const login = (userData) => {
     setUser(userData);
-
     localStorage.setItem("user", JSON.stringify(userData));
-
+    saveToken(userData.access_token);
     scheduleTokenRefresh();
   };
 
@@ -120,6 +124,7 @@ export const AuthProvider = ({ children }) => {
       .catch(console.error)
       .finally(() => {
         removeUserData();
+        removeToken();
         navigate("/Login");
       });
   };
@@ -144,6 +149,7 @@ export const AuthProvider = ({ children }) => {
         .then((response) => {
           setUser(response.data);
           localStorage.setItem("user", JSON.stringify(response.data));
+          saveToken(userData.access_token);
           scheduleTokenRefresh();
         })
         .catch((error) => {
@@ -194,7 +200,7 @@ export const AuthProvider = ({ children }) => {
       }
       return config;
     },
-    (error) => Promise.reject(error),
+    (error) => Promise.reject(error)
   );
 
   api.interceptors.response.use(
@@ -249,7 +255,7 @@ export const AuthProvider = ({ children }) => {
         });
       }
       return Promise.reject(error); // Optionally, you can also return a custom error message here
-    },
+    }
   );
 
   const sseApi = axios.create({
@@ -267,7 +273,7 @@ export const AuthProvider = ({ children }) => {
       }
       return config;
     },
-    (error) => Promise.reject(error),
+    (error) => Promise.reject(error)
   );
 
   return (
@@ -313,7 +319,7 @@ const trainModel = (user, sessionId) => {
       } else {
         console.error(
           "Failed to start the execution on the private server",
-          data,
+          data
         );
       }
     })

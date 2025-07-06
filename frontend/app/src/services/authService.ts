@@ -13,13 +13,12 @@ export const login = async (credentials: {
   username: String;
   password: String;
 }) => {
-  console.log("Sent details for login of:", credentials.username);
   return HTTPService.post("/login", credentials);
 };
 
 export const refreshAccessToken = async (
   api: AxiosInstance,
-  refresh_token: String,
+  refresh_token: String
 ) => {
   return api.post("/refresh-token", { refresh_token });
 };

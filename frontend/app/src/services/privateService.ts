@@ -16,7 +16,7 @@ export const trainModelService = (data: {
 
 export const getRawDatasets = (skip = 0, limit = 5) => {
   return PrivateHTTPService.get(
-    `/list-raw-datasets?skip=${skip}&limit=${limit}`,
+    `/list-raw-datasets?skip=${skip}&limit=${limit}`
   );
 };
 
@@ -59,4 +59,12 @@ export const deleteRecentUpload = (data: {
   return PrivateHTTPService.delete("/delete-recent-uploaded-file", {
     params: data,
   });
+};
+
+export const saveToken = (token: string) => {
+  return PrivateHTTPService.post("/save-token", { client_token: token });
+};
+
+export const removeToken = () => {
+  return PrivateHTTPService.delete("/remove-token");
 };
