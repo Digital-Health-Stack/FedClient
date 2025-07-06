@@ -11,8 +11,10 @@ from api import model_training_routes
 from api import confidential_routers
 from api import qpd_routers
 from api import testing_routers
-from api.Notification import notification_router, redis_listener, redis_round_listener
-from api.utils import utils_router
+from api import utils
+from api import Notification
+from api import file_upload_routes
+from api.Notification import redis_listener, redis_round_listener
 
 """
   Don't start this server from terminal without specifying port (9000 or something unused) in the command,
@@ -66,8 +68,9 @@ app.include_router(model_training_routes.model_router)
 app.include_router(confidential_routers.confidential_router)
 app.include_router(qpd_routers.qpd_router)
 app.include_router(testing_routers.test_router)
-app.include_router(notification_router)
-app.include_router(utils_router)
+app.include_router(file_upload_routes.file_upload_router)
+app.include_router(Notification.notification_router)
+app.include_router(utils.utils_router)
 
 
 # Temporary testing endpoints
