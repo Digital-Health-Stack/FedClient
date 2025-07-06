@@ -21,7 +21,7 @@ export default function HyperparametersInfoStep() {
               step="1"
               min={1}
               max={100}
-              {...register("hyperparameters.wait_time", {
+              {...register("wait_time", {
                 required: "Expected Standard Deviation is required",
                 min: { value: 0, message: "Value must be greater than 0" },
               })}
@@ -37,7 +37,7 @@ export default function HyperparametersInfoStep() {
               step="1"
               min={1}
               max={100}
-              {...register("hyperparameters.no_of_rounds", {
+              {...register("no_of_rounds", {
                 required: "Expected Standard Deviation is required",
                 min: { value: 0, message: "Value must be greater than 0" },
               })}

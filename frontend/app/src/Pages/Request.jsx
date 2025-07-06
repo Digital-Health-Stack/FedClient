@@ -43,22 +43,20 @@ export default function Request() {
   const handlePrev = () => setCurrentStep((prev) => Math.max(prev - 1, 0));
 
   const onSubmit = async (data) => {
+    console.log("data", data);
     if (data.organisation_name === "") {
       toast.error("Please enter your organization name.");
       return setCurrentStep(0);
     }
-    if (!data.dataset_info.server_stats) {
+    if (!data.server_stats) {
       toast.error("Please fetch at least one dataset.");
       return setCurrentStep(1);
     }
-    if (!data.dataset_info.task_id) {
+    if (!data.task_id) {
       toast.error("Please select a task for the dataset.");
       return setCurrentStep(1);
     }
-    if (
-      !data.dataset_info.output_columns ||
-      data.dataset_info.output_columns.length === 0
-    ) {
+    if (!data.output_columns || data.output_columns.length === 0) {
       toast.error("Please select at least one output column.");
       return setCurrentStep(1);
     }
@@ -66,20 +64,12 @@ export default function Request() {
       toast.error("Please select a model.");
       return setCurrentStep(2);
     }
-    if (
-      !data.expected_results ||
-      !data.expected_results.std_mean ||
-      !data.expected_results.std_deviation
-    ) {
+    if (!data.expected_std_mean || !data.expected_std_deviation) {
       toast.error("Please provide expected results.");
       return setCurrentStep(3);
     }
     console.log("Request JSON: ", data);
-    if (
-      !data.hyperparameters ||
-      !data.hyperparameters.wait_time ||
-      !data.hyperparameters.no_of_rounds
-    ) {
+    if (!data.wait_time || !data.no_of_rounds) {
       toast.error("Please provide hyperparameters.");
       return setCurrentStep(4);
     }

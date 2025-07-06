@@ -37,9 +37,9 @@ export default function SelectDatasetsStep() {
   const [outputColumns, setOutputColumns] = useState([]);
   const [showColumnSelection, setShowColumnSelection] = useState(true);
 
-  const clientFilename = watch("dataset_info.client_filename");
-  const serverFilename = watch("dataset_info.server_filename");
-  const selectedTaskId = watch("dataset_info.task_id");
+  const clientFilename = watch("client_filename");
+  const serverFilename = watch("server_filename");
+  const selectedTaskId = watch("task_id");
 
   useEffect(() => {
     const fetchTasks = async () => {
@@ -57,9 +57,9 @@ export default function SelectDatasetsStep() {
         if (Array.isArray(data)) {
           setTasks(data);
           if (data.length > 0 && !selectedTaskId) {
-            setValue("dataset_info.task_id", data[0].task_id);
-            setValue("dataset_info.task_name", data[0].task_name);
-            setValue("dataset_info.metric", data[0].metric);
+            setValue("task_id", String(data[0].task_id));
+            setValue("task_name", data[0].task_name);
+            setValue("metric", data[0].metric);
           }
         } else {
           setErrorTasks(data.detail || "Invalid tasks data received");
@@ -98,7 +98,7 @@ export default function SelectDatasetsStep() {
       }
 
       setClientStats(data);
-      setValue("dataset_info.client_stats", data.datastats);
+      setValue("client_stats", data.datastats);
       setErrorClient(null);
     } catch (err) {
       const errorMessage =
@@ -107,7 +107,7 @@ export default function SelectDatasetsStep() {
         "Failed to fetch client dataset stats";
       setErrorClient(errorMessage);
       setClientStats(null);
-      setValue("dataset_info.client_stats", null);
+      setValue("client_stats", null);
     } finally {
       setLoadingClient(false);
     }
@@ -131,7 +131,7 @@ export default function SelectDatasetsStep() {
       }
 
       setServerStats(data);
-      setValue("dataset_info.server_stats", data.datastats);
+      setValue("server_stats", data.datastats);
       setErrorServer(null);
     } catch (err) {
       console.error("Error fetching server dataset stats: ", err);
@@ -141,7 +141,7 @@ export default function SelectDatasetsStep() {
         "Failed to fetch server dataset stats";
       setErrorServer(errorMessage);
       setServerStats(null);
-      setValue("dataset_info.server_stats", null);
+      setValue("server_stats", null);
     } finally {
       setLoadingServer(false);
     }
@@ -152,14 +152,14 @@ export default function SelectDatasetsStep() {
       ? outputColumns.filter((c) => c !== column)
       : [...outputColumns, column];
     setOutputColumns(newColumns);
-    setValue("dataset_info.output_columns", newColumns);
+    setValue("output_columns", newColumns);
   };
 
   const handleTaskChange = (taskId) => {
     const selectedTask = tasks.find((task) => task.task_id === taskId);
     if (selectedTask) {
-      setValue("dataset_info.task_id", selectedTask.task_id);
-      setValue("dataset_info.metric", selectedTask.metric);
+      setValue("task_id", String(selectedTask.task_id));
+      setValue("metric", selectedTask.metric);
     }
   };
 
@@ -254,7 +254,7 @@ export default function SelectDatasetsStep() {
                 <input
                   type="text"
                   placeholder="Enter server filename"
-                  {...register("dataset_info.server_filename", {
+                  {...register("server_filename", {
                     required: "*required",
                   })}
                   className="flex-1 p-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -462,10 +462,7 @@ export default function SelectDatasetsStep() {
                                     onClick={(e) => {
                                       e.preventDefault();
                                       handleTaskChange(task.task_id);
-                                      setValue(
-                                        "dataset_info.task_id",
-                                        task.task_id,
-                                      ); // Update form value if using react-hook-form
+                                      setValue("task_id", String(task.task_id)); // Update form value if using react-hook-form
                                     }}
                                     className={`px-4 py-2 rounded-md text-sm font-medium transition-colors duration-150 ${
                                       selectedTaskId === task.task_id

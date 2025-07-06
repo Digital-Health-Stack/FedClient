@@ -28,6 +28,7 @@ import { useAuth } from "../../contexts/AuthContext";
 const ActionSection = ({ data, sessionId }) => {
   const { register, handleSubmit } = useForm();
   const [isQpdCreated, setIsQpdCreated] = useState(false);
+  console.log("data", data);
   const {
     training_status: trainingStatus,
     client_status: clientStatus,
@@ -42,7 +43,7 @@ const ActionSection = ({ data, sessionId }) => {
   const [errorClient, setErrorClient] = useState(null);
   const [clientStats, setClientStats] = useState(null);
   const [loadingClient, setLoadingClient] = useState(false);
-  const [serverStats, _] = useState(fedInfo?.dataset_info.server_stats || null);
+  const [serverStats, _] = useState(fedInfo?.server_stats || null);
 
   const handleCreateQpd = async () => {
     try {
@@ -98,8 +99,6 @@ const ActionSection = ({ data, sessionId }) => {
     try {
       const response = await getDatasetDetails(clientFilename);
       const data = response.data;
-
-      console.log("Client dataset stats received: ", data);
 
       if (data.details) {
         throw new Error(data.details);
@@ -200,7 +199,6 @@ const ActionSection = ({ data, sessionId }) => {
       </div>
 
       {/* Column Matching Status */}
-      {console.log(serverStats, clientStats)}
       {clientStats && serverStats && (
         <div
           className={`p-3 mb-3 rounded-md border ${
@@ -385,7 +383,7 @@ const ActionSection = ({ data, sessionId }) => {
       }, 100);
     } catch (err) {
       setError(
-        err.response?.data?.detail || "Failed to download model parameters",
+        err.response?.data?.detail || "Failed to download model parameters"
       );
     } finally {
       setIsDownloading(false);
@@ -475,20 +473,20 @@ const ActionSection = ({ data, sessionId }) => {
       </div>
     );
   };
-
+  console.log("data", data);
+  console.log(trainingStatus);
   switch (trainingStatus) {
-    case 1:
+    case 0:
       return renderPriceAcceptanceForm();
-    case 2:
+    case 1:
       if (clientStatus === -1) {
         return renderParticipationDecisionForm();
+      } else {
+        return ParticipationConfirmedAlert();
       }
-      return ParticipationConfirmedAlert();
-    case 3:
-      return renderWaitingForClientConfirmation();
-    case 4:
+    case 2:
       return renderTrainingInProgress();
-    case 5:
+    case 3:
       return renderTrainingCompleted();
     case -1:
       return (

@@ -25,35 +25,35 @@ import Result from "../components/Training/Result";
 import TrainingProgress from "../components/Training/TrainingProgress";
 
 const statusConfig = {
-  1: {
+  0: {
     text: "Pending Start",
     color: "bg-blue-100 text-blue-800",
     icon: <ClockIcon className="h-5 w-5" />,
   },
-  2: {
-    text: "Initializing",
-    color: "bg-blue-100 text-blue-800",
-    icon: <CogIcon className="h-5 w-5" />,
-  },
-  3: {
+  1: {
     text: "Awaiting Clients",
     color: "bg-blue-100 text-blue-800",
     icon: <InformationCircleIcon className="h-5 w-5" />,
   },
-  4: {
+  2: {
     text: "Training Active",
     color: "bg-yellow-100 text-yellow-800",
     icon: <BoltIcon className="h-5 w-5" />,
   },
-  5: {
+  3: {
     text: "Completed",
     color: "bg-green-100 text-green-800",
     icon: <CheckCircleIcon className="h-5 w-5" />,
   },
-  "-1": {
+  "-2": {
     text: "Failed",
     color: "bg-red-100 text-red-800",
     icon: <ExclamationTriangleIcon className="h-5 w-5" />,
+  },
+  "-1": {
+    text: "Cancelled",
+    color: "bg-red-100 text-red-800",
+    icon: <XCircleIcon className="h-5 w-5" />,
   },
 };
 
