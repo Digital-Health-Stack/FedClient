@@ -72,7 +72,7 @@ def create_qpd_dataset_endpoint(request: SubmitPrice):
         "Content-Type": "application/json",
     }
 
-    get_url = f"{BASE_URL}/get-federated-session/{session_id}"
+    get_url = f"{BASE_URL}/v2/get-federated-session/{session_id}"
     response = requests.get(get_url, headers=headers)
     response.raise_for_status()  # Raises HTTPError if not 2xx
     result = response.json()
