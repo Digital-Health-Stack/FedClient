@@ -11,7 +11,8 @@ from api import model_training_routes
 from api import confidential_routers
 from api import qpd_routers
 from api import testing_routers
-from api.Notification import notification_router, redis_listener
+from api.Notification import notification_router, redis_listener, redis_round_listener
+from api.utils import utils_router
 
 """
   Don't start this server from terminal without specifying port (9000 or something unused) in the command,
@@ -19,7 +20,7 @@ from api.Notification import notification_router, redis_listener
 
 
   Dataset link: https://drive.google.com/drive/folders/11fclSnlnfEvgYukFkUk9ienmv7SzHmv2?usp=drive_link
-  Please download respective client datasets and adjust the paths accordingly (preferably keep in PrivateServer\data directory).
+  Please download respective client datasets and adjust the paths accordingly (preferably keep in PrivateServer/data directory).
 
   NOTE: adjust the directory of training_script
 """
@@ -30,13 +31,19 @@ environment = os.getenv("ENVIRONMENT")
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Startup
-    print("Starting Redis listener")
-    task = asyncio.create_task(redis_listener())
+    print("Starting Redis listeners")
+    session_task = asyncio.create_task(redis_listener())
+    round_task = asyncio.create_task(redis_round_listener())
     yield
     # Shutdown
-    task.cancel()
+    session_task.cancel()
+    round_task.cancel()
     try:
-        await task
+        await session_task
+    except asyncio.CancelledError:
+        pass
+    try:
+        await round_task
     except asyncio.CancelledError:
         # This is expected
         pass
@@ -60,13 +67,14 @@ app.include_router(confidential_routers.confidential_router)
 app.include_router(qpd_routers.qpd_router)
 app.include_router(testing_routers.test_router)
 app.include_router(notification_router)
+app.include_router(utils_router)
 
 
 # Temporary testing endpoints
 @app.get("/testing")
 def testing():
     try:
-        response = requests.get("http://host.docker.internal:8000/datasets")
+        response = requests.get("http://localhost:8000/list-datasets")
         response.raise_for_status()
         return response.json()
     except Exception as e:

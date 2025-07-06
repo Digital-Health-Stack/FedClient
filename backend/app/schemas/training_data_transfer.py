@@ -16,3 +16,7 @@ class SubmitPrice(BaseModel):
     session_id: int
     session_price: int
     client_token: str
+
+
+class SaveToken(BaseModel):
+    client_token: str
