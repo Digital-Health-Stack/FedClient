@@ -69,7 +69,6 @@ const ViewAllDatasets = () => {
     }
   };
 
-  /* Added by Harsh */
   // Fetch uploaded files from HDFS
   const fetchUploadedFiles = async () => {
     setFetchingFiles(true);
@@ -129,7 +128,6 @@ const ViewAllDatasets = () => {
   //     fetchUploadedFiles();
   //   }
   // }, [success]);
-  /* Till this point */
 
   return (
     <div className="min-h-[calc(100vh-57px)] bg-gray-50 p-8">
