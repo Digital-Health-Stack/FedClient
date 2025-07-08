@@ -124,7 +124,7 @@ export default function SelectDatasetsStep() {
 
       const data = response.data;
 
-      console.log("Server dataset stats received: ", data);
+      // console.log("Server dataset stats received: ", data);
 
       if (data.details) {
         throw new Error(data.details);
@@ -247,8 +247,11 @@ export default function SelectDatasetsStep() {
           {/* Server Dataset Section */}
           <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
             <div className="space-y-3">
-              <label className="block text-sm font-medium text-gray-700">
-                Server Dataset
+              <label
+                title="Choose one from FedServer"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Testing Dataset
               </label>
               <div className="flex space-x-2">
                 <input

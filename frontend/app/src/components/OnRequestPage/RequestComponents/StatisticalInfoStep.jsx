@@ -1,10 +1,13 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { ChartBarIcon } from "@heroicons/react/24/outline";
 import { useFormContext } from "react-hook-form";
 
 export default function StatisticalInfoStep() {
-  const { register } = useFormContext();
-
+  const { register, watch } = useFormContext();
+  const [test_parameter, setTestParameter] = useState("Accuracy");
+  useEffect(() => {
+    setTestParameter(watch("metric") || "metric value");
+  }, [watch("metric")]);
   return (
     <div className="space-y-6">
       <div className="flex items-center space-x-2">
@@ -15,7 +18,7 @@ export default function StatisticalInfoStep() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label className="block text-sm font-medium mb-1">
-            Target Value
+            Target {test_parameter}
             <input
               type="number"
               step="0.00001"
@@ -29,7 +32,7 @@ export default function StatisticalInfoStep() {
         </div>
         <div>
           <label className="block text-sm font-medium mb-1">
-            Target Standard Deviation
+            Expected Variation in {test_parameter}
             <input
               type="number"
               step="0.00001"
