@@ -3,6 +3,7 @@ import CustomSVM from "../CustomModels/CustomSVM";
 import LandMarkSVM from "../CustomModels/LandMarkSVM";
 import MultiLayerPerceptron from "../CustomModels/MultiLayerPerceptron";
 import CNN from "../CustomModels/CNN";
+import LSTM from "../CustomModels/LSTM";
 
 export const availableModels = {
   LinearRegression: {
@@ -24,5 +25,9 @@ export const availableModels = {
   CNN: {
     label: "CNN",
     component: CNN,
+  },
+  LSTM: {
+    label: "LSTM",
+    component: LSTM,
   },
 };

@@ -1,3 +1,4 @@
+from .CustomModels.CustomLSTM import CustomLSTM
 from .CustomModels.LandMarkSVM import LandMarkSVM
 from .CustomModels.CustomSVM import CustomSVM
 from .CustomModels.LinearRegression import LinearRegression
@@ -12,6 +13,7 @@ model_classes = {
     "LandMarkSVM": LandMarkSVM,
     "multiLayerPerceptron": MultiLayerPerceptron,
     "CNN": CustomCNN,
+    "LSTM": CustomLSTM,
 }
 
 
