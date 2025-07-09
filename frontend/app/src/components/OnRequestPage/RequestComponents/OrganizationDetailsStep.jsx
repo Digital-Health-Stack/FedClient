@@ -12,17 +12,17 @@ export default function OrganizationDetailsStep() {
     <div className="space-y-6">
       <div className="flex items-center space-x-2">
         <BuildingOfficeIcon className="h-6 w-6 text-blue-600" />
-        <h4 className="text-lg font-semibold">Organization Details</h4>
+        <h4 className="text-lg font-semibold">Training Details</h4>
       </div>
 
       <div className="space-y-4">
         <label className="block text-sm font-medium text-gray-700">
-          Organization Name
+          Training Name (To identify the training)
           <input
             type="text"
-            placeholder="Enter your organization name"
+            placeholder="Enter your training name"
             {...register("organisation_name", {
-              required: "Organization name is required",
+              required: "training name is required",
             })}
             className={`w-full p-3 mt-1 border rounded-md focus:outline-none ${
               errors.organisation_name

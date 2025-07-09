@@ -21,7 +21,7 @@ import {
 import { toast } from "react-toastify";
 
 const steps = [
-  { id: 0, label: "Organization Details", icon: BuildingOfficeIcon },
+  { id: 0, label: "Training Details", icon: BuildingOfficeIcon },
   { id: 1, label: "Dataset Information", icon: FolderIcon },
   { id: 2, label: "Model Selection", icon: CpuChipIcon },
   { id: 3, label: "Statistical Info", icon: ChartBarIcon },
