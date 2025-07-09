@@ -31,7 +31,7 @@ async def create_qpd_dataset_from_client_data(
         qpd_data = TransferCreate(
             training_name=fed_info.get("organisation_name"),
             num_datapoints=int(num_points),
-            data_path=overview["datapath"],
+            # data_path=overview["datapath"],
             parent_filename=parent_filename,
             datastats=overview,
             federated_session_id=int(session_id),

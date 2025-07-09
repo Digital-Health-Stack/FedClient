@@ -23,7 +23,7 @@ export default function Register({ clientToken, setClientToken, setSocket }) {
     try {
       const clientData = {
         username: formData.clientName,
-        data_url: formData.data_path,
+        data_url: "",
         password: formData.password,
       };
 
@@ -92,7 +92,7 @@ export default function Register({ clientToken, setClientToken, setSocket }) {
               )}
             </div>
 
-            <div>
+            {/* <div>
               <label className="block text-sm font-medium">Data Path:</label>
               <input
                 type="text"
@@ -108,7 +108,7 @@ export default function Register({ clientToken, setClientToken, setSocket }) {
                   {errors.data_path.message}
                 </p>
               )}
-            </div>
+            </div> */}
 
             <div>
               <label className="block text-sm font-medium">Password:</label>

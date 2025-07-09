@@ -3,7 +3,7 @@ from pydantic import BaseModel
 
 class User(BaseModel):
     name: str
-    data_path: str
+    # data_path: str
     email: str
 
 

@@ -6,7 +6,7 @@ from pydantic import BaseModel
 class TransferCreate(BaseModel):
     training_name: str
     num_datapoints: int
-    data_path: str
+    # data_path: str
     parent_filename: str
     datastats: Optional[dict] = None
     federated_session_id: int
