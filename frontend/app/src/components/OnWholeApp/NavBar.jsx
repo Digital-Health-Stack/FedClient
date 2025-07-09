@@ -84,119 +84,120 @@ const NavBar = () => {
             isNavbarOpen ? "block" : "hidden"
           } md:ml-auto`}
         >
-          <ul className="md:flex justify-end items-center space-y-4 md:space-y-0 md:space-x-6 w-full">
-            <li>
-              <NavLink
-                className="flex items-center gap-2 py-2 px-4 hover:text-gray-400"
-                to="/"
-              >
-                <HomeIcon className="w-5 h-5" /> Dashboard
-              </NavLink>
-            </li>
-            <li>
-              <NavLink
-                className="flex items-center gap-2 py-2 px-4 hover:text-gray-400"
-                to="/Request"
-              >
-                <DocumentArrowUpIcon className="w-5 h-5" /> New Training
-              </NavLink>
-            </li>
-            <li>
-              <NavLink
-                className="flex items-center gap-2 py-2 px-4 hover:text-gray-400"
-                to="/trainings"
-              >
-                <ChartBarSquareIcon className="w-5 h-5" /> Trainings
-              </NavLink>
-            </li>
-            <li>
-              <NavLink
-                className="flex items-center gap-2 py-2 px-4 hover:text-gray-400"
-                // to="/ManageData"
-                to="/view-all-datasets"
-              >
-                <ServerStackIcon className="w-5 h-5" /> Manage Data
-              </NavLink>
-            </li>
-            {user && (
-              <li className="notification-container relative">
-                <div
-                  className="flex items-center gap-2 py-2 px-4 hover:text-gray-400 relative cursor-pointer"
-                  onClick={handleNotificationClick}
+          {user && (
+            <ul className="md:flex justify-end items-center space-y-4 md:space-y-0 md:space-x-6 w-full">
+              <li>
+                <NavLink
+                  className="flex items-center gap-2 py-2 px-4 hover:text-gray-400"
+                  to="/"
                 >
-                  <div className="relative">
-                    <BellIcon className="w-5 h-5" />
-                    {notifications.length > 0 && (
-                      <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold">
-                        {notifications.length}
-                      </span>
-                    )}
-                  </div>
-                </div>
-                {notificationsOpen && (
-                  <div className="absolute top-full right-0 mt-2 w-80 bg-white border border-gray-200 rounded-lg shadow-lg z-50 max-h-96">
-                    <div className="p-3 border-b border-gray-200 flex justify-between items-center">
-                      <h3 className="text-sm font-semibold text-gray-800">
-                        Notifications
-                      </h3>
-                      <button
-                        onClick={handleNotificationClose}
-                        className="text-gray-400 hover:text-gray-600"
-                      >
-                        <XMarkIcon className="w-4 h-4" />
-                      </button>
-                    </div>
-                    <div>
-                      {notifications.length === 0 ? (
-                        <div className="text-center py-4 text-gray-500 text-sm">
-                          No notifications
-                        </div>
-                      ) : (
-                        notifications.map((notification, index) => (
-                          <div
-                            key={index}
-                            className="px-3 py-2 hover:bg-gray-100 cursor-pointer block text-black flex justify-between items-center"
-                          >
-                            {notification.data}
-                            <Link
-                              to={`/trainings/${notification.id}`}
-                              onClick={() => setNotificationsOpen(false)}
-                            >
-                              <button className="rounded-full bg-blue-500 text-white px-4 py-1">
-                                Join
-                              </button>
-                            </Link>
-                          </div>
-                        ))
+                  <HomeIcon className="w-5 h-5" /> Dashboard
+                </NavLink>
+              </li>
+              <li>
+                <NavLink
+                  className="flex items-center gap-2 py-2 px-4 hover:text-gray-400"
+                  to="/Request"
+                >
+                  <DocumentArrowUpIcon className="w-5 h-5" /> New Training
+                </NavLink>
+              </li>
+              <li>
+                <NavLink
+                  className="flex items-center gap-2 py-2 px-4 hover:text-gray-400"
+                  to="/trainings"
+                >
+                  <ChartBarSquareIcon className="w-5 h-5" /> Trainings
+                </NavLink>
+              </li>
+              <li>
+                <NavLink
+                  className="flex items-center gap-2 py-2 px-4 hover:text-gray-400"
+                  // to="/ManageData"
+                  to="/view-all-datasets"
+                >
+                  <ServerStackIcon className="w-5 h-5" /> Manage Data
+                </NavLink>
+              </li>
+              {user && (
+                <li className="notification-container relative">
+                  <div
+                    className="flex items-center gap-2 py-2 px-4 hover:text-gray-400 relative cursor-pointer"
+                    onClick={handleNotificationClick}
+                  >
+                    <div className="relative">
+                      <BellIcon className="w-5 h-5" />
+                      {notifications.length > 0 && (
+                        <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold">
+                          {notifications.length}
+                        </span>
                       )}
                     </div>
                   </div>
-                )}
-              </li>
-            )}
+                  {notificationsOpen && (
+                    <div className="absolute top-full right-0 mt-2 w-80 bg-white border border-gray-200 rounded-lg shadow-lg z-50 max-h-96">
+                      <div className="p-3 border-b border-gray-200 flex justify-between items-center">
+                        <h3 className="text-sm font-semibold text-gray-800">
+                          Notifications
+                        </h3>
+                        <button
+                          onClick={handleNotificationClose}
+                          className="text-gray-400 hover:text-gray-600"
+                        >
+                          <XMarkIcon className="w-4 h-4" />
+                        </button>
+                      </div>
+                      <div>
+                        {notifications.length === 0 ? (
+                          <div className="text-center py-4 text-gray-500 text-sm">
+                            No notifications
+                          </div>
+                        ) : (
+                          notifications.map((notification, index) => (
+                            <div
+                              key={index}
+                              className="px-3 py-2 hover:bg-gray-100 cursor-pointer block text-black flex justify-between items-center"
+                            >
+                              {notification.data}
+                              <Link
+                                to={`/trainings/${notification.id}`}
+                                onClick={() => setNotificationsOpen(false)}
+                              >
+                                <button className="rounded-full bg-blue-500 text-white px-4 py-1">
+                                  Join
+                                </button>
+                              </Link>
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </li>
+              )}
 
-            {!user && location.pathname !== "/Login" && (
-              <li>
-                <NavLink
-                  className="flex bg-white text-gray-900 rounded-md items-center gap-2 py-1 px-2 hover:scale-105 transition-all duration-300"
-                  to="/Login"
-                >
-                  <UserPlusIcon className="w-5 h-5" /> Login
-                </NavLink>
-              </li>
-            )}
-            {user && (
-              <li>
-                <button
-                  className="flex bg-white text-gray-900 rounded-md items-center gap-2 py-1 px-2 hover:scale-105 transition-all duration-300"
-                  onClick={logout}
-                >
-                  <UserMinusIcon className="w-5 h-5" /> Log out
-                </button>
-              </li>
-            )}
+              {!user && location.pathname !== "/Login" && (
+                <li>
+                  <NavLink
+                    className="flex bg-white text-gray-900 rounded-md items-center gap-2 py-1 px-2 hover:scale-105 transition-all duration-300"
+                    to="/Login"
+                  >
+                    <UserPlusIcon className="w-5 h-5" /> Login
+                  </NavLink>
+                </li>
+              )}
+              {user && (
+                <li>
+                  <button
+                    className="flex bg-white text-gray-900 rounded-md items-center gap-2 py-1 px-2 hover:scale-105 transition-all duration-300"
+                    onClick={logout}
+                  >
+                    <UserMinusIcon className="w-5 h-5" /> Log out
+                  </button>
+                </li>
+              )}
 
-            {/* <li>
+              {/* <li>
               <NavLink
                 className="flex items-center gap-2 py-2 px-4 hover:text-gray-400"
                 to="/About"
@@ -204,7 +205,8 @@ const NavBar = () => {
                 <InformationCircleIcon className="w-5 h-5" /> About
               </NavLink>
             </li> */}
-          </ul>
+            </ul>
+          )}
         </div>
       </div>
     </nav>
