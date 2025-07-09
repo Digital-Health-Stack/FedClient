@@ -13,6 +13,7 @@ import { useFormContext } from "react-hook-form";
 import {
   getDatasetOverview,
   getDatasetTasksById,
+  getServerDatasets,
 } from "../../../services/fedServerService";
 import { getDatasetDetails } from "../../../services/privateService";
 
@@ -37,8 +38,10 @@ export default function SelectDatasetsStep() {
   const [outputColumns, setOutputColumns] = useState([]);
   const [inputColumns, setInputColumns] = useState([]);
   const [showColumnSelection, setShowColumnSelection] = useState(true);
+  const [uploadedFiles, setUploadedFiles] = useState([]);
   const [showInputColumnSelection, setShowInputColumnSelection] =
     useState(true);
+  const [fetchingFiles, setFetchingFiles] = useState(false);
 
   const clientFilename = watch("client_filename");
   const serverFilename = watch("server_filename");
@@ -83,7 +86,10 @@ export default function SelectDatasetsStep() {
 
     fetchTasks();
   }, [serverStats?.dataset_id, setValue]);
-
+  const shortenText = (text, maxLength) => {
+    if (text.length <= maxLength) return text;
+    return text.slice(0, maxLength) + "...";
+  };
   const fetchClientDatasetStats = async () => {
     if (!clientFilename) return;
 
@@ -193,7 +199,26 @@ export default function SelectDatasetsStep() {
     const task = tasks.find((t) => t.task_id === selectedTaskId);
     return task ? task.metric : null;
   };
-
+  // Fetch uploaded files from HDFS
+  const fetchUploadedFiles = async () => {
+    console.log("fetching uploaded files");
+    setFetchingFiles(true);
+    try {
+      const response = await getServerDatasets();
+      if (response.data && response.status == 200) {
+        // Extract files from the response structure
+        setUploadedFiles(response.data);
+      }
+    } catch (err) {
+      console.error("Error fetching uploaded files:", err);
+      setError("Failed to fetch uploaded files");
+    } finally {
+      setFetchingFiles(false);
+    }
+  };
+  useEffect(() => {
+    fetchUploadedFiles();
+  }, []);
   return (
     <div className="space-y-8">
       <div className="flex items-center space-x-3">
@@ -243,7 +268,23 @@ export default function SelectDatasetsStep() {
               )}
 
               {clientStats && (
-                <div className="mt-2 p-2 bg-green-50 text-green-700 text-sm rounded-md flex items-start">
+                <div cla// Fetch uploaded files from HDFS
+  const fetchUploadedFiles = async () => {
+    setFetchingFiles(true);
+    try {
+      const response = await axios.get(endpoints.upload.list);
+      if (response.data && response.data.contents) {
+        // Extract files from the response structure
+        const files = Object.values(response.data.contents).flat();
+        setUploadedFiles(files);
+      }
+    } catch (err) {
+      console.error("Error fetching uploaded files:", err);
+      setError("Failed to fetch uploaded files");
+    } finally {
+      setFetchingFiles(false);
+    }
+  };ssName="mt-2 p-2 bg-green-50 text-green-700 text-sm rounded-md flex items-start">
                   <CheckCircleIcon className="h-4 w-4 mt-0.5 mr-2 flex-shrink-0" />
                   <span>
                     Successfully loaded dataset with{" "}
@@ -266,14 +307,26 @@ export default function SelectDatasetsStep() {
                 Testing Dataset
               </label>
               <div className="flex space-x-2">
-                <input
-                  type="text"
-                  placeholder="Enter FedServer filename"
+                <select
                   {...register("server_filename", {
                     required: "*required",
                   })}
                   className="flex-1 p-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                />
+                  defaultValue=""
+                >
+                  <option value="" disabled>
+                    Select a dataset
+                  </option>
+                  {uploadedFiles.map((file, index) => (
+                    <option
+                      key={index}
+                      value={file.filename}
+                      title={file.filename}
+                    >
+                      {shortenText(file.filename, 20)}
+                    </option>
+                  ))}
+                </select>
                 <button
                   type="button"
                   onClick={fetchServerDatasetStats}

@@ -5,6 +5,7 @@ import SummaryStats from "./SummaryStats.jsx";
 import ColumnDetails from "./ColumnDetails.jsx";
 import PreprocessingDetails from "./PreprocessingDetails.jsx";
 import { getRawDatasetDetails } from "../../../services/privateService";
+import DatasetHead from "./DatasetHead.jsx";
 
 // const RAW_DATASET_DETAILS_URL = process.env.REACT_APP_RAW_OVERVIEW_PATH;
 
@@ -37,6 +38,7 @@ const DataSetOverview = () => {
         numRows={data.numRows}
         numCols={data.numColumns}
       />
+      <DatasetHead datasetHead={data.datasetHead} />
       <ColumnDetails columnStats={data.columnStats} />
       <PreprocessingDetails
         columns={columnDetails}

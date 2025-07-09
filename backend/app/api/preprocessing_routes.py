@@ -1,9 +1,12 @@
-from fastapi import APIRouter, HTTPException, Depends, Query, status
+from fastapi import APIRouter, HTTPException, Depends, Query, status, UploadFile, File
+from fastapi.responses import JSONResponse
 from fastapi import Request
 from sqlalchemy.orm import Session
 from typing import List
 import asyncio
 import os
+import tempfile
+import shutil
 from concurrent.futures import ThreadPoolExecutor
 
 from schemas.dataset import (
@@ -46,6 +49,8 @@ dataset_router = APIRouter(tags=["Dataset"])
 HDFS_RAW_DATASETS_DIR = os.getenv("HDFS_RAW_DATASETS_DIR")
 HDFS_PROCESSED_DATASETS_DIR = os.getenv("HDFS_PROCESSED_DATASETS_DIR")
 RECENTLY_UPLOADED_DATASETS_DIR = os.getenv("RECENTLY_UPLOADED_DATASETS_DIR")
+HDFS_NEW_TARGET_PATH = os.getenv("HDFS_NEW_TARGET_PATH")
+HDFS_TARGET_PATH = os.getenv("HDFS_TARGET_PATH")
 
 hdfs_client = HDFSServiceManager()
 spark_client = SparkSessionManager()
@@ -54,13 +59,13 @@ spark_client = SparkSessionManager()
 ###################### Background processing tasks ######################
 async def process_create_dataset(filename: str, filetype: str):
     db = next(get_db())
+    print("Processing dataset: ", filename, filetype)
     try:
-        source_path = f"{RECENTLY_UPLOADED_DATASETS_DIR}/{filename}"
-        processing_path = f"{source_path}__PROCESSING__"
-
-        await hdfs_client.rename_file_or_folder(source_path, processing_path)
+        source_path = f"{HDFS_TARGET_PATH}/{filename}"
+        # processing_path = f"{source_path}__PROCESSING__"
+        # await hdfs_client.rename_file_or_folder(source_path, processing_path)
         dataset_overview = await spark_client.create_new_dataset(
-            f"{filename}__PROCESSING__", filetype
+            f"{filename}", filetype
         )
         description = f"Raw dataset created from {filename}"
         print(
@@ -77,13 +82,8 @@ async def process_create_dataset(filename: str, filetype: str):
         crud_result = create_raw_dataset(db, dataset_obj)
         if isinstance(crud_result, dict) and "error" in crud_result:
             raise HTTPException(status_code=400, detail=crud_result["error"])
-
-        await hdfs_client.rename_file_or_folder(processing_path, source_path)
         return {"message": "Dataset created successfully"}
     except Exception as e:
-        await hdfs_client.rename_file_or_folder(
-            processing_path, source_path, ignore_missing=True
-        )
         print("Error in processing the data is: ", str(e))
         return {"error": str(e)}
     finally:
@@ -254,18 +254,67 @@ async def delete_raw_dataset_file(
 
 
 @dataset_router.post("/create-new-dataset", status_code=status.HTTP_202_ACCEPTED)
-async def create_new_dataset(request: Request):
-    data = await request.json()
-    filename = data.get("fileName")
-    filetype = filename.split(".")[-1].lower()
+async def create_new_dataset(file: UploadFile = File(...)):
+    # async def create_new_dataset(request: Request):
+    try:
+        print(f"Upload started for file: {file.filename}")
+        filename = file.filename
+        filetype = filename.split(".")[-1].lower()
 
-    if filetype not in ["csv", "parquet"]:
-        raise HTTPException(
-            status_code=400, detail="Invalid file type. Supported formats: CSV, Parquet"
-        )
+        if filetype not in ["csv", "parquet"]:
+            raise HTTPException(
+                status_code=400,
+                detail="Invalid file type. Supported formats: CSV, Parquet",
+            )
+        # Create a temporary file to store the uploaded content
+        with tempfile.NamedTemporaryFile(
+            delete=False, suffix=os.path.splitext(file.filename)[1]
+        ) as temp_file:
+            # Write the uploaded file content to temporary file
+            shutil.copyfileobj(file.file, temp_file)
+            temp_file_path = temp_file.name
 
-    executor.submit(asyncio.run, process_create_dataset(filename, filetype))
-    return {"message": "Dataset processing started"}
+        try:
+            # Use the existing HDFS service to upload the file
+            hdfs_path = f"{HDFS_TARGET_PATH}/{file.filename}"
+
+            # Upload using the HDFS client - pass the file path, not the file object
+            def upload_to_hdfs(client):
+                client.upload(hdfs_path, temp_file_path, overwrite=True)
+                print(f"File uploaded to HDFS: {hdfs_path}")
+                return {"message": "File uploaded successfully", "hdfs_path": hdfs_path}
+
+            result = hdfs_client._with_hdfs_client(upload_to_hdfs)
+            executor.submit(asyncio.run, process_create_dataset(filename, filetype))
+            return JSONResponse(
+                status_code=200,
+                content={
+                    "message": "✅ File uploaded to HDFS successfully! and dataset processing started",
+                    "filename": file.filename,
+                    "hdfs_path": hdfs_path,
+                    "file_size": file.size,
+                },
+            )
+
+        finally:
+            # Clean up the temporary file
+            if os.path.exists(temp_file_path):
+                os.unlink(temp_file_path)
+
+    except Exception as e:
+        print(f"Error during file upload: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"❌ Upload failed: {str(e)}")
+    # data = await request.json()
+    # filename = data.get("fileName")
+    # filetype = filename.split(".")[-1].lower()
+
+    # if filetype not in ["csv", "parquet"]:
+    #     raise HTTPException(
+    #         status_code=400, detail="Invalid file type. Supported formats: CSV, Parquet"
+    #     )
+
+    # executor.submit(asyncio.run, process_create_dataset(filename, filetype))
+    # return {"message": "Dataset processing started"}
 
 
 ############ Processed Dataset Management Routes

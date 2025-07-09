@@ -40,6 +40,7 @@ const ViewAllDatasets = () => {
 
   const fetchData = async () => {
     setLoading(true);
+    setError(null);
     try {
       const response = await axios.get(endpoints[selectedFolder].fetch, {
         params: { skip: (currentPage - 1) * PAGE_SIZE, limit: PAGE_SIZE },
@@ -146,7 +147,7 @@ const ViewAllDatasets = () => {
             <FilePlus className="h-5 w-5" />
             Add New Dataset
           </button>
-          {["raw", "processing", "processed"].map((folder) => (
+          {["raw", "processed"].map((folder) => (
             <button
               key={folder}
               onClick={() => setSelectedFolder(folder)}

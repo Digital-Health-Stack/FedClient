@@ -1,3 +1,6 @@
+import findspark
+
+findspark.init()
 from pyspark.sql import SparkSession
 from dotenv import load_dotenv
 from pyspark.sql.functions import (
@@ -116,7 +119,7 @@ class SparkSessionManager:
             self._session.stop()
             self._session = None
 
-    def _get_overview(self, df):
+    async def _get_overview(self, df, filename):
         """
         Get an overview of the dataset given pyspark dataframe.
         """
@@ -125,6 +128,11 @@ class SparkSessionManager:
 
         overview = None
         column_stats = []
+        # Get the first 5 rows of the dataframe and store it
+        try:
+            dataset_head = df.limit(5).toPandas().to_dict(orient="records")
+        except Exception as e:
+            dataset_head = []
         for column in df.columns:
             try:
                 column_expr = col(
@@ -303,9 +311,16 @@ class SparkSessionManager:
             "numRows": df.count(),
             "numColumns": len(df.columns),
             "columnStats": column_stats,
+            "datasetHead": dataset_head,
         }
-
+        await self.delete_file_from_hdfs(filename)
         return overview
+
+    async def delete_file_from_hdfs(self, filename):
+        try:
+            await hdfs_client.delete_file_from_hdfs("tmpuploads", filename)
+        except Exception as e:
+            print(f"Warning: Failed to delete tmpuploads/{filename} from HDFS: {e}")
 
     async def create_new_dataset(self, filename, filetype):
         """
@@ -313,22 +328,22 @@ class SparkSessionManager:
         Notes:
         - ensure no same file name exists in the tmpuploads directory, or in uploads directory
         """
-        print(f"in create_new_dataset {filename} is {filetype}")
         try:
+            print(f"in create_new_dataset {filename} is {filetype}")
             with SparkSessionManager() as spark:
-
                 # later create a switch case based on file type
                 if filetype == "csv":
                     print(
-                        f"Reading CSV file: {HDFS_FILE_READ_URL}/{RECENTLY_UPLOADED_DATASETS_DIR}/{filename}"
+                        # f"Reading CSV file: {HDFS_FILE_READ_URL}/{RECENTLY_UPLOADED_DATASETS_DIR}/{filename}"
+                        f"Reading CSV file: {HDFS_FILE_READ_URL}/tmpuploads/{filename}"
                     )
                     df = spark.read.csv(
-                        f"{HDFS_FILE_READ_URL}/{RECENTLY_UPLOADED_DATASETS_DIR}/{filename}",
+                        f"{HDFS_FILE_READ_URL}/tmpuploads/{filename}",
                         header=True,
                         inferSchema=True,
                     )
                     write_filename = write_filename = filename.replace(
-                        ".csv__PROCESSING__", ".parquet"
+                        ".csv", ".parquet"
                     )
                     # if you write without parquet extension, it will create a directory with the filename and store the data in it
                     df.write.mode("overwrite").parquet(
@@ -339,30 +354,30 @@ class SparkSessionManager:
                     )
 
                 elif filetype == "parquet":
-                    write_filename = filename.replace("__PROCESSING__", "")
                     print(
-                        f"Reading Parquet file: {HDFS_FILE_READ_URL}/{RECENTLY_UPLOADED_DATASETS_DIR}/{filename}"
+                        f"Reading Parquet file: {HDFS_FILE_READ_URL}/tmpuploads/{filename}"
                     )
                     # we don't need inferSchema=True with parquet (as parquet stores the schema as metadata)
                     df = spark.read.parquet(
-                        f"{HDFS_FILE_READ_URL}/{RECENTLY_UPLOADED_DATASETS_DIR}/{filename}"
+                        f"{HDFS_FILE_READ_URL}/tmpuploads/{filename}"
                     )
                     df.write.mode("overwrite").parquet(
-                        f"{HDFS_FILE_READ_URL}/{HDFS_RAW_DATASETS_DIR}/{write_filename}"
+                        f"{HDFS_FILE_READ_URL}/{HDFS_RAW_DATASETS_DIR}/{filename}"
                     )
                     print(
-                        f"Successfully created new dataset in HDFS: {HDFS_RAW_DATASETS_DIR}/{write_filename}"
+                        f"Successfully created new dataset in HDFS: {HDFS_RAW_DATASETS_DIR}/{filename}"
                     )
                 else:
                     print("Unsupported file type for creating new dataset.")
                     return {"message": "Unsupported file type."}
 
-                dataset_overview = self._get_overview(df)
+                dataset_overview = await self._get_overview(df, filename)
 
                 dataset_overview["filename"] = write_filename
                 return dataset_overview
             return {"message": "Dataset created."}
         except Exception as e:
+            print("KYA RE GANDU 5")
             print(f"Error creating new dataset: {e}")
             raise e
 

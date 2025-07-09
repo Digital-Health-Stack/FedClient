@@ -14,14 +14,16 @@ const SummaryStats = ({ filename, numRows, numCols }) => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
         <div className="bg-gray-50 p-4 rounded-lg">
           <p className="text-sm text-gray-600 mb-1">Filename</p>
           <p className="font-mono text-lg font-medium truncate">{filename}</p>
         </div>
         <div className="bg-gray-50 p-4 rounded-lg">
           <p className="text-sm text-gray-600 mb-1">Rows</p>
-          <p className="text-3xl font-bold text-blue-600">{numRows}</p>
+          <p className="text-3xl font-bold text-blue-600">
+            {numRows?.toLocaleString?.() ?? numRows}
+          </p>
         </div>
         <div className="bg-gray-50 p-4 rounded-lg">
           <p className="text-sm text-gray-600 mb-1">Columns</p>

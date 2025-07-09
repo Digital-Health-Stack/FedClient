@@ -37,15 +37,17 @@ const AddDataset = () => {
       overview: "/processed-dataset-overview",
     },
     upload: {
-      upload: `${process.env.REACT_APP_PRIVATE_SERVER_BASE_URL}/file-upload/upload`,
+      upload: `${process.env.REACT_APP_PRIVATE_SERVER_BASE_URL}/create-new-dataset`,
       list: `${process.env.REACT_APP_PRIVATE_SERVER_BASE_URL}/file-upload/list-files`,
       delete: `${process.env.REACT_APP_PRIVATE_SERVER_BASE_URL}/file-upload/delete`,
     },
   };
 
   // Fetch uploaded files from HDFS
-  const fetchUploadedFiles = async () => {
-    setFetchingFiles(true);
+  const fetchUploadedFiles = async (loading = true) => {
+    if (loading) {
+      setFetchingFiles(true);
+    }
     try {
       const response = await axios.get(endpoints.upload.list);
       if (response.data && response.data.contents) {
@@ -57,7 +59,9 @@ const AddDataset = () => {
       console.error("Error fetching uploaded files:", err);
       setError("Failed to fetch uploaded files");
     } finally {
-      setFetchingFiles(false);
+      if (loading) {
+        setFetchingFiles(false);
+      }
     }
   };
 
@@ -94,6 +98,10 @@ const AddDataset = () => {
   // Fetch files on component mount and after successful upload
   useEffect(() => {
     fetchUploadedFiles();
+    const interval = setInterval(() => {
+      fetchUploadedFiles(false);
+    }, 5000); // every 5 seconds
+    return () => clearInterval(interval);
   }, []);
 
   // Refresh files list after successful upload
@@ -169,6 +177,7 @@ const AddDataset = () => {
           return { file: file.name, success: true, data: response.data };
         } catch (error) {
           // Update progress to failed
+          setError(error.response?.data?.detail || "Upload failed");
           setUploadProgress((prev) => ({
             ...prev,
             [file.name]: {
@@ -199,7 +208,7 @@ const AddDataset = () => {
 
       if (failedUploads.length > 0) {
         setError(
-          `${failedUploads.length} file(s) failed to upload. Check the progress below.`
+          `${failedUploads.length} file(s) failed to upload. One of the errors is: ${failedUploads[0].error}`
         );
       }
     } catch (error) {
@@ -367,7 +376,7 @@ const AddDataset = () => {
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-semibold flex items-center gap-2">
                 <FolderIcon className="h-6 w-6 text-blue-500" />
-                Files Uploaded to HDFS
+                Summarizing Files
               </h2>
               <button
                 onClick={fetchUploadedFiles}
@@ -397,9 +406,10 @@ const AddDataset = () => {
             ) : uploadedFiles.length === 0 ? (
               <div className="text-center py-8 text-gray-500">
                 <DocumentTextIcon className="h-12 w-12 mx-auto mb-4 text-gray-300" />
-                <p className="text-lg font-medium">No files uploaded yet</p>
+                <p className="text-lg font-medium">No files yet to summarize</p>
                 <p className="text-sm">
-                  Upload files using the form above to see them here
+                  Click on <span className="font-bold">Raw Datasets</span> from
+                  left sidebar to see the summarized files.
                 </p>
               </div>
             ) : (
@@ -427,17 +437,6 @@ const AddDataset = () => {
                             )}
                           </div>
                         </div>
-                      </div>
-                      <div className="flex items-center gap-2 ml-4">
-                        <button
-                          onClick={() =>
-                            handleDeleteUploadedFile(file.filename)
-                          }
-                          className="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors"
-                          title="Delete file"
-                        >
-                          <TrashIcon className="h-5 w-5" />
-                        </button>
                       </div>
                     </div>
                   </div>
