@@ -17,7 +17,11 @@ export default function StatisticalInfoStep() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium mb-1">
+          <label
+            className="block text-sm font-medium mb-1"
+            htmlFor="expected_std_mean"
+            title="Expected value of the target metric"
+          >
             Target {test_parameter}
             <input
               type="number"
@@ -31,7 +35,11 @@ export default function StatisticalInfoStep() {
           </label>
         </div>
         <div>
-          <label className="block text-sm font-medium mb-1">
+          <label
+            className="block text-sm font-medium mb-1"
+            htmlFor="expected_std_deviation"
+            title="Expected Variation in the target metric"
+          >
             Expected Variation in {test_parameter}
             <input
               type="number"

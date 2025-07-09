@@ -5,10 +5,10 @@ import MultiLayerPerceptron from "../CustomModels/MultiLayerPerceptron";
 import CNN from "../CustomModels/CNN";
 
 export const availableModels = {
-  // LinearRegression: {
-  //   label: "Linear Regression",
-  //   component: LinearRegression,
-  // },
+  LinearRegression: {
+    label: "Linear Regression",
+    component: LinearRegression,
+  },
   // SVM: {
   //   label: "SVM",
   //   component: CustomSVM,

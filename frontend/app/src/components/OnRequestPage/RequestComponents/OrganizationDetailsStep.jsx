@@ -16,8 +16,12 @@ export default function OrganizationDetailsStep() {
       </div>
 
       <div className="space-y-4">
-        <label className="block text-sm font-medium text-gray-700">
-          Training Name (To identify the training)
+        <label
+          className="block text-sm font-medium text-gray-700"
+          htmlFor="organisation_name"
+          title="Training Name (To identify the training)"
+        >
+          Training Name
           <input
             type="text"
             placeholder="Enter your training name"

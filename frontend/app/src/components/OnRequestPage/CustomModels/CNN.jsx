@@ -245,7 +245,11 @@ const CNN = () => {
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">
+              <label
+                className="block text-xs font-medium text-gray-600 mb-1"
+                htmlFor="filters"
+                title="Number of filters to use in the convolutional layer"
+              >
                 Filters
               </label>
               <input
@@ -257,7 +261,11 @@ const CNN = () => {
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">
+              <label
+                className="block text-xs font-medium text-gray-600 mb-1"
+                htmlFor="kernel_size"
+                title="Size of the kernel to use in the convolutional layer"
+              >
                 Kernel Size
               </label>
               <input
@@ -269,7 +277,11 @@ const CNN = () => {
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">
+              <label
+                className="block text-xs font-medium text-gray-600 mb-1"
+                htmlFor="stride"
+                title="Ammount of kernel to move in the convolutional layer"
+              >
                 Stride
               </label>
               <input
@@ -281,7 +293,11 @@ const CNN = () => {
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">
+              <label
+                className="block text-xs font-medium text-gray-600 mb-1"
+                htmlFor="padding"
+                title="Padding to add to the input image in the convolutional layer"
+              >
                 Padding
               </label>
               <select
@@ -294,7 +310,11 @@ const CNN = () => {
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">
+              <label
+                className="block text-xs font-medium text-gray-600 mb-1"
+                htmlFor="activation_function"
+                title="Activation function to be used in the convolutional layer"
+              >
                 Activation
               </label>
               <select
@@ -333,7 +353,11 @@ const CNN = () => {
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">
+              <label
+                className="block text-xs font-medium text-gray-600 mb-1"
+                htmlFor="pooling_type"
+                title="Type of pooling to be used in the pooling layer"
+              >
                 Pooling Type
               </label>
               <select
@@ -349,7 +373,11 @@ const CNN = () => {
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">
+              <label
+                className="block text-xs font-medium text-gray-600 mb-1"
+                htmlFor="pool_size"
+                title="Size of the pooling window to be used in the pooling layer"
+              >
                 Pool Size
               </label>
               <input
@@ -361,7 +389,11 @@ const CNN = () => {
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">
+              <label
+                className="block text-xs font-medium text-gray-600 mb-1"
+                htmlFor="stride"
+                title="Ammount of kernel to move in the pooling layer"
+              >
                 Stride
               </label>
               <input
@@ -394,7 +426,11 @@ const CNN = () => {
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">
+              <label
+                className="block text-xs font-medium text-gray-600 mb-1"
+                htmlFor="num_nodes"
+                title="Number of nodes to use in the dense layer"
+              >
                 Nodes
               </label>
               <input
@@ -406,7 +442,11 @@ const CNN = () => {
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">
+              <label
+                className="block text-xs font-medium text-gray-600 mb-1"
+                htmlFor="activation_function"
+                title="Activation function to be used in the dense layer"
+              >
                 Activation
               </label>
               <select
@@ -422,7 +462,11 @@ const CNN = () => {
             </div>
 
             <div className="col-span-2">
-              <label className="block text-xs font-medium text-gray-600 mb-1">
+              <label
+                className="block text-xs font-medium text-gray-600 mb-1"
+                htmlFor="regularizer"
+                title="Regularizer to be used in the dense layer"
+              >
                 Regularizer
               </label>
               <div className="grid grid-cols-2 gap-2">
@@ -490,7 +534,11 @@ const CNN = () => {
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">
+              <label
+                className="block text-xs font-medium text-gray-600 mb-1"
+                htmlFor="rate"
+                title="Percentage of neurons to be dropped in the dropout layer"
+              >
                 Dropout Rate
               </label>
               <input
@@ -549,7 +597,11 @@ const CNN = () => {
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">
+              <label
+                className="block text-xs font-medium text-gray-600 mb-1"
+                htmlFor="target_shape"
+                title="Target shape to be used in the reshape layer"
+              >
                 Target Shape
               </label>
               <input
@@ -585,7 +637,13 @@ const CNN = () => {
           <span>Input Layer</span>
         </h5>
         <div className="flex flex-col space-y-2">
-          <label className="text-xs font-medium">Input Shape:</label>
+          <label
+            className="text-xs font-medium"
+            htmlFor="input_shape"
+            title="Shape of the expected input in the input layer"
+          >
+            Input Shape:
+          </label>
           <input
             type="text"
             className="w-full px-2 py-1 text-sm border rounded focus:ring-1 focus:ring-blue-500"
@@ -635,7 +693,9 @@ const CNN = () => {
               onClick={() => handleAddLayer(key)}
             >
               <PlusCircleIcon className="h-3 w-3" />
-              <span>{layerTypes[key]}</span>
+              <span title={`Add ${layerTypes[key]} layer`}>
+                {layerTypes[key]}
+              </span>
             </button>
           ))}
         </div>
@@ -649,7 +709,11 @@ const CNN = () => {
         </h5>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           <div>
-            <label className="block text-xs font-medium text-gray-600 mb-1">
+            <label
+              className="block text-xs font-medium text-gray-600 mb-1"
+              htmlFor="num_nodes"
+              title="Number of nodes to use in the output layer"
+            >
               Nodes
             </label>
             <input
@@ -660,7 +724,11 @@ const CNN = () => {
             />
           </div>
           <div>
-            <label className="block text-xs font-medium text-gray-600 mb-1">
+            <label
+              className="block text-xs font-medium text-gray-600 mb-1"
+              htmlFor="activation_function"
+              title="Activation function to be used in the output layer"
+            >
               Activation
             </label>
             <select
@@ -679,7 +747,11 @@ const CNN = () => {
 
       {/* Loss Function Selection */}
       <div className="mb-3 p-3 bg-white rounded-lg border">
-        <label className="block text-xs font-medium text-gray-600 mb-1">
+        <label
+          className="block text-xs font-medium text-gray-600 mb-1"
+          htmlFor="loss"
+          title="Loss function to be used in the model"
+        >
           Loss Function:
         </label>
         <select
@@ -696,7 +768,11 @@ const CNN = () => {
 
       {/* Optimizer Selection */}
       <div className="mb-3 p-3 bg-white rounded-lg border">
-        <label className="block text-xs font-medium text-gray-600 mb-1">
+        <label
+          className="block text-xs font-medium text-gray-600 mb-1"
+          htmlFor="optimizer"
+          title="Optimizer to be used in the model"
+        >
           Optimizer:
         </label>
         <div className="grid grid-cols-2 gap-3">

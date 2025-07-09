@@ -14,7 +14,11 @@ export default function HyperparametersInfoStep() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium mb-1">
+          <label
+            className="block text-sm font-medium mb-1"
+            htmlFor="wait_time"
+            title="Waiting time (in minutes) for which the server will wait for other clients to join the training"
+          >
             Waiting time (in minutes)
             <input
               type="number"
@@ -30,7 +34,11 @@ export default function HyperparametersInfoStep() {
           </label>
         </div>
         <div>
-          <label className="block text-sm font-medium mb-1">
+          <label
+            className="block text-sm font-medium mb-1"
+            htmlFor="no_of_rounds"
+            title="Number of rounds for which the training will run"
+          >
             Number of Rounds
             <input
               type="number"

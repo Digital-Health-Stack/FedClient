@@ -35,7 +35,10 @@ export default function SelectDatasetsStep() {
   const [errorServer, setErrorServer] = useState(null);
   const [errorTasks, setErrorTasks] = useState(null);
   const [outputColumns, setOutputColumns] = useState([]);
+  const [inputColumns, setInputColumns] = useState([]);
   const [showColumnSelection, setShowColumnSelection] = useState(true);
+  const [showInputColumnSelection, setShowInputColumnSelection] =
+    useState(true);
 
   const clientFilename = watch("client_filename");
   const serverFilename = watch("server_filename");
@@ -49,7 +52,7 @@ export default function SelectDatasetsStep() {
       try {
         const response = await getDatasetTasksById(serverStats.dataset_id);
         const data = response.data;
-        console.log("Tasks data received: ", data);
+        // console.log("Tasks data received: ", data);
         if (data.detail) {
           throw new Error(data.detail);
         }
@@ -79,7 +82,7 @@ export default function SelectDatasetsStep() {
     };
 
     fetchTasks();
-  }, [serverStats?.dataset_id, selectedTaskId, setValue]);
+  }, [serverStats?.dataset_id, setValue]);
 
   const fetchClientDatasetStats = async () => {
     if (!clientFilename) return;
@@ -153,6 +156,14 @@ export default function SelectDatasetsStep() {
       : [...outputColumns, column];
     setOutputColumns(newColumns);
     setValue("output_columns", newColumns);
+  };
+
+  const handleInputColumnChange = (column) => {
+    const newColumns = inputColumns.includes(column)
+      ? inputColumns.filter((c) => c !== column)
+      : [...inputColumns, column];
+    setInputColumns(newColumns);
+    setValue("input_columns", newColumns);
   };
 
   const handleTaskChange = (taskId) => {
@@ -248,15 +259,16 @@ export default function SelectDatasetsStep() {
           <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
             <div className="space-y-3">
               <label
-                title="Choose one from FedServer"
                 className="block text-sm font-medium text-gray-700"
+                htmlFor="server_filename"
+                title="Choose one from FedServer. This is the dataset that will be used for testing."
               >
                 Testing Dataset
               </label>
               <div className="flex space-x-2">
                 <input
                   type="text"
-                  placeholder="Enter server filename"
+                  placeholder="Enter FedServer filename"
                   {...register("server_filename", {
                     required: "*required",
                   })}
@@ -335,9 +347,67 @@ export default function SelectDatasetsStep() {
             {
               <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
                 <button
+                  title="Select the columns you want to use as input for training"
+                  type="button"
+                  onClick={() =>
+                    setShowInputColumnSelection(!showInputColumnSelection)
+                  }
+                  className="flex items-center text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors"
+                >
+                  {showInputColumnSelection ? (
+                    <ChevronUpIcon className="h-4 w-4 mr-2" />
+                  ) : (
+                    <ChevronDownIcon className="h-4 w-4 mr-2" />
+                  )}
+                  Select Input Columns
+                </button>
+
+                {showInputColumnSelection && (
+                  <div className="mt-4 space-y-3">
+                    <p className="text-sm text-gray-600">
+                      Select which columns should be marked as input column(s).
+                      <br />
+                    </p>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                      {getAvailableColumns().map((column) => (
+                        <label
+                          key={column}
+                          className="flex items-center space-x-3 p-2 bg-gray-50 rounded-md hover:bg-gray-100 transition-colors cursor-pointer"
+                        >
+                          <input
+                            type="checkbox"
+                            checked={inputColumns.includes(column)}
+                            onChange={() => handleInputColumnChange(column)}
+                            className="h-4 w-4 text-blue-600 rounded focus:ring-blue-500 border-gray-300"
+                          />
+                          <span className="text-sm text-gray-700">
+                            {column}
+                          </span>
+                        </label>
+                      ))}
+                    </div>
+                    {selectedTaskId && (
+                      <div className="px-1 py-3">
+                        <div className="flex items-center">
+                          <InformationCircleIcon className="h-5 w-5 text-blue-500 mr-2 flex-shrink-0" />
+                          <p className="text-sm text-gray-600">
+                            Remember that the input column must be selected
+                            which you want to use for training.
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            }
+            {
+              <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
+                <button
                   type="button"
                   onClick={() => setShowColumnSelection(!showColumnSelection)}
                   className="flex items-center text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors"
+                  title="Select the columns you want to use as output for training"
                 >
                   {showColumnSelection ? (
                     <ChevronUpIcon className="h-4 w-4 mr-2" />
@@ -371,6 +441,17 @@ export default function SelectDatasetsStep() {
                         </label>
                       ))}
                     </div>
+                    {selectedTaskId && (
+                      <div className="px-1 py-3">
+                        <div className="flex items-center">
+                          <InformationCircleIcon className="h-5 w-5 text-blue-500 mr-2 flex-shrink-0" />
+                          <p className="text-sm text-gray-600">
+                            Remember that the output column must be selected
+                            which is specified in the task.
+                          </p>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
@@ -414,19 +495,19 @@ export default function SelectDatasetsStep() {
                                 scope="col"
                                 className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                               >
+                                Output Column
+                              </th>
+                              <th
+                                scope="col"
+                                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                              >
                                 Metric
                               </th>
                               <th
                                 scope="col"
                                 className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                               >
-                                Benchmark (Std Mean)
-                              </th>
-                              <th
-                                scope="col"
-                                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                              >
-                                Benchmark (Std Dev)
+                                Current Benchmark
                               </th>
                               <th
                                 scope="col"
@@ -450,30 +531,33 @@ export default function SelectDatasetsStep() {
                                   {task.task_name}
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                  {task.output_column}
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                   {task.metric}
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                   {task.benchmark[task.metric]?.std_mean ||
-                                    "N/A"}
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    "N/A"}{" "}
+                                  ±{" "}
                                   {task.benchmark[task.metric]?.std_dev ||
                                     "N/A"}
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                   <button
+                                    type="button"
                                     onClick={(e) => {
                                       e.preventDefault();
                                       handleTaskChange(task.task_id);
                                       setValue("task_id", String(task.task_id)); // Update form value if using react-hook-form
                                     }}
                                     className={`px-4 py-2 rounded-md text-sm font-medium transition-colors duration-150 ${
-                                      selectedTaskId === task.task_id
+                                      selectedTaskId === String(task.task_id)
                                         ? "bg-blue-600 text-white hover:bg-blue-700"
                                         : "text-blue-600 hover:text-blue-900 bg-blue-50 hover:bg-blue-100"
                                     }`}
                                   >
-                                    {selectedTaskId === task.task_id
+                                    {selectedTaskId === String(task.task_id)
                                       ? "Selected"
                                       : "Select"}
                                   </button>

@@ -19,6 +19,7 @@ export default function ModelSelectionStep() {
       </div>
 
       <select
+        title="Select the model you want to use for training"
         {...register("model_name", { required: true })}
         className="w-full p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
       >

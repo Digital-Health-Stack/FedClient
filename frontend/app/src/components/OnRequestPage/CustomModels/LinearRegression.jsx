@@ -39,7 +39,11 @@ const LinearRegression = () => {
 
       {/* Learning Rate */}
       <div className="mb-4">
-        <label className="flex items-center text-gray-700 font-medium mb-1">
+        <label
+          className="flex items-center text-gray-700 font-medium mb-1"
+          htmlFor="lr"
+          title="Rate of change of weights in the model"
+        >
           <AdjustmentsHorizontalIcon className="h-5 w-5 mr-2 text-blue-500" />
           Learning Rate
         </label>
@@ -55,7 +59,11 @@ const LinearRegression = () => {
 
       {/* Number of Iterations */}
       <div className="mb-4">
-        <label className="flex items-center text-gray-700 font-medium mb-1">
+        <label
+          className="flex items-center text-gray-700 font-medium mb-1"
+          htmlFor="n_iters"
+          title="Number of times the model will be trained"
+        >
           <HashtagIcon className="h-5 w-5 mr-2 text-blue-500" />
           Number of Iterations
         </label>
