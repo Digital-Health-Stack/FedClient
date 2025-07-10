@@ -11,16 +11,25 @@ import {
   ChartBarSquareIcon,
   ServerStackIcon,
   ArrowRightIcon,
+  QuestionMarkCircleIcon,
 } from "@heroicons/react/24/solid";
 import { closeWebSocket, connectWebSocket } from "../../services/redisSocket";
 import { toast } from "react-toastify";
 import { BellIcon } from "@heroicons/react/24/outline";
+import { useHelp } from "../../contexts/HelpContext";
+import { useLocation } from "react-router-dom";
 
 const NavBar = () => {
   const [isNavbarOpen, setIsNavbarOpen] = useState(false);
   const { logout, user } = useAuth();
+  const { startWalkthrough } = useHelp();
   const [notifications, setNotifications] = useState([]);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const location = useLocation();
+
+  // Only show help button on pages with walkthrough functionality
+  const showHelpButton =
+    location.pathname === "/" || location.pathname === "/view-all-datasets";
   const handleToggle = () => {
     setIsNavbarOpen(!isNavbarOpen);
   };
@@ -88,7 +97,7 @@ const NavBar = () => {
             <ul className="md:flex justify-end items-center space-y-4 md:space-y-0 md:space-x-6 w-full">
               <li>
                 <NavLink
-                  className="flex items-center gap-2 py-2 px-4 hover:text-gray-400"
+                  className="navbar-dashboard flex items-center gap-2 py-2 px-4 hover:text-gray-400"
                   to="/"
                 >
                   <HomeIcon className="w-5 h-5" /> Dashboard
@@ -96,7 +105,7 @@ const NavBar = () => {
               </li>
               <li>
                 <NavLink
-                  className="flex items-center gap-2 py-2 px-4 hover:text-gray-400"
+                  className="navbar-new-training flex items-center gap-2 py-2 px-4 hover:text-gray-400"
                   to="/Request"
                 >
                   <DocumentArrowUpIcon className="w-5 h-5" /> New Training
@@ -104,7 +113,7 @@ const NavBar = () => {
               </li>
               <li>
                 <NavLink
-                  className="flex items-center gap-2 py-2 px-4 hover:text-gray-400"
+                  className="navbar-trainings flex items-center gap-2 py-2 px-4 hover:text-gray-400"
                   to="/trainings"
                 >
                   <ChartBarSquareIcon className="w-5 h-5" /> Trainings
@@ -112,7 +121,7 @@ const NavBar = () => {
               </li>
               <li>
                 <NavLink
-                  className="flex items-center gap-2 py-2 px-4 hover:text-gray-400"
+                  className="navbar-manage-data flex items-center gap-2 py-2 px-4 hover:text-gray-400"
                   // to="/ManageData"
                   to="/view-all-datasets"
                 >
@@ -173,6 +182,18 @@ const NavBar = () => {
                       </div>
                     </div>
                   )}
+                </li>
+              )}
+
+              {user && showHelpButton && (
+                <li>
+                  <button
+                    className="navbar-help flex items-center gap-2 py-2 px-4 hover:text-gray-400"
+                    onClick={startWalkthrough}
+                    title="Help & Tutorial"
+                  >
+                    <QuestionMarkCircleIcon className="w-5 h-5" />
+                  </button>
                 </li>
               )}
 

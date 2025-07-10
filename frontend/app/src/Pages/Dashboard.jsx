@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
-
+import { useHelp } from "../contexts/HelpContext";
+import Joyride from "react-joyride";
 import {
   getAllSessions,
   getUserInitiatedSessions,
@@ -72,356 +73,248 @@ export default function Dashboard() {
     fetchDatasets();
     fetchSessions();
   }, []);
+  const { showWalkthrough, stopWalkthrough } = useHelp();
+  const [walkthroughKey, setWalkthroughKey] = useState(0);
+  const [steps] = useState([
+    {
+      target: ".navbar-dashboard",
+      content:
+        "This is your Dashboard - the main overview of your federated learning activities.",
+      disableBeacon: true,
+      placement: "bottom",
+    },
+    {
+      target: ".navbar-new-training",
+      content: "Click here to start a new federated learning training session.",
+      disableBeacon: true,
+      placement: "bottom",
+    },
+    {
+      target: ".navbar-trainings",
+      content: "View all your training sessions and their current status.",
+      disableBeacon: true,
+      placement: "bottom",
+    },
+    {
+      target: ".navbar-manage-data",
+      content: "Upload and manage your datasets for federated learning.",
+      disableBeacon: true,
+      placement: "bottom",
+    },
+    {
+      target: ".dashboard-active-sessions",
+      content: "Monitor your active training sessions here.",
+      disableBeacon: true,
+    },
+    {
+      target: ".dashboard-raw-datasets",
+      content: "Manage your raw datasets here.",
+      disableBeacon: true,
+    },
+    {
+      target: ".dashboard-processed-datasets",
+      content: "Manage your pre-processed datasets here.",
+      disableBeacon: true,
+    },
+    {
+      target: ".dashboard-active-training-sessions",
+      content: "View your active training sessions here.",
+      disableBeacon: true,
+    },
+    {
+      target: ".dashboard-recent-datasets",
+      content: "View your recent uploaded datasets here.",
+      disableBeacon: true,
+    },
+    {
+      target: ".dashboard-recent-sessions",
+      content: "View your recent completed sessions here.",
+      disableBeacon: true,
+    },
+    {
+      target: ".dashboard-add-training",
+      content: "Add a new training session from here.",
+      disableBeacon: true,
+    },
+  ]);
+
+  const handleJoyrideCallback = (data) => {
+    const { action, status } = data;
+    if (action === "close" || status === "finished" || action === "skip") {
+      stopWalkthrough();
+    }
+  };
+
+  // Reset walkthrough when it starts
+  useEffect(() => {
+    if (showWalkthrough) {
+      setWalkthroughKey((prev) => prev + 1);
+    }
+  }, [showWalkthrough]);
 
   return (
-    <div className="min-h-[calc(100vh-57px)] bg-gray-50 p-8">
-      <div className="max-w-7xl mx-auto">
-        <h1 className="text-3xl font-bold text-gray-900 mb-8">
-          {(() => {
-            const getGreeting = () => {
-              const now = new Date();
-              const hour = now.getHours();
-              if (hour >= 5 && hour < 12) {
-                return "Good Morning";
-              } else if (hour >= 12 && hour < 16) {
-                return "Good Afternoon";
-              } else if (hour >= 16 && hour < 20) {
-                return "Good Evening";
-              } else if (hour >= 20 && hour < 24) {
-                return "Welcome back";
-              } else {
-                const lateNightGreetings = ["Still up?", "Working late?"];
-                return lateNightGreetings[
-                  Math.floor(Math.random() * lateNightGreetings.length)
-                ];
-              }
-            };
-            return getGreeting() + ", " + user.username + "!";
-          })()}
-        </h1>
+    <>
+      <Joyride
+        key={walkthroughKey}
+        run={showWalkthrough}
+        steps={steps}
+        continuous
+        showSkipButton
+        callback={handleJoyrideCallback}
+        locale={{
+          last: "Finish",
+          back: "Prev",
+        }}
+        styles={{
+          tooltipContent: {
+            paddingBlock: 0,
+            textAlign: "left",
+            paddingRight: "25px",
+          },
+          tooltip: {
+            // backgroundColor: "red",
+            // paddingInline: "5px",
+          },
+          options: {
+            arrowColor: "#fff",
+            backgroundColor: "#fff",
+            overlayColor: "rgba(0, 0, 0, 0.5)",
+            primaryColor: "#000",
+            textColor: "#000",
+            zIndex: 1000,
+          },
+        }}
+      />
+      <div className="min-h-[calc(100vh-57px)] bg-gray-50 p-8">
+        <div className="max-w-7xl mx-auto">
+          <h1 className="text-3xl font-bold text-gray-900 mb-8">
+            {(() => {
+              const getGreeting = () => {
+                const now = new Date();
+                const hour = now.getHours();
+                if (hour >= 5 && hour < 12) {
+                  return "Good Morning";
+                } else if (hour >= 12 && hour < 16) {
+                  return "Good Afternoon";
+                } else if (hour >= 16 && hour < 20) {
+                  return "Good Evening";
+                } else if (hour >= 20 && hour < 24) {
+                  return "Welcome back";
+                } else {
+                  const lateNightGreetings = ["Still up?", "Working late?"];
+                  return lateNightGreetings[
+                    Math.floor(Math.random() * lateNightGreetings.length)
+                  ];
+                }
+              };
+              return getGreeting() + ", " + user.username + "!";
+            })()}
+          </h1>
 
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div className="bg-white p-6 rounded-xl shadow-sm">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-500">Active Sessions</p>
-                <p className="text-2xl font-semibold mt-2">
-                  {initiatedSessions.length}
-                </p>
+          {/* Stats Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div className="bg-white p-6 rounded-xl shadow-sm dashboard-active-sessions">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-500 ">Active Sessions</p>
+                  <p className="text-2xl font-semibold mt-2">
+                    {initiatedSessions.length}
+                  </p>
+                </div>
+                <div className="bg-blue-100 p-3 rounded-lg">
+                  <svg
+                    className="w-6 h-6 text-blue-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+                    />
+                  </svg>
+                </div>
               </div>
-              <div className="bg-blue-100 p-3 rounded-lg">
-                <svg
-                  className="w-6 h-6 text-blue-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
-                  />
-                </svg>
-              </div>
-            </div>
-            <Link
-              to="/TrainingStatus"
-              className="text-blue-600 text-sm mt-4 block hover:underline"
-            >
-              View all sessions →
-            </Link>
-          </div>
-
-          <div className="bg-white p-6 rounded-xl shadow-sm">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-500">Raw Datasets</p>
-                <p className="text-2xl font-semibold mt-2">
-                  {datasets.uploads.length}
-                </p>
-              </div>
-              <div className="bg-purple-100 p-3 rounded-lg">
-                <svg
-                  className="w-6 h-6 text-purple-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"
-                  />
-                </svg>
-              </div>
-            </div>
-            <Link
-              to="/ManageData"
-              className="text-blue-600 text-sm mt-4 block hover:underline"
-            >
-              Manage datasets →
-            </Link>
-          </div>
-
-          <div className="bg-white p-6 rounded-xl shadow-sm">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-500">Processed Datasets</p>
-                <p className="text-2xl font-semibold mt-2">
-                  {datasets.processed.length}
-                </p>
-              </div>
-              <div className="bg-green-100 p-3 rounded-lg">
-                <svg
-                  className="w-6 h-6 text-green-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                  />
-                </svg>
-              </div>
-            </div>
-            <Link
-              to="/ManageData"
-              className="text-blue-600 text-sm mt-4 block hover:underline"
-            >
-              Process data →
-            </Link>
-          </div>
-        </div>
-
-        {/* Active Sessions Table */}
-        <div className="bg-white rounded-xl shadow-sm p-6 mb-8">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-gray-900">
-              Active Training Sessions
-            </h2>
-            <Link
-              to="/TrainingStatus"
-              className="text-blue-600 text-sm hover:underline"
-            >
-              View All →
-            </Link>
-          </div>
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Session ID
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Progress
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Status
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Action
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200">
-                {initiatedSessions.length > 0 &&
-                  initiatedSessions.map((session) => (
-                    <tr key={session.session_id}>
-                      <td className="px-6 py-4 text-sm font-medium text-gray-900">
-                        {session.session_id}
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="flex items-center">
-                          <div className="w-24 h-2 bg-gray-200 rounded-full overflow-hidden">
-                            <div
-                              className="h-full bg-blue-600"
-                              style={{
-                                width: `${
-                                  (session.curr_round / session.max_round) * 100
-                                }%`,
-                              }}
-                            />
-                          </div>
-                          <span className="ml-2 text-sm text-gray-600">
-                            {session.curr_round}/{session.max_round}
-                          </span>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <span
-                          className={`inline-flex items-center px-3 py-0.5 rounded-full text-sm font-medium ${
-                            statusMap[session.training_status]?.color ||
-                            "bg-gray-100 text-gray-800"
-                          }`}
-                        >
-                          {statusMap[session.training_status]?.text ||
-                            "Unknown"}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4">
-                        <Link
-                          to={`/TrainingStatus/details/${session.session_id}`}
-                          className="text-blue-600 hover:text-blue-900 text-sm font-medium"
-                        >
-                          Details →
-                        </Link>
-                      </td>
-                    </tr>
-                  ))}
-              </tbody>
-            </table>
-            {!initiatedSessions.length && (
-              <div className="text-center py-8 text-gray-500">
-                No active training sessions
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Recent Data Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Recent Datasets */}
-          <div className="bg-white rounded-xl shadow-sm p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold text-gray-900">
-                Recent Datasets
-              </h2>
               <Link
-                to="/ManageData"
-                className="text-blue-600 text-sm hover:underline"
+                to="/trainings"
+                className="text-blue-600 text-sm mt-4 block hover:underline"
               >
-                View All →
+                View all sessions →
               </Link>
             </div>
-            <div className="space-y-4">
-              {datasets.uploads.map((dataset) => (
-                <div
-                  key={dataset}
-                  className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg"
-                >
-                  <div className="flex items-center space-x-3">
-                    <div className="bg-blue-100 p-2 rounded-lg">
-                      <svg
-                        className="w-5 h-5 text-blue-600"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                        />
-                      </svg>
-                    </div>
-                    <span className="text-sm font-medium text-gray-900">
-                      {dataset.filename}
-                    </span>
-                    <span className="px-2 py-1 text-xs font-medium text-blue-800 bg-blue-100 rounded-full">
-                      Raw
-                    </span>
-                  </div>
-                  <Link
-                    to={`/raw-dataset-overview/${dataset.filename}`}
-                    className="text-gray-400 hover:text-gray-600"
+
+            <div className="bg-white p-6 rounded-xl shadow-sm dashboard-raw-datasets">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-500">Raw Datasets</p>
+                  <p className="text-2xl font-semibold mt-2">
+                    {datasets.uploads.length}
+                  </p>
+                </div>
+                <div className="bg-purple-100 p-3 rounded-lg">
+                  <svg
+                    className="w-6 h-6 text-purple-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
                   >
-                    <svg
-                      className="w-5 h-5"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                      />
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                      />
-                    </svg>
-                  </Link>
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"
+                    />
+                  </svg>
                 </div>
-              ))}
-              {datasets.processed.map((dataset) => (
-                <div
-                  key={dataset}
-                  className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg"
-                >
-                  <div className="flex items-center space-x-3">
-                    <div className="bg-green-100 p-2 rounded-lg">
-                      <svg
-                        className="w-5 h-5 text-green-600"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                        />
-                      </svg>
-                    </div>
-                    <span className="text-sm font-medium text-gray-900">
-                      {dataset.filename}
-                    </span>
-                    <span className="px-2 py-1 text-xs font-medium text-green-800 bg-green-100 rounded-full">
-                      Processed
-                    </span>
-                  </div>
-                  <Link
-                    to={`/processed-dataset-overview/${dataset.filename}`}
-                    className="text-gray-400 hover:text-gray-600"
+              </div>
+              <Link
+                to="/view-all-datasets"
+                className="text-blue-600 text-sm mt-4 block hover:underline"
+              >
+                Manage datasets →
+              </Link>
+            </div>
+
+            <div className="bg-white p-6 rounded-xl shadow-sm dashboard-processed-datasets">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-500">Processed Datasets</p>
+                  <p className="text-2xl font-semibold mt-2">
+                    {datasets.processed.length}
+                  </p>
+                </div>
+                <div className="bg-green-100 p-3 rounded-lg">
+                  <svg
+                    className="w-6 h-6 text-green-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
                   >
-                    <svg
-                      className="w-5 h-5"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                      />
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                      />
-                    </svg>
-                  </Link>
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
+                  </svg>
                 </div>
-              ))}
-              {!datasets.uploads.length && !datasets.processed.length && (
-                <div className="text-center py-4 text-gray-500">
-                  No datasets found
-                </div>
-              )}
+              </div>
+              <Link
+                to="/view-all-datasets"
+                className="text-blue-600 text-sm mt-4 block hover:underline"
+              >
+                Process data →
+              </Link>
             </div>
           </div>
 
-          {/* Recent Sessions */}
-          <div className="bg-white rounded-xl shadow-sm p-6">
+          {/* Active Sessions Table */}
+          <div className="bg-white rounded-xl shadow-sm p-6 mb-8 dashboard-active-training-sessions">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold text-gray-900">
-                Recent Sessions
+                Active Training Sessions
               </h2>
               <Link
                 to="/TrainingStatus"
@@ -430,69 +323,289 @@ export default function Dashboard() {
                 View All →
               </Link>
             </div>
-            <div className="flow-root">
-              <ul className="divide-y divide-gray-200">
-                {sessions.map((session) => (
-                  <li key={session.id} className="py-3">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-3">
-                        <span
-                          className={`inline-block w-2.5 h-2.5 rounded-full ${
-                            statusMap[session.training_status]?.color ||
-                            "bg-gray-300"
-                          }`}
-                        />
-                        <div>
-                          <p className="text-sm font-medium text-gray-900">
-                            {session.name || "Untitled Session"}
-                          </p>
-                          <p className="text-sm text-gray-500">
-                            ID: {session.id}
-                          </p>
-                        </div>
-                      </div>
-                      <Link
-                        to={`/TrainingStatus/details/${session.id}`}
-                        className="text-blue-600 hover:text-blue-900 text-sm font-medium"
-                      >
-                        View →
-                      </Link>
-                    </div>
-                  </li>
-                ))}
-                {!sessions.length && (
-                  <li className="py-4 text-center text-gray-500">
-                    No recent sessions
-                  </li>
-                )}
-              </ul>
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                      Session ID
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                      Progress
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                      Status
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                      Action
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-200">
+                  {initiatedSessions.length > 0 &&
+                    initiatedSessions.map((session) => (
+                      <tr key={session.session_id}>
+                        <td className="px-6 py-4 text-sm font-medium text-gray-900">
+                          {session.session_id}
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="flex items-center">
+                            <div className="w-24 h-2 bg-gray-200 rounded-full overflow-hidden">
+                              <div
+                                className="h-full bg-blue-600"
+                                style={{
+                                  width: `${
+                                    (session.curr_round / session.max_round) *
+                                    100
+                                  }%`,
+                                }}
+                              />
+                            </div>
+                            <span className="ml-2 text-sm text-gray-600">
+                              {session.curr_round}/{session.max_round}
+                            </span>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <span
+                            className={`inline-flex items-center px-3 py-0.5 rounded-full text-sm font-medium ${
+                              statusMap[session.training_status]?.color ||
+                              "bg-gray-100 text-gray-800"
+                            }`}
+                          >
+                            {statusMap[session.training_status]?.text ||
+                              "Unknown"}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4">
+                          <Link
+                            to={`/TrainingStatus/details/${session.session_id}`}
+                            className="text-blue-600 hover:text-blue-900 text-sm font-medium"
+                          >
+                            Details →
+                          </Link>
+                        </td>
+                      </tr>
+                    ))}
+                </tbody>
+              </table>
+              {!initiatedSessions.length && (
+                <div className="text-center py-8 text-gray-500">
+                  No active training sessions
+                </div>
+              )}
             </div>
           </div>
-        </div>
 
-        {/* Floating Action Button */}
-        <div className="fixed bottom-8 right-8">
-          <Link to="/request">
-            <button className="bg-blue-600 flex items-center hover:bg-blue-700 text-white p-4 rounded-full shadow-lg transition-all transform hover:scale-105">
-              <svg
-                className="w-6 h-6"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 4v16m8-8H4"
-                />
-              </svg>
-              <span className="ml-2 font-semibold text-lg">Add Training</span>
-            </button>
-          </Link>
+          {/* Recent Data Section */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Recent Datasets */}
+            <div className="bg-white rounded-xl shadow-sm p-6 dashboard-recent-datasets">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-semibold text-gray-900">
+                  Recent Datasets
+                </h2>
+                <Link
+                  to="/view-all-datasets"
+                  className="text-blue-600 text-sm hover:underline"
+                >
+                  View All →
+                </Link>
+              </div>
+              <div className="space-y-4">
+                {datasets.uploads.map((dataset) => (
+                  <div
+                    key={dataset}
+                    className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg"
+                  >
+                    <div className="flex items-center space-x-3">
+                      <div className="bg-blue-100 p-2 rounded-lg">
+                        <svg
+                          className="w-5 h-5 text-blue-600"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                          />
+                        </svg>
+                      </div>
+                      <span className="text-sm font-medium text-gray-900">
+                        {dataset.filename}
+                      </span>
+                      <span className="px-2 py-1 text-xs font-medium text-blue-800 bg-blue-100 rounded-full">
+                        Raw
+                      </span>
+                    </div>
+                    <Link
+                      to={`/raw-dataset-overview/${dataset.filename}`}
+                      className="text-gray-400 hover:text-gray-600"
+                    >
+                      <svg
+                        className="w-5 h-5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                        />
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                        />
+                      </svg>
+                    </Link>
+                  </div>
+                ))}
+                {datasets.processed.map((dataset) => (
+                  <div
+                    key={dataset}
+                    className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg"
+                  >
+                    <div className="flex items-center space-x-3">
+                      <div className="bg-green-100 p-2 rounded-lg">
+                        <svg
+                          className="w-5 h-5 text-green-600"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                          />
+                        </svg>
+                      </div>
+                      <span className="text-sm font-medium text-gray-900">
+                        {dataset.filename}
+                      </span>
+                      <span className="px-2 py-1 text-xs font-medium text-green-800 bg-green-100 rounded-full">
+                        Processed
+                      </span>
+                    </div>
+                    <Link
+                      to={`/processed-dataset-overview/${dataset.filename}`}
+                      className="text-gray-400 hover:text-gray-600"
+                    >
+                      <svg
+                        className="w-5 h-5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                        />
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                        />
+                      </svg>
+                    </Link>
+                  </div>
+                ))}
+                {!datasets.uploads.length && !datasets.processed.length && (
+                  <div className="text-center py-4 text-gray-500">
+                    No datasets found
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Recent Sessions */}
+            <div className="bg-white rounded-xl shadow-sm p-6 dashboard-recent-sessions">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-semibold text-gray-900">
+                  Recent Sessions
+                </h2>
+                <Link
+                  to="/TrainingStatus"
+                  className="text-blue-600 text-sm hover:underline"
+                >
+                  View All →
+                </Link>
+              </div>
+              <div className="flow-root">
+                <ul className="divide-y divide-gray-200">
+                  {sessions.map((session) => (
+                    <li key={session.id} className="py-3">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-3">
+                          <span
+                            className={`inline-block w-2.5 h-2.5 rounded-full ${
+                              statusMap[session.training_status]?.color ||
+                              "bg-gray-300"
+                            }`}
+                          />
+                          <div>
+                            <p className="text-sm font-medium text-gray-900">
+                              {session.name || "Untitled Session"}
+                            </p>
+                            <p className="text-sm text-gray-500">
+                              ID: {session.id}
+                            </p>
+                          </div>
+                        </div>
+                        <Link
+                          to={`/TrainingStatus/details/${session.id}`}
+                          className="text-blue-600 hover:text-blue-900 text-sm font-medium"
+                        >
+                          View →
+                        </Link>
+                      </div>
+                    </li>
+                  ))}
+                  {!sessions.length && (
+                    <li className="py-4 text-center text-gray-500">
+                      No recent sessions
+                    </li>
+                  )}
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          {/* Floating Action Button */}
+          <div className="fixed bottom-8 right-8 dashboard-add-training">
+            <Link to="/request">
+              <button className="bg-blue-600 flex items-center hover:bg-blue-700 text-white p-4 rounded-full shadow-lg transition-all transform hover:scale-105">
+                <svg
+                  className="w-6 h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 4v16m8-8H4"
+                  />
+                </svg>
+                <span className="ml-2 font-semibold text-lg">Add Training</span>
+              </button>
+            </Link>
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
 
@@ -752,7 +865,7 @@ export default function Dashboard() {
 //             ))}
 //           </div>
 //           <Link
-//             to="/ManageData"
+//             to="/view-all-datasets"
 //             className="text-blue-500 mt-4 block hover:underline"
 //           >
 //             📂 Manage Datasets →

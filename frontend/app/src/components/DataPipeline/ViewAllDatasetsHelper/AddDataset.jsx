@@ -230,7 +230,7 @@ const AddDataset = () => {
       {/* Header */}
       <div className="bg-white p-6 rounded-xl shadow-sm border">
         <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold flex items-center gap-3">
+          <h1 className="add-dataset-header text-2xl font-bold flex items-center gap-3">
             <DocumentTextIcon className="h-8 w-8 text-blue-500" />
             Add New Dataset
           </h1>
@@ -275,7 +275,7 @@ const AddDataset = () => {
           {/* Centered File Upload UI with fixed height */}
           <div className="flex items-center justify-center w-full">
             <div
-              className={`bg-white p-8 rounded-2xl min-h-[350px] shadow-lg border flex flex-col items-center justify-center w-full transition-all duration-200 ${
+              className={`add-dataset-upload-area bg-white p-8 rounded-2xl min-h-[350px] shadow-lg border flex flex-col items-center justify-center w-full transition-all duration-200 ${
                 isDragOver ? "border-blue-400 bg-blue-50 shadow-blue-200" : ""
               }`}
               onDragOver={handleDragOver}
@@ -308,7 +308,7 @@ const AddDataset = () => {
               </label>
               <button
                 type="button"
-                className="mt-4 px-6 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="add-dataset-upload-button mt-4 px-6 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 onClick={handleUpload}
                 disabled={selectedFiles.length === 0 || uploading}
               >
@@ -374,9 +374,9 @@ const AddDataset = () => {
           {/* Uploaded Files Section */}
           <div className="bg-white p-6 rounded-xl shadow-sm border">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-semibold flex items-center gap-2">
+              <h2 className="add-dataset-summarizing-section text-xl font-semibold flex items-center gap-2">
                 <FolderIcon className="h-6 w-6 text-blue-500" />
-                Summarizing Files
+                Summarizing Datasets
               </h2>
               <button
                 onClick={fetchUploadedFiles}
