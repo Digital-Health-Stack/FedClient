@@ -220,6 +220,10 @@ const AddDataset = () => {
     }
   };
 
+  const handleRemoveSelectedFile = (fileIdx) => {
+    setSelectedFiles((prev) => prev.filter((_, idx) => idx !== fileIdx));
+  };
+
   const clearMessages = () => {
     setError(null);
     setSuccess(null);
@@ -363,6 +367,15 @@ const AddDataset = () => {
                             )}
                           </div>
                         )}
+                        {/* Remove file button */}
+                        <button
+                          type="button"
+                          className="ml-2 text-red-700 hover:text-red-500 transition-all duration-300 focus:outline-none"
+                          title="Remove file"
+                          onClick={() => handleRemoveSelectedFile(idx)}
+                        >
+                          <XCircleIcon className="h-4 w-4" />
+                        </button>
                       </li>
                     ))}
                   </ul>
