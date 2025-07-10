@@ -201,7 +201,7 @@ const AddDataset = () => {
 
       if (successfulUploads.length > 0) {
         setSuccess(
-          `${successfulUploads.length} file(s) uploaded successfully!`
+          `${successfulUploads.length} file(s) are set to be summarized!`
         );
         setSelectedFiles([]); // Clear selected files
       }

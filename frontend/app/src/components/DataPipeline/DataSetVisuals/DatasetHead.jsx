@@ -66,7 +66,11 @@ const DatasetHead = ({ datasetHead, maxRows = 5 }) => {
                       className="max-w-xs truncate font-medium"
                       title={row[column]}
                     >
-                      {row[column] || (
+                      {row[column] ? (
+                        row[column]
+                      ) : row[column] == 0 ? (
+                        0
+                      ) : (
                         <span className="text-gray-400 italic font-normal">
                           null
                         </span>
