@@ -69,7 +69,7 @@ export default function Dashboard() {
   };
 
   useEffect(() => {
-    fetchInitiatedSession();
+    // fetchInitiatedSession();
     fetchDatasets();
     fetchSessions();
   }, []);
@@ -415,7 +415,7 @@ export default function Dashboard() {
               <div className="space-y-4">
                 {datasets.uploads.map((dataset) => (
                   <div
-                    key={dataset}
+                    key={dataset.filename}
                     className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg"
                   >
                     <div className="flex items-center space-x-3">
@@ -469,7 +469,7 @@ export default function Dashboard() {
                 ))}
                 {datasets.processed.map((dataset) => (
                   <div
-                    key={dataset}
+                    key={dataset.filename}
                     className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg"
                   >
                     <div className="flex items-center space-x-3">

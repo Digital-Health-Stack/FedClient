@@ -201,7 +201,7 @@ export default function SelectDatasetsStep() {
   };
   // Fetch uploaded files from HDFS
   const fetchUploadedFiles = async () => {
-    console.log("fetching uploaded files");
+    // console.log("fetching uploaded files");
     setFetchingFiles(true);
     try {
       const response = await getServerDatasets();

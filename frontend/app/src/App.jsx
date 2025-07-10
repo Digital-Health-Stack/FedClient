@@ -186,7 +186,7 @@ import ViewAllDatasets from "./components/DataPipeline/ViewAllDatasets";
 import RawDataSetOverview from "./components/DataPipeline/DataSetVisuals/RawDataSetOverview";
 import ProcessedDataSetOverview from "./components/DataPipeline/DataSetVisuals/ProcessedDataSetOverview";
 import PreprocessingDocs from "./components/DataPipeline/DataSetVisuals/ProcessingComponents/PreprocessingDocs.jsx";
-// import Dashboard from "./Pages/Dashboard.jsx";
+import Dashboard from "./Pages/Dashboard.jsx";
 /*
 The App component is the main component of the application. It is the parent component of all the other components.
 It contains the NavBar component, which is a navigation bar that allows the user to navigate between different 

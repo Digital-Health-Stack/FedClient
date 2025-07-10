@@ -5,16 +5,14 @@ import {
   Bars3Icon,
   XMarkIcon,
   HomeIcon,
-  UserMinusIcon,
   UserPlusIcon,
   DocumentArrowUpIcon,
   ChartBarSquareIcon,
   ServerStackIcon,
-  ArrowRightIcon,
   QuestionMarkCircleIcon,
+  ArrowRightEndOnRectangleIcon,
 } from "@heroicons/react/24/solid";
 import { closeWebSocket, connectWebSocket } from "../../services/redisSocket";
-import { toast } from "react-toastify";
 import { BellIcon } from "@heroicons/react/24/outline";
 import { useHelp } from "../../contexts/HelpContext";
 import { useLocation } from "react-router-dom";
@@ -208,12 +206,13 @@ const NavBar = () => {
                 </li>
               )}
               {user && (
-                <li>
-                  <button
-                    className="flex bg-white text-gray-900 rounded-md items-center gap-2 py-1 px-2 hover:scale-105 transition-all duration-300"
-                    onClick={logout}
-                  >
-                    <UserMinusIcon className="w-5 h-5" /> Log out
+                <li className="flex items-center gap-3">
+                  <span className="text-white">{user.username}</span>
+                  <button onClick={logout}>
+                    <ArrowRightEndOnRectangleIcon
+                      title="Logout"
+                      className="hover:scale-110 duration-300 transition-all w-5 h-5 rounded-full box-content"
+                    />
                   </button>
                 </li>
               )}
