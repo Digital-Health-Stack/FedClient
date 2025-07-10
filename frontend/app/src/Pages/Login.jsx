@@ -206,7 +206,7 @@ const LoginForm = ({ navigate }) => {
       // console.log("")
       // setClientToken(response.data.access_token);
 
-      navigate("/dashboard");
+      navigate("/");
     } catch (error) {
       const errorMessage =
         error.response?.data?.detail ||
