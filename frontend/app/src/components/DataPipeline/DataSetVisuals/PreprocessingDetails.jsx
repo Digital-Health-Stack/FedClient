@@ -94,20 +94,6 @@ const PreprocessingDetails = ({ columns, filename, directory }) => {
         </div>
       )}
 
-      {/* Submit Button */}
-      {
-        <div className="border-t pt-4">
-          <button
-            onClick={handleSubmit}
-            disabled={isSubmitted}
-            className="bg-indigo-500 text-white px-5 py-2.5 rounded-lg hover:bg-indigo-600 disabled:opacity-70 disabled:cursor-not-allowed transition-all flex items-center gap-2"
-          >
-            <CloudArrowUpIcon className="h-5 w-5" />
-            {isSubmitted ? "Processing..." : "Start Preprocessing"}
-          </button>
-        </div>
-      }
-
       {/* Configuration Banner */}
       <div
         className={`${
@@ -169,6 +155,20 @@ const PreprocessingDetails = ({ columns, filename, directory }) => {
             <ArrowUpOnSquareIcon className="h-4 w-4 text-gray-600" />
           )}
         </button>
+
+        {/* Submit Button */}
+        {
+          <div className="pt-4">
+            <button
+              onClick={handleSubmit}
+              disabled={isSubmitted}
+              className="bg-indigo-500 text-white px-5 py-2.5 rounded-lg hover:bg-indigo-600 disabled:opacity-70 disabled:cursor-not-allowed transition-all flex items-center gap-2"
+            >
+              <CloudArrowUpIcon className="h-5 w-5" />
+              {isSubmitted ? "Processing..." : "Start Preprocessing"}
+            </button>
+          </div>
+        }
       </div>
     </div>
   );

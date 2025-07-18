@@ -23,6 +23,7 @@ const AddDataset = () => {
   const [uploadProgress, setUploadProgress] = useState({});
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [fetchingFiles, setFetchingFiles] = useState(false);
+  const [keepFetchingFiles, setKeepFetchingFiles] = useState(false);
   const navigate = useNavigate();
 
   const endpoints = {
@@ -95,19 +96,25 @@ const AddDataset = () => {
     return date.toLocaleString();
   };
 
-  // Fetch files on component mount and after successful upload
+  // Fetch files on component mount and after successful upload, but only if keepFetchingFiles is true
   useEffect(() => {
+    if (!keepFetchingFiles) return;
+
     fetchUploadedFiles();
     const interval = setInterval(() => {
-      fetchUploadedFiles(false);
+      if (keepFetchingFiles) {
+        fetchUploadedFiles(false);
+      }
     }, 5000); // every 5 seconds
+
     return () => clearInterval(interval);
-  }, []);
+  }, [keepFetchingFiles]);
 
   // Refresh files list after successful upload
   useEffect(() => {
     if (success && success.includes("uploaded successfully")) {
-      fetchUploadedFiles();
+      setKeepFetchingFiles(true);
+      // fetchUploadedFiles();
     }
   }, [success]);
 

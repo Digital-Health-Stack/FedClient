@@ -170,6 +170,7 @@ import TrainingDetails from "./Pages/TrainingDetails";
 import About from "./Pages/About";
 import Error from "./Pages/Error";
 import NavBar from "./components/OnWholeApp/NavBar";
+import Footer from "./components/OnWholeApp/Footer";
 import MyDataProvider from "./GlobalContext";
 // import EventsAction from "./EventsActions";
 import { useState } from "react";
@@ -204,30 +205,29 @@ export default function App() {
       <MyDataProvider>
         <AuthProvider>
           <HelpProvider>
-            <ToastContainer position="bottom-center" autoClose={3000} />
-
-            {/* <EventsAction socket={socket} clientToken={clientToken} /> */}
-
-            <NavBar />
-
-            {/* <div
+            <div className="min-h-screen flex flex-col justify-between">
+              <ToastContainer position="bottom-center" autoClose={3000} />
+              {/* <EventsAction socket={socket} clientToken={clientToken} /> */}
+              <NavBar />
+              {/* <div
             style={{
               display: "flex",
               justifyContent: "center",
               alignItems: "center",
             }}
           > */}
-            <Routes>
-              <Route
-                path="/"
-                exact
-                element={
-                  <PrivateRoute>
-                    <Dashboard />
-                  </PrivateRoute>
-                }
-              />
-              {/* <Route
+              <div className="flex-1 flex flex-col">
+                <Routes>
+                  <Route
+                    path="/"
+                    exact
+                    element={
+                      <PrivateRoute>
+                        <Dashboard />
+                      </PrivateRoute>
+                    }
+                  />
+                  {/* <Route
                 path="/dashboard"
                 element={
                   <PrivateRoute>
@@ -235,56 +235,56 @@ export default function App() {
                   </PrivateRoute>
                 }
               /> */}
-              <Route
-                path="/Login"
-                element={
-                  <OnlyGuestRoute>
-                    <Login
-                      clientToken={clientToken}
-                      setClientToken={setClientToken}
-                      setSocket={setSocket}
-                    />
-                  </OnlyGuestRoute>
-                }
-              />
+                  <Route
+                    path="/Login"
+                    element={
+                      <OnlyGuestRoute>
+                        <Login
+                          clientToken={clientToken}
+                          setClientToken={setClientToken}
+                          setSocket={setSocket}
+                        />
+                      </OnlyGuestRoute>
+                    }
+                  />
 
-              <Route
-                path="/Request"
-                element={
-                  <PrivateRoute>
-                    <Request
-                      clientToken={clientToken}
-                      setSessions={setSessions}
-                    />
-                  </PrivateRoute>
-                }
-              />
+                  <Route
+                    path="/Request"
+                    element={
+                      <PrivateRoute>
+                        <Request
+                          clientToken={clientToken}
+                          setSessions={setSessions}
+                        />
+                      </PrivateRoute>
+                    }
+                  />
 
-              <Route
-                path="/trainings"
-                element={
-                  <PrivateRoute>
-                    <Trainings />
-                  </PrivateRoute>
-                }
-              />
-              <Route
-                path="/trainings/:sessionId"
-                element={
-                  <PrivateRoute>
-                    <TrainingDetails clientToken={clientToken} />
-                  </PrivateRoute>
-                }
-              />
-              <Route
-                path="/About"
-                element={
-                  <PrivateRoute>
-                    <About />
-                  </PrivateRoute>
-                }
-              />
-              {/* <Route
+                  <Route
+                    path="/trainings"
+                    element={
+                      <PrivateRoute>
+                        <Trainings />
+                      </PrivateRoute>
+                    }
+                  />
+                  <Route
+                    path="/trainings/:sessionId"
+                    element={
+                      <PrivateRoute>
+                        <TrainingDetails clientToken={clientToken} />
+                      </PrivateRoute>
+                    }
+                  />
+                  <Route
+                    path="/About"
+                    element={
+                      <PrivateRoute>
+                        <About />
+                      </PrivateRoute>
+                    }
+                  />
+                  {/* <Route
                 path="/ManageData"
                 element={
                   <PrivateRoute>
@@ -292,55 +292,58 @@ export default function App() {
                   </PrivateRoute>
                 }
               /> */}
-              <Route
-                path="/view-recent-uploads"
-                element={
-                  <PrivateRoute>
-                    <ViewRecentUploads />
-                  </PrivateRoute>
-                }
-              />
-              <Route
-                path="/view-all-datasets"
-                element={
-                  <PrivateRoute>
-                    <ViewAllDatasets />
-                  </PrivateRoute>
-                }
-              />
-              <Route
-                path="/raw-dataset-overview/:filename"
-                element={
-                  <PrivateRoute>
-                    <RawDataSetOverview />
-                  </PrivateRoute>
-                }
-              />
-              <Route
-                path="/processed-dataset-overview/:filename"
-                element={
-                  <PrivateRoute>
-                    <ProcessedDataSetOverview />
-                  </PrivateRoute>
-                }
-              />
-              <Route
-                path="/preprocessing-docs"
-                element={
-                  <PrivateRoute>
-                    <PreprocessingDocs />
-                  </PrivateRoute>
-                }
-              />
-              <Route
-                path="/*"
-                element={
-                  <PrivateRoute>
-                    <Error />
-                  </PrivateRoute>
-                }
-              />
-            </Routes>
+                  <Route
+                    path="/view-recent-uploads"
+                    element={
+                      <PrivateRoute>
+                        <ViewRecentUploads />
+                      </PrivateRoute>
+                    }
+                  />
+                  <Route
+                    path="/view-all-datasets"
+                    element={
+                      <PrivateRoute>
+                        <ViewAllDatasets />
+                      </PrivateRoute>
+                    }
+                  />
+                  <Route
+                    path="/raw-dataset-overview/:filename"
+                    element={
+                      <PrivateRoute>
+                        <RawDataSetOverview />
+                      </PrivateRoute>
+                    }
+                  />
+                  <Route
+                    path="/processed-dataset-overview/:filename"
+                    element={
+                      <PrivateRoute>
+                        <ProcessedDataSetOverview />
+                      </PrivateRoute>
+                    }
+                  />
+                  <Route
+                    path="/preprocessing-docs"
+                    element={
+                      <PrivateRoute>
+                        <PreprocessingDocs />
+                      </PrivateRoute>
+                    }
+                  />
+                  <Route
+                    path="/*"
+                    element={
+                      <PrivateRoute>
+                        <Error />
+                      </PrivateRoute>
+                    }
+                  />
+                </Routes>
+              </div>
+              <Footer />
+            </div>
           </HelpProvider>
         </AuthProvider>
       </MyDataProvider>

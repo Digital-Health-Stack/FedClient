@@ -64,7 +64,7 @@ const NavBar = () => {
   }, [notificationsOpen]);
 
   return (
-    <nav className="bg-gray-900 border-b border-gray-700 text-white h-[57px]">
+    <nav className="bg-gray-900 border-b border-gray-700 text-white h-[57px] sticky top-0 z-50">
       <div className="container mx-auto flex justify-between items-center p-2 max-w-7xl">
         {/* Logo */}
         <a className="text-xl font-bold flex items-center text-white" href="/">
