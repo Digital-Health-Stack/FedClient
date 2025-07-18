@@ -217,17 +217,18 @@ export default function App() {
             }}
           > */}
               <div className="flex-1 flex flex-col">
-                <Routes>
-                  <Route
-                    path="/"
-                    exact
-                    element={
-                      <PrivateRoute>
-                        <Dashboard />
-                      </PrivateRoute>
-                    }
-                  />
-                  {/* <Route
+                <lol>
+                  <Routes>
+                    <Route
+                      path="/"
+                      exact
+                      element={
+                        <PrivateRoute>
+                          <Dashboard />
+                        </PrivateRoute>
+                      }
+                    />
+                    {/* <Route
                 path="/dashboard"
                 element={
                   <PrivateRoute>
@@ -235,56 +236,56 @@ export default function App() {
                   </PrivateRoute>
                 }
               /> */}
-                  <Route
-                    path="/Login"
-                    element={
-                      <OnlyGuestRoute>
-                        <Login
-                          clientToken={clientToken}
-                          setClientToken={setClientToken}
-                          setSocket={setSocket}
-                        />
-                      </OnlyGuestRoute>
-                    }
-                  />
+                    <Route
+                      path="/Login"
+                      element={
+                        <OnlyGuestRoute>
+                          <Login
+                            clientToken={clientToken}
+                            setClientToken={setClientToken}
+                            setSocket={setSocket}
+                          />
+                        </OnlyGuestRoute>
+                      }
+                    />
 
-                  <Route
-                    path="/Request"
-                    element={
-                      <PrivateRoute>
-                        <Request
-                          clientToken={clientToken}
-                          setSessions={setSessions}
-                        />
-                      </PrivateRoute>
-                    }
-                  />
+                    <Route
+                      path="/Request"
+                      element={
+                        <PrivateRoute>
+                          <Request
+                            clientToken={clientToken}
+                            setSessions={setSessions}
+                          />
+                        </PrivateRoute>
+                      }
+                    />
 
-                  <Route
-                    path="/trainings"
-                    element={
-                      <PrivateRoute>
-                        <Trainings />
-                      </PrivateRoute>
-                    }
-                  />
-                  <Route
-                    path="/trainings/:sessionId"
-                    element={
-                      <PrivateRoute>
-                        <TrainingDetails clientToken={clientToken} />
-                      </PrivateRoute>
-                    }
-                  />
-                  <Route
-                    path="/About"
-                    element={
-                      <PrivateRoute>
-                        <About />
-                      </PrivateRoute>
-                    }
-                  />
-                  {/* <Route
+                    <Route
+                      path="/trainings"
+                      element={
+                        <PrivateRoute>
+                          <Trainings />
+                        </PrivateRoute>
+                      }
+                    />
+                    <Route
+                      path="/trainings/:sessionId"
+                      element={
+                        <PrivateRoute>
+                          <TrainingDetails clientToken={clientToken} />
+                        </PrivateRoute>
+                      }
+                    />
+                    <Route
+                      path="/About"
+                      element={
+                        <PrivateRoute>
+                          <About />
+                        </PrivateRoute>
+                      }
+                    />
+                    {/* <Route
                 path="/ManageData"
                 element={
                   <PrivateRoute>
@@ -292,55 +293,56 @@ export default function App() {
                   </PrivateRoute>
                 }
               /> */}
-                  <Route
-                    path="/view-recent-uploads"
-                    element={
-                      <PrivateRoute>
-                        <ViewRecentUploads />
-                      </PrivateRoute>
-                    }
-                  />
-                  <Route
-                    path="/view-all-datasets"
-                    element={
-                      <PrivateRoute>
-                        <ViewAllDatasets />
-                      </PrivateRoute>
-                    }
-                  />
-                  <Route
-                    path="/raw-dataset-overview/:filename"
-                    element={
-                      <PrivateRoute>
-                        <RawDataSetOverview />
-                      </PrivateRoute>
-                    }
-                  />
-                  <Route
-                    path="/processed-dataset-overview/:filename"
-                    element={
-                      <PrivateRoute>
-                        <ProcessedDataSetOverview />
-                      </PrivateRoute>
-                    }
-                  />
-                  <Route
-                    path="/preprocessing-docs"
-                    element={
-                      <PrivateRoute>
-                        <PreprocessingDocs />
-                      </PrivateRoute>
-                    }
-                  />
-                  <Route
-                    path="/*"
-                    element={
-                      <PrivateRoute>
-                        <Error />
-                      </PrivateRoute>
-                    }
-                  />
-                </Routes>
+                    <Route
+                      path="/view-recent-uploads"
+                      element={
+                        <PrivateRoute>
+                          <ViewRecentUploads />
+                        </PrivateRoute>
+                      }
+                    />
+                    <Route
+                      path="/view-all-datasets"
+                      element={
+                        <PrivateRoute>
+                          <ViewAllDatasets />
+                        </PrivateRoute>
+                      }
+                    />
+                    <Route
+                      path="/raw-dataset-overview/:filename"
+                      element={
+                        <PrivateRoute>
+                          <RawDataSetOverview />
+                        </PrivateRoute>
+                      }
+                    />
+                    <Route
+                      path="/processed-dataset-overview/:filename"
+                      element={
+                        <PrivateRoute>
+                          <ProcessedDataSetOverview />
+                        </PrivateRoute>
+                      }
+                    />
+                    <Route
+                      path="/preprocessing-docs"
+                      element={
+                        <PrivateRoute>
+                          <PreprocessingDocs />
+                        </PrivateRoute>
+                      }
+                    />
+                    <Route
+                      path="/*"
+                      element={
+                        <PrivateRoute>
+                          <Error />
+                        </PrivateRoute>
+                      }
+                    />
+                  </Routes>
+                </lol>
               </div>
               <Footer />
             </div>
