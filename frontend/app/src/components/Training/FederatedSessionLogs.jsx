@@ -15,6 +15,7 @@ const FederatedSessionLogs = ({ sessionId }) => {
   const [selectedTag, setSelectedTag] = useState("ALL"); // <-- New state for tag filter
   const { api } = useAuth();
   const logsEndRef = useRef(null);
+  const logsTopRef = useRef(null); // <-- New ref for top
 
   // Available tags
   const availableTags = [
@@ -165,7 +166,9 @@ const FederatedSessionLogs = ({ sessionId }) => {
   };
 
   return (
-    <div className="w-full">
+    <div className="w-full relative">
+      {" "}
+      {/* Add relative for absolute buttons */}
       <div className="bg-white shadow rounded-lg border border-gray-200">
         <div className="px-6 py-4 border-b border-gray-200">
           <h3 className="text-lg font-medium text-gray-900 flex items-center">
@@ -273,34 +276,31 @@ const FederatedSessionLogs = ({ sessionId }) => {
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
-                <tr>
+                <tr ref={logsTopRef}>
+                  {/* Top ref here */}
                   <th
                     scope="col"
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                    className="px-6 py-3 w-1/2 text-xs font-medium text-gray-500 uppercase text-left tracking-wider"
                   >
                     Timestamp
                   </th>
                   <th
                     scope="col"
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                    className="px-6 py-3 w-1/2 text-xs font-medium text-gray-500 uppercase text-left tracking-wider"
                   >
                     Message
-                  </th>
-                  <th
-                    scope="col"
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                  >
-                    Tag
                   </th>
                 </tr>
               </thead>
             </table>
-            <div className="max-h-[500px] overflow-y-auto">
+            <div className="max-h-[500px] overflow-y-auto relative">
+              {" "}
+              {/* Make relative for absolute buttons */}
               <table className="min-w-full divide-y divide-gray-200">
                 <tbody className="bg-white divide-y divide-gray-200">
                   {loading ? (
                     <tr>
-                      <td colSpan="3" className="px-6 py-4 text-center">
+                      <td colSpan="2" className="px-6 py-4 text-center">
                         <div className="flex justify-center items-center text-gray-500">
                           <ArrowPathIcon className="h-5 w-5 mr-2 animate-spin" />
                           Loading logs...
@@ -309,7 +309,7 @@ const FederatedSessionLogs = ({ sessionId }) => {
                     </tr>
                   ) : error ? (
                     <tr>
-                      <td colSpan="3" className="px-6 py-4 text-center">
+                      <td colSpan="2" className="px-6 py-4 text-center">
                         <div className="flex justify-center items-center text-red-500">
                           <ExclamationTriangleIcon className="h-5 w-5 mr-2" />
                           {error}
@@ -318,7 +318,7 @@ const FederatedSessionLogs = ({ sessionId }) => {
                     </tr>
                   ) : filteredLogs.length === 0 ? (
                     <tr>
-                      <td colSpan="3" className="px-6 py-4 text-center">
+                      <td colSpan="2" className="px-6 py-4 text-center">
                         <div className="flex justify-center items-center text-gray-500">
                           <InformationCircleIcon className="h-5 w-5 mr-2" />
                           {searchQuery || selectedTag !== "ALL"
@@ -334,21 +334,23 @@ const FederatedSessionLogs = ({ sessionId }) => {
                       const tagColors = getTagColors(log.tag);
                       return (
                         <tr key={log.id} className="hover:bg-gray-50">
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            {formatTimestamp(log.created_at)}
+                          <td className="px-6 py-4 w-1/2 align-top text-left">
+                            <div className="text-sm text-gray-900">
+                              {formatTimestamp(log.created_at)}
+                            </div>
                           </td>
-                          <td className="px-6 py-4 text-sm text-gray-900">
-                            {log.message}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div
+                          <td className="px-6 py-4 align-top text-left flex justify-between">
+                            <span className="text-sm text-gray-900 mr-2">
+                              {log.message}
+                            </span>
+                            <span
                               className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border ${tagColors.border} ${tagColors.text} bg-white`}
                             >
                               <span
                                 className={`w-2 h-2 rounded-full ${tagColors.dot} mr-2`}
                               ></span>
                               {log.tag}
-                            </div>
+                            </span>
                           </td>
                         </tr>
                       );
@@ -357,7 +359,56 @@ const FederatedSessionLogs = ({ sessionId }) => {
                   <tr ref={logsEndRef} />
                 </tbody>
               </table>
+              {/* Floating Go to Top/Bottom Buttons inside logs area */}
             </div>
+            {logs.length > 0 && !loading && (
+              <>
+                <button
+                  onClick={() =>
+                    logsTopRef.current?.scrollIntoView({ behavior: "smooth" })
+                  }
+                  className="absolute translate-x-6 bottom-2 right-1/2 bg-gray-800/30 text-white rounded-full p-1 hover:bg-gray-800/50 z-20"
+                  title="Go to Top"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth={2}
+                    stroke="currentColor"
+                    className="w-5 h-5"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M5 15l7-7 7 7"
+                    />
+                  </svg>
+                </button>
+                <button
+                  onClick={() =>
+                    logsEndRef.current?.scrollIntoView({ behavior: "smooth" })
+                  }
+                  className="absolute -translate-x-6 bottom-2 right-1/2 bg-gray-800/30 text-white rounded-full p-1 hover:bg-gray-800/50 z-20"
+                  title="Go to Bottom"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth={2}
+                    stroke="currentColor"
+                    className="w-5 h-5"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M19 9l-7 7-7-7"
+                    />
+                  </svg>
+                </button>
+              </>
+            )}
           </div>
         </div>
 

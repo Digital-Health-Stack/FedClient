@@ -113,7 +113,7 @@ const SessionInfo = ({ data }) => {
       <div className="p-6 mt-5 m-10">
         <ProgressBar
           percent={(progressIndex / (steps.length - 1)) * 100}
-          filledBackground="#0f0"
+          filledBackground="#22c55e"
           height={6}
         >
           {steps.map((step, idx) => (
