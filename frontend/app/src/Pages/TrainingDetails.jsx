@@ -26,17 +26,17 @@ import TrainingProgress from "../components/Training/TrainingProgress";
 
 const statusConfig = {
   0: {
-    text: "Pending Start",
+    text: "Pending",
     color: "bg-blue-100 text-blue-800",
     icon: <ClockIcon className="h-5 w-5" />,
   },
   1: {
-    text: "Awaiting Clients",
+    text: "Waiting for Clients",
     color: "bg-blue-100 text-blue-800",
     icon: <InformationCircleIcon className="h-5 w-5" />,
   },
   2: {
-    text: "Training Active",
+    text: "Active",
     color: "bg-yellow-100 text-yellow-800",
     icon: <BoltIcon className="h-5 w-5" />,
   },

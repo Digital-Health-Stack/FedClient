@@ -8,14 +8,14 @@ const MultiLayerPerceptron = () => {
   const lossFunctions = {
     mse: "Mean Squared Error",
     mae: "Mean Absolute Error",
-    binaryCrossentropy: "Binary Crossentropy",
-    categoricalCrossentropy: "Categorical Crossentropy",
+    binaryCrossentropy: "Binary Cross Entropy",
+    categoricalCrossentropy: "Categorical Cross Entropy",
     hinge: "Hinge",
     huber: "Huber",
     klDivergence: "Kullback-Leibler Divergence",
     logCosh: "Log-Cosh",
     poisson: "Poisson",
-    sparseCategoricalCrossentropy: "Sparse Categorical Crossentropy",
+    sparseCategoricalCrossentropy: "Sparse Categorical Cross Entropy",
   };
   const optimizers = {
     sgd: "Stochastic Gradient Descent",
@@ -121,13 +121,13 @@ const MultiLayerPerceptron = () => {
               className="border rounded p-2 flex-1"
               placeholder="Number of Nodes"
               {...register(
-                `model_info.intermediate_layer.${index}.feature_name`,
+                `model_info.intermediate_layer.${index}.feature_name`
               )}
             />
             <select
               className="border rounded p-2"
               {...register(
-                `model_info.intermediate_layer.${index}.activation_function`,
+                `model_info.intermediate_layer.${index}.activation_function`
               )}
             >
               <option value="select-activation">Activation Function</option>

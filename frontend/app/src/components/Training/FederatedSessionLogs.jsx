@@ -276,7 +276,7 @@ const FederatedSessionLogs = ({ sessionId }) => {
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
-                <tr ref={logsTopRef}>
+                <tr>
                   {/* Top ref here */}
                   <th
                     scope="col"
@@ -330,10 +330,14 @@ const FederatedSessionLogs = ({ sessionId }) => {
                       </td>
                     </tr>
                   ) : (
-                    filteredLogs.map((log) => {
+                    filteredLogs.map((log, index) => {
                       const tagColors = getTagColors(log.tag);
                       return (
-                        <tr key={log.id} className="hover:bg-gray-50">
+                        <tr
+                          key={log.id}
+                          className="hover:bg-gray-50"
+                          ref={index === 0 ? logsTopRef : null}
+                        >
                           <td className="px-6 py-4 w-1/2 align-top text-left">
                             <div className="text-sm text-gray-900">
                               {formatTimestamp(log.created_at)}

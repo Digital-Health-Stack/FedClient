@@ -42,9 +42,9 @@ const optimizers = {
 const lossFunctions = {
   mse: "Mean Squared Error",
   mae: "Mean Absolute Error",
-  binary_crossentropy: "Binary Crossentropy",
-  categorical_crossentropy: "Categorical Crossentropy",
-  sparse_categorical_crossentropy: "Sparse Categorical Crossentropy",
+  binary_crossentropy: "Binary Cross Entropy",
+  categorical_crossentropy: "Categorical Cross Entropy",
+  sparse_categorical_crossentropy: "Sparse Categorical Cross Entropy",
 };
 
 const layerTypes = {
