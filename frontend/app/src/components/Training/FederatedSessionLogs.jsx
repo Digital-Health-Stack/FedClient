@@ -11,6 +11,7 @@ const FederatedSessionLogs = ({ sessionId }) => {
   const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [searchQuery, setSearchQuery] = useState(""); // <-- New state for search
   const { api } = useAuth();
   const logsEndRef = useRef(null);
 
@@ -58,6 +59,17 @@ const FederatedSessionLogs = ({ sessionId }) => {
     }
   };
 
+  // Filter logs based on search query
+  const filteredLogs = logs.filter((log) => {
+    if (!searchQuery) return true;
+    const message = log.message?.toLowerCase() || "";
+    const timestamp = log.created_at?.toLowerCase?.() || "";
+    return (
+      message.includes(searchQuery.toLowerCase()) ||
+      timestamp.includes(searchQuery.toLowerCase())
+    );
+  });
+
   return (
     <div className="w-full">
       <div className="bg-white shadow rounded-lg border border-gray-200">
@@ -68,6 +80,34 @@ const FederatedSessionLogs = ({ sessionId }) => {
               <ArrowPathIcon className="h-5 w-5 ml-2 text-blue-500 animate-spin" />
             )}
           </h3>
+          {/* Search input */}
+          <div className="mt-2 flex items-center relative w-full max-w-md">
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+              {/* Heroicons MagnifyingGlassIcon */}
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={1.5}
+                stroke="currentColor"
+                className="w-5 h-5"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 104.5 4.5a7.5 7.5 0 0012.15 12.15z"
+                />
+              </svg>
+            </span>
+            <input
+              type="text"
+              className="pl-10 pr-4 py-2 w-full rounded-lg border border-gray-300 bg-gray-50 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition placeholder-gray-400 shadow-sm hover:border-blue-300"
+              placeholder="Search logs by message or timestamp..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              style={{ boxShadow: "0 1px 2px rgba(0,0,0,0.04)" }}
+            />
+          </div>
         </div>
 
         <div className="overflow-hidden">
@@ -111,19 +151,21 @@ const FederatedSessionLogs = ({ sessionId }) => {
                         </div>
                       </td>
                     </tr>
-                  ) : logs.length === 0 ? (
+                  ) : filteredLogs.length === 0 ? (
                     <tr>
                       <td colSpan="2" className="px-6 py-4 text-center">
                         <div className="flex justify-center items-center text-gray-500">
                           <InformationCircleIcon className="h-5 w-5 mr-2" />
-                          {sessionId
+                          {searchQuery
+                            ? "No logs match your search."
+                            : sessionId
                             ? "No logs available"
                             : "Select a session to view logs"}
                         </div>
                       </td>
                     </tr>
                   ) : (
-                    logs.map((log) => (
+                    filteredLogs.map((log) => (
                       <tr key={log.id} className="hover:bg-gray-50">
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                           {formatTimestamp(log.created_at)}
