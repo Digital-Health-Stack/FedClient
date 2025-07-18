@@ -229,7 +229,7 @@ export default function SelectDatasetsStep() {
       </div>
 
       <div className="space-y-6">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 gap-6">
           {/* Client Dataset Section */}
           {/* <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
             <div className="space-y-3">
@@ -323,7 +323,7 @@ export default function SelectDatasetsStep() {
                       value={file.filename}
                       title={file.filename}
                     >
-                      {shortenText(file.filename, 20)}
+                      {shortenText(file.filename, 50)}
                     </option>
                   ))}
                 </select>
@@ -395,121 +395,6 @@ export default function SelectDatasetsStep() {
                 </div>
               </div> 
             </div> */}
-
-            {/* Column Selection */}
-            {
-              <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
-                <button
-                  title="Select the columns you want to use as input for training"
-                  type="button"
-                  onClick={() =>
-                    setShowInputColumnSelection(!showInputColumnSelection)
-                  }
-                  className="flex items-center text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors"
-                >
-                  {showInputColumnSelection ? (
-                    <ChevronUpIcon className="h-4 w-4 mr-2" />
-                  ) : (
-                    <ChevronDownIcon className="h-4 w-4 mr-2" />
-                  )}
-                  Select Input Columns
-                </button>
-
-                {showInputColumnSelection && (
-                  <div className="mt-4 space-y-3">
-                    <p className="text-sm text-gray-600">
-                      Select which columns should be marked as input column(s).
-                      <br />
-                    </p>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-                      {getAvailableColumns().map((column) => (
-                        <label
-                          key={column}
-                          className="flex items-center space-x-3 p-2 bg-gray-50 rounded-md hover:bg-gray-100 transition-colors cursor-pointer"
-                        >
-                          <input
-                            type="checkbox"
-                            checked={inputColumns.includes(column)}
-                            onChange={() => handleInputColumnChange(column)}
-                            className="h-4 w-4 text-blue-600 rounded focus:ring-blue-500 border-gray-300"
-                          />
-                          <span className="text-sm text-gray-700">
-                            {column}
-                          </span>
-                        </label>
-                      ))}
-                    </div>
-                    {selectedTaskId && (
-                      <div className="px-1 py-3">
-                        <div className="flex items-center">
-                          <InformationCircleIcon className="h-5 w-5 text-blue-500 mr-2 flex-shrink-0" />
-                          <p className="text-sm text-gray-600">
-                            Remember that the input column must be selected
-                            which you want to use for training.
-                          </p>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-            }
-            {
-              <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
-                <button
-                  type="button"
-                  onClick={() => setShowColumnSelection(!showColumnSelection)}
-                  className="flex items-center text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors"
-                  title="Select the columns you want to use as output for training"
-                >
-                  {showColumnSelection ? (
-                    <ChevronUpIcon className="h-4 w-4 mr-2" />
-                  ) : (
-                    <ChevronDownIcon className="h-4 w-4 mr-2" />
-                  )}
-                  Select Output Columns
-                </button>
-
-                {showColumnSelection && (
-                  <div className="mt-4 space-y-3">
-                    <p className="text-sm text-gray-600">
-                      Select which columns should be marked as output column(s).
-                      <br />
-                    </p>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-                      {getAvailableColumns().map((column) => (
-                        <label
-                          key={column}
-                          className="flex items-center space-x-3 p-2 bg-gray-50 rounded-md hover:bg-gray-100 transition-colors cursor-pointer"
-                        >
-                          <input
-                            type="checkbox"
-                            checked={outputColumns.includes(column)}
-                            onChange={() => handleOutputColumnChange(column)}
-                            className="h-4 w-4 text-blue-600 rounded focus:ring-blue-500 border-gray-300"
-                          />
-                          <span className="text-sm text-gray-700">
-                            {column}
-                          </span>
-                        </label>
-                      ))}
-                    </div>
-                    {selectedTaskId && (
-                      <div className="px-1 py-3">
-                        <div className="flex items-center">
-                          <InformationCircleIcon className="h-5 w-5 text-blue-500 mr-2 flex-shrink-0" />
-                          <p className="text-sm text-gray-600">
-                            Remember that the output column must be selected
-                            which is specified in the task.
-                          </p>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-            }
-
             {/* Task Selection */}
             <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
               {loadingTasks ? (
@@ -650,6 +535,128 @@ export default function SelectDatasetsStep() {
                 </div>
               )}
             </div>
+            {/* Column Selection */}
+            {
+              <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
+                <button
+                  title="Select the columns you want to use as input for training"
+                  type="button"
+                  onClick={() =>
+                    setShowInputColumnSelection(!showInputColumnSelection)
+                  }
+                  className="flex items-center text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors"
+                >
+                  {showInputColumnSelection ? (
+                    <ChevronUpIcon className="h-4 w-4 mr-2" />
+                  ) : (
+                    <ChevronDownIcon className="h-4 w-4 mr-2" />
+                  )}
+                  Select Input Columns
+                </button>
+
+                {showInputColumnSelection && (
+                  <div className="mt-4 space-y-3">
+                    <p className="text-sm text-gray-600">
+                      Select which columns should be marked as input column(s).
+                      <br />
+                    </p>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                      {getAvailableColumns().map((column) => (
+                        <label
+                          key={column}
+                          className="flex items-center space-x-3 p-2 bg-gray-50 rounded-md hover:bg-gray-100 transition-colors cursor-pointer"
+                        >
+                          <input
+                            type="checkbox"
+                            disabled={
+                              selectedTaskId &&
+                              column ===
+                                tasks.find(
+                                  (t) =>
+                                    String(t.task_id) === String(selectedTaskId)
+                                ).output_column
+                            }
+                            checked={inputColumns.includes(column)}
+                            value={column}
+                            onChange={() => handleInputColumnChange(column)}
+                            className="h-4 w-4 text-blue-600 rounded focus:ring-blue-500 border-gray-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                          />
+                          <span className="text-sm text-gray-700">
+                            {column}
+                          </span>
+                        </label>
+                      ))}
+                    </div>
+                    {selectedTaskId && (
+                      <div className="px-1 py-3">
+                        <div className="flex items-center">
+                          <InformationCircleIcon className="h-5 w-5 text-blue-500 mr-2 flex-shrink-0" />
+                          <p className="text-sm text-gray-600">
+                            Remember that the input column must be selected
+                            which you want to use for training.
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            }
+            {/* {
+              <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
+                <button
+                  type="button"
+                  onClick={() => setShowColumnSelection(!showColumnSelection)}
+                  className="flex items-center text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors"
+                  title="Select the columns you want to use as output for training"
+                >
+                  {showColumnSelection ? (
+                    <ChevronUpIcon className="h-4 w-4 mr-2" />
+                  ) : (
+                    <ChevronDownIcon className="h-4 w-4 mr-2" />
+                  )}
+                  Select Output Columns
+                </button>
+
+                {showColumnSelection && (
+                  <div className="mt-4 space-y-3">
+                    <p className="text-sm text-gray-600">
+                      Select which columns should be marked as output column(s).
+                      <br />
+                    </p>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                      {getAvailableColumns().map((column) => (
+                        <label
+                          key={column}
+                          className="flex items-center space-x-3 p-2 bg-gray-50 rounded-md hover:bg-gray-100 transition-colors cursor-pointer"
+                        >
+                          <input
+                            type="checkbox"
+                            checked={outputColumns.includes(column)}
+                            onChange={() => handleOutputColumnChange(column)}
+                            className="h-4 w-4 text-blue-600 rounded focus:ring-blue-500 border-gray-300"
+                          />
+                          <span className="text-sm text-gray-700">
+                            {column}
+                          </span>
+                        </label>
+                      ))}
+                    </div>
+                    {selectedTaskId && (
+                      <div className="px-1 py-3">
+                        <div className="flex items-center">
+                          <InformationCircleIcon className="h-5 w-5 text-blue-500 mr-2 flex-shrink-0" />
+                          <p className="text-sm text-gray-600">
+                            Remember that the output column must be selected
+                            which is specified in the task.
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            } */}
           </div>
         )}
       </div>

@@ -24,6 +24,7 @@
     "react-hook-form": "^7.51.5",
     "react-joyride": "^2.9.3",
     "react-router-dom": "^6.23.1",
+    "react-step-progress-bar": "^1.0.3",
     "react-toastify": "^10.0.6",
     "recharts": "^2.15.2",
     "serve": "^14.2.3"

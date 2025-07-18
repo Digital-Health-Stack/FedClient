@@ -15,6 +15,8 @@ import {
   CheckBadgeIcon,
 } from "@heroicons/react/24/outline";
 import React, { useEffect } from "react";
+import { ProgressBar, Step } from "react-step-progress-bar";
+import "react-step-progress-bar/styles.css";
 
 const SessionInfo = ({ data }) => {
   // Training Status Configuration
@@ -76,6 +78,24 @@ const SessionInfo = ({ data }) => {
     },
   };
 
+  // Define the ordered steps for the progress bar
+  const steps = [
+    { key: 0, label: "Session Created" },
+    { key: 1, label: "Price Negotiation" },
+    { key: 2, label: "Client Recruitment" },
+    { key: 3, label: "Model Initialization" },
+    { key: 4, label: "Training Active" },
+    { key: 5, label: "Completed" },
+  ];
+  // Map training_status to progress index
+  const currentStatus =
+    typeof data?.training_status === "number" ? data.training_status : 0;
+  // If failed, show as completed but with error color
+  const isFailed = currentStatus === -1;
+  const progressIndex = isFailed
+    ? steps.length - 1
+    : Math.max(0, Math.min(currentStatus, steps.length - 1));
+
   useEffect(() => {
     console.log("Training Status Value:", data);
   }, [data]);
@@ -89,7 +109,62 @@ const SessionInfo = ({ data }) => {
           Session Details
         </h3>
       </div>
-
+      {/* Progress Bar */}
+      <div className="p-6 mt-5 m-10">
+        <ProgressBar
+          percent={(progressIndex / (steps.length - 1)) * 100}
+          filledBackground="#22c55e"
+          height={6}
+        >
+          {steps.map((step, idx) => (
+            <Step key={step.key}>
+              {({ accomplished }) => (
+                <div className="relative w-6 h-6 flex flex-col items-center">
+                  {/* Circle */}
+                  <div
+                    style={{
+                      position: "absolute",
+                      top: 0,
+                      left: "50%",
+                      transform: "translate(-50%, 0)",
+                      zIndex: 2,
+                    }}
+                    className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold border-2
+                      ${
+                        isFailed && idx === steps.length - 1
+                          ? "bg-red-500 border-red-700 text-white"
+                          : idx === progressIndex
+                          ? "bg-green-500 border-green-400 text-white"
+                          : accomplished
+                          ? "bg-green-500 border-green-400 text-white"
+                          : "bg-gray-200 border-gray-400 text-gray-500"
+                      }`}
+                  >
+                    {idx + 1}
+                  </div>
+                  {/* Label */}
+                  <span
+                    style={{
+                      position: "absolute",
+                      top: 32,
+                      left: "50%",
+                      transform: "translate(-50%, 0)",
+                      width: 80,
+                      textAlign: "center",
+                      fontSize: 12,
+                      fontWeight: idx <= progressIndex ? 600 : 400,
+                      color: idx <= progressIndex ? "#22c55e" : "#6b7280",
+                      zIndex: 1,
+                    }}
+                  >
+                    {step.label}
+                  </span>
+                </div>
+              )}
+            </Step>
+          ))}
+        </ProgressBar>
+      </div>
       {/* Session Details Content */}
       <div className="p-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
@@ -156,13 +231,19 @@ const StatusItem = ({ label, statusConfig }) => {
     <div className="flex items-start space-x-3">
       <div className="flex-shrink-0 mt-0.5">
         {React.cloneElement(statusConfig.icon, {
-          className: `h-5 w-5 ${variantClasses[statusConfig.variant].replace("bg-", "text-").split(" ")[1]}`,
+          className: `h-5 w-5 ${
+            variantClasses[statusConfig.variant]
+              .replace("bg-", "text-")
+              .split(" ")[1]
+          }`,
         })}
       </div>
       <div>
         <p className="text-sm font-medium text-gray-500">{label}</p>
         <span
-          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${variantClasses[statusConfig.variant]}`}
+          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+            variantClasses[statusConfig.variant]
+          }`}
         >
           {statusConfig.label}
         </span>
