@@ -17,6 +17,7 @@ import {
   ArrowRightIcon,
   ArrowLeftIcon,
   WrenchScrewdriverIcon,
+  InformationCircleIcon,
 } from "@heroicons/react/24/outline";
 import { toast } from "react-toastify";
 
@@ -31,6 +32,7 @@ const steps = [
 export default function Request() {
   const [currentStep, setCurrentStep] = useState(0);
   const methods = useForm({});
+  const [showStepInfo, setShowStepInfo] = useState(false);
 
   const { api } = useAuth();
   const navigate = useNavigate();
@@ -99,8 +101,47 @@ export default function Request() {
         <div className="flex-1 p-8 ml-0">
           <form
             onSubmit={methods.handleSubmit(onSubmit)}
-            className="max-w-4xl mx-auto bg-white rounded-xl shadow-sm p-8"
+            className="max-w-4xl mx-auto bg-white rounded-xl shadow-sm p-8 relative"
           >
+            {/* Info Button for Step */}
+            <button
+              type="button"
+              className="absolute top-4 right-4 w-5 h-5 flex items-center justify-center rounded-full text-gray-500 hover:text-gray-700"
+              onClick={() => setShowStepInfo((prev) => !prev)}
+              aria-label="Show info about this step"
+            >
+              <span className="font-bold text-xs">
+                <InformationCircleIcon className="h-5 w-5" />
+              </span>
+            </button>
+            {showStepInfo && (
+              <div className="absolute top-12 right-4 z-20 w-72 bg-white border border-gray-200 rounded-lg shadow-lg p-4 text-sm text-gray-700 animate-fade-in">
+                <div className="flex justify-between items-center mb-2">
+                  <span className="font-semibold">
+                    {steps[currentStep].label}
+                  </span>
+                  <button
+                    className="text-gray-400 hover:text-gray-600"
+                    onClick={() => setShowStepInfo(false)}
+                    aria-label="Close info"
+                  >
+                    ×
+                  </button>
+                </div>
+                <div>
+                  {currentStep === 0 &&
+                    "Enter your organization details to proceed with the model request."}
+                  {currentStep === 1 &&
+                    "Select datasets you want to include in the training process."}
+                  {currentStep === 2 &&
+                    "Choose the machine learning model architecture."}
+                  {currentStep === 3 &&
+                    "Configure statistical parameters for model training."}
+                  {currentStep === 4 &&
+                    "Set hyperparameters for the training process."}
+                </div>
+              </div>
+            )}
             <div className="mb-8">
               <h3 className="text-2xl font-semibold text-gray-800">
                 {steps[currentStep].label}

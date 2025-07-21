@@ -11,6 +11,7 @@ import {
   getRawDatasets,
   getProcessedDatasets,
 } from "../services/privateService";
+import { InformationCircleIcon } from "@heroicons/react/24/outline";
 
 export default function Dashboard() {
   const [initiatedSessions, setInitiatedSessions] = useState([]);
@@ -152,6 +153,13 @@ export default function Dashboard() {
     }
   }, [showWalkthrough]);
 
+  const [showRawInfo, setShowRawInfo] = useState(false);
+  const [showActiveSessionsInfo, setShowActiveSessionsInfo] = useState(false);
+  const [showProcessedInfo, setShowProcessedInfo] = useState(false);
+  const [showActiveTrainingInfo, setShowActiveTrainingInfo] = useState(false);
+  const [showRecentDatasetsInfo, setShowRecentDatasetsInfo] = useState(false);
+  const [showRecentSessionsInfo, setShowRecentSessionsInfo] = useState(false);
+
   return (
     <>
       <Joyride
@@ -213,7 +221,37 @@ export default function Dashboard() {
 
           {/* Stats Grid */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div className="bg-white p-6 rounded-xl shadow-sm dashboard-active-sessions">
+            <div className="bg-white p-6 rounded-xl shadow-sm dashboard-active-sessions relative">
+              {/* Info Button */}
+              <button
+                type="button"
+                className="absolute top-2 right-2 w-5 h-5 flex items-center justify-center rounded-full text-gray-500 hover:text-gray-700"
+                onClick={() => setShowActiveSessionsInfo((prev) => !prev)}
+                aria-label="Show info about active sessions"
+              >
+                <span className="font-bold text-xs">
+                  <InformationCircleIcon className="h-5 w-5" />
+                </span>
+              </button>
+              {/* Info Popover */}
+              {showActiveSessionsInfo && (
+                <div className="absolute top-10 right-2 z-20 w-64 bg-white border border-gray-200 rounded-lg shadow-lg p-4 text-sm text-gray-700 animate-fade-in">
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="font-semibold">Active Sessions</span>
+                    <button
+                      className="text-gray-400 hover:text-gray-600"
+                      onClick={() => setShowActiveSessionsInfo(false)}
+                      aria-label="Close info"
+                    >
+                      ×
+                    </button>
+                  </div>
+                  <div>
+                    Shows the number of federated learning sessions you have
+                    initiated and are currently active.
+                  </div>
+                </div>
+              )}
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-500 ">Active Sessions</p>
@@ -245,7 +283,38 @@ export default function Dashboard() {
               </Link>
             </div>
 
-            <div className="bg-white p-6 rounded-xl shadow-sm dashboard-raw-datasets">
+            <div className="bg-white p-6 rounded-xl shadow-sm dashboard-raw-datasets relative">
+              {/* Info Button */}
+              <button
+                type="button"
+                className="absolute top-2 right-2 w-5 h-5 flex items-center justify-center rounded-full text-gray-500 hover:text-gray-700"
+                onClick={() => setShowRawInfo((prev) => !prev)}
+                aria-label="Show info about raw datasets"
+              >
+                <span className="font-bold text-xs">
+                  <InformationCircleIcon className="h-5 w-5" />
+                </span>
+              </button>
+              {/* Info Popover */}
+              {showRawInfo && (
+                <div className="absolute top-12 right-4 z-20 w-64 bg-white border border-gray-200 rounded-lg shadow-lg p-4 text-sm text-gray-700 animate-fade-in">
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="font-semibold">Raw Datasets</span>
+                    <button
+                      className="text-gray-400 hover:text-gray-600"
+                      onClick={() => setShowRawInfo(false)}
+                      aria-label="Close info"
+                    >
+                      ×
+                    </button>
+                  </div>
+                  <div>
+                    These are the original datasets you have uploaded. You can
+                    manage, view, or preprocess them for federated learning
+                    tasks.
+                  </div>
+                </div>
+              )}
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-500">Raw Datasets</p>
@@ -277,7 +346,37 @@ export default function Dashboard() {
               </Link>
             </div>
 
-            <div className="bg-white p-6 rounded-xl shadow-sm dashboard-processed-datasets">
+            <div className="bg-white p-6 rounded-xl shadow-sm dashboard-processed-datasets relative">
+              {/* Info Button */}
+              <button
+                type="button"
+                className="absolute top-2 right-2 w-5 h-5 flex items-center justify-center rounded-full text-gray-500 hover:text-gray-700"
+                onClick={() => setShowProcessedInfo((prev) => !prev)}
+                aria-label="Show info about processed datasets"
+              >
+                <span className="font-bold text-xs">
+                  <InformationCircleIcon className="h-5 w-5" />
+                </span>
+              </button>
+              {/* Info Popover */}
+              {showProcessedInfo && (
+                <div className="absolute top-10 right-2 z-20 w-64 bg-white border border-gray-200 rounded-lg shadow-lg p-4 text-sm text-gray-700 animate-fade-in">
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="font-semibold">Processed Datasets</span>
+                    <button
+                      className="text-gray-400 hover:text-gray-600"
+                      onClick={() => setShowProcessedInfo(false)}
+                      aria-label="Close info"
+                    >
+                      ×
+                    </button>
+                  </div>
+                  <div>
+                    These are datasets that have been pre-processed and are
+                    ready for use in federated learning tasks.
+                  </div>
+                </div>
+              )}
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-500">Processed Datasets</p>
@@ -311,7 +410,39 @@ export default function Dashboard() {
           </div>
 
           {/* Active Sessions Table */}
-          <div className="bg-white rounded-xl shadow-sm p-6 mb-8 dashboard-active-training-sessions">
+          <div className="bg-white rounded-xl shadow-sm p-6 mb-8 dashboard-active-training-sessions relative">
+            {/* Info Button */}
+            <button
+              type="button"
+              className="absolute top-2 right-2 w-5 h-5 flex items-center justify-center rounded-full text-gray-500 hover:text-gray-700"
+              onClick={() => setShowActiveTrainingInfo((prev) => !prev)}
+              aria-label="Show info about active training sessions"
+            >
+              <span className="font-bold text-xs">
+                <InformationCircleIcon className="h-5 w-5" />
+              </span>
+            </button>
+            {/* Info Popover */}
+            {showActiveTrainingInfo && (
+              <div className="absolute top-10 right-2 z-20 w-64 bg-white border border-gray-200 rounded-lg shadow-lg p-4 text-sm text-gray-700 animate-fade-in">
+                <div className="flex justify-between items-center mb-2">
+                  <span className="font-semibold">
+                    Active Training Sessions
+                  </span>
+                  <button
+                    className="text-gray-400 hover:text-gray-600"
+                    onClick={() => setShowActiveTrainingInfo(false)}
+                    aria-label="Close info"
+                  >
+                    ×
+                  </button>
+                </div>
+                <div>
+                  Displays details and progress of your currently running
+                  federated training sessions.
+                </div>
+              </div>
+            )}
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold text-gray-900">
                 Active Training Sessions
@@ -400,7 +531,37 @@ export default function Dashboard() {
           {/* Recent Data Section */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Recent Datasets */}
-            <div className="bg-white rounded-xl shadow-sm p-6 dashboard-recent-datasets">
+            <div className="bg-white rounded-xl shadow-sm p-6 dashboard-recent-datasets relative">
+              {/* Info Button */}
+              <button
+                type="button"
+                className="absolute top-2 right-2 w-5 h-5 flex items-center justify-center rounded-full text-gray-500 hover:text-gray-700"
+                onClick={() => setShowRecentDatasetsInfo((prev) => !prev)}
+                aria-label="Show info about recent datasets"
+              >
+                <span className="font-bold text-xs">
+                  <InformationCircleIcon className="h-5 w-5" />
+                </span>
+              </button>
+              {/* Info Popover */}
+              {showRecentDatasetsInfo && (
+                <div className="absolute top-10 right-2 z-20 w-64 bg-white border border-gray-200 rounded-lg shadow-lg p-4 text-sm text-gray-700 animate-fade-in">
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="font-semibold">Recent Datasets</span>
+                    <button
+                      className="text-gray-400 hover:text-gray-600"
+                      onClick={() => setShowRecentDatasetsInfo(false)}
+                      aria-label="Close info"
+                    >
+                      ×
+                    </button>
+                  </div>
+                  <div>
+                    Shows a list of your most recently uploaded or processed
+                    datasets for quick access.
+                  </div>
+                </div>
+              )}
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-lg font-semibold text-gray-900">
                   Recent Datasets
@@ -530,7 +691,37 @@ export default function Dashboard() {
             </div>
 
             {/* Recent Sessions */}
-            <div className="bg-white rounded-xl shadow-sm p-6 dashboard-recent-sessions">
+            <div className="bg-white rounded-xl shadow-sm p-6 dashboard-recent-sessions relative">
+              {/* Info Button */}
+              <button
+                type="button"
+                className="absolute top-2 right-2 w-5 h-5 flex items-center justify-center rounded-full text-gray-500 hover:text-gray-700"
+                onClick={() => setShowRecentSessionsInfo((prev) => !prev)}
+                aria-label="Show info about recent sessions"
+              >
+                <span className="font-bold text-xs">
+                  <InformationCircleIcon className="h-5 w-5" />
+                </span>
+              </button>
+              {/* Info Popover */}
+              {showRecentSessionsInfo && (
+                <div className="absolute top-10 right-2 z-20 w-64 bg-white border border-gray-200 rounded-lg shadow-lg p-4 text-sm text-gray-700 animate-fade-in">
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="font-semibold">Recent Sessions</span>
+                    <button
+                      className="text-gray-400 hover:text-gray-600"
+                      onClick={() => setShowRecentSessionsInfo(false)}
+                      aria-label="Close info"
+                    >
+                      ×
+                    </button>
+                  </div>
+                  <div>
+                    Displays your most recently completed or active federated
+                    learning sessions for quick review.
+                  </div>
+                </div>
+              )}
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-lg font-semibold text-gray-900">
                   Recent Sessions

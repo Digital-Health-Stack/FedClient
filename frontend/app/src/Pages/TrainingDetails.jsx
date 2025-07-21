@@ -62,6 +62,7 @@ export default function TrainingDetails() {
   const { api } = useAuth();
   const [federatedSessionData, setFederatedSessionData] = useState({});
   const [currentSection, setCurrentSection] = useState("session-info");
+  const [showSectionInfo, setShowSectionInfo] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   const fetchFederatedSessionData = async () => {
@@ -185,7 +186,51 @@ export default function TrainingDetails() {
 
       {/* Main Content */}
       <div className="flex-1 p-6">
-        <div className="bg-white rounded-lg shadow-sm p-6">
+        <div className="bg-white rounded-lg shadow-sm p-6 relative">
+          {/* Info Button for Section */}
+          <button
+            type="button"
+            className="absolute top-4 right-4 w-5 h-5 flex items-center justify-center rounded-full text-gray-500 hover:text-gray-700"
+            onClick={() => setShowSectionInfo((prev) => !prev)}
+            aria-label="Show info about this section"
+          >
+            <span className="font-bold text-xs">
+              <InformationCircleIcon className="h-5 w-5" />
+            </span>
+          </button>
+          {showSectionInfo && (
+            <div className="absolute top-12 right-4 z-20 w-72 bg-white border border-gray-200 rounded-lg shadow-lg p-4 text-sm text-gray-700 animate-fade-in">
+              <div className="flex justify-between items-center mb-2">
+                <span className="font-semibold">
+                  {sections.find((s) => s.id === currentSection)?.label ||
+                    "Section"}
+                </span>
+                <button
+                  className="text-gray-400 hover:text-gray-600"
+                  onClick={() => setShowSectionInfo(false)}
+                  aria-label="Close info"
+                >
+                  ×
+                </button>
+              </div>
+              <div>
+                {currentSection === "session-info" &&
+                  "Overview and metadata of the current federated training session."}
+                {currentSection === "dataset-info" &&
+                  "Details about the dataset(s) used in this session."}
+                {currentSection === "model-config" &&
+                  "Configuration and parameters of the selected machine learning model."}
+                {currentSection === "session-logs" &&
+                  "Logs and events recorded during the training session."}
+                {currentSection === "results" &&
+                  "Results and evaluation metrics from the completed training session."}
+                {currentSection === "actions" &&
+                  "Actions you can perform on this session, such as retrain or stop."}
+                {currentSection === "training-progress" &&
+                  "Progress and status of the ongoing training rounds."}
+              </div>
+            </div>
+          )}
           {currentSection === "session-info" && (
             <SessionInfo data={federatedSessionData} />
           )}

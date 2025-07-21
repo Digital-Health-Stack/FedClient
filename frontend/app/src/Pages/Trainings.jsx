@@ -11,6 +11,7 @@ import {
   ChartBarIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
+  InformationCircleIcon,
 } from "@heroicons/react/24/outline";
 
 export default function Trainings() {
@@ -25,6 +26,7 @@ export default function Trainings() {
     total: 0,
     totalPages: 1,
   });
+  const [showInfo, setShowInfo] = useState(false);
 
   const openDetails = (sessionId) => {
     navigate(`/trainings/${sessionId}`);
@@ -37,7 +39,7 @@ export default function Trainings() {
       const response = await getAllSessions(
         api,
         pagination.page,
-        pagination.perPage,
+        pagination.perPage
       );
       setSessions(response.data.data || []);
       setPagination((prev) => ({
@@ -139,7 +141,7 @@ export default function Trainings() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4 relative">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 flex items-center">
             <CubeIcon className="h-6 w-6 text-blue-600 mr-2" />
@@ -156,6 +158,36 @@ export default function Trainings() {
           <ArrowPathIcon className="h-4 w-4 mr-2" />
           Refresh
         </button>
+        {/* Info Button for Trainings Page */}
+        <button
+          type="button"
+          className="absolute top-0 right-0 w-5 h-5 flex items-center justify-center rounded-full text-gray-500 hover:text-gray-700"
+          onClick={() => setShowInfo((prev) => !prev)}
+          aria-label="Show info about trainings page"
+        >
+          <span className="font-bold text-xs">
+            <InformationCircleIcon className="h-5 w-5" />
+          </span>
+        </button>
+        {showInfo && (
+          <div className="absolute top-8 right-0 z-20 w-80 bg-white border border-gray-200 rounded-lg shadow-lg p-4 text-sm text-gray-700 animate-fade-in">
+            <div className="flex justify-between items-center mb-2">
+              <span className="font-semibold">Training Sessions</span>
+              <button
+                className="text-gray-400 hover:text-gray-600"
+                onClick={() => setShowInfo(false)}
+                aria-label="Close info"
+              >
+                ×
+              </button>
+            </div>
+            <div>
+              This page lists all your federated learning training sessions. You
+              can monitor the status, view details, and track progress of both
+              active and completed sessions.
+            </div>
+          </div>
+        )}
       </div>
 
       {sessions.length === 0 ? (
@@ -182,7 +214,7 @@ export default function Trainings() {
               <span className="font-medium">
                 {Math.min(
                   pagination.page * pagination.perPage,
-                  pagination.total,
+                  pagination.total
                 )}
               </span>{" "}
               of <span className="font-medium">{pagination.total}</span>{" "}
@@ -204,7 +236,7 @@ export default function Trainings() {
                     </h3>
                     <span
                       className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(
-                        session.training_status,
+                        session.training_status
                       )}`}
                     >
                       {TrainingStatuses[session.training_status] || "Unknown"}
@@ -260,7 +292,7 @@ export default function Trainings() {
                   <span className="font-medium">
                     {Math.min(
                       pagination.page * pagination.perPage,
-                      pagination.total,
+                      pagination.total
                     )}
                   </span>{" "}
                   of <span className="font-medium">{pagination.total}</span>{" "}
@@ -307,7 +339,7 @@ export default function Trainings() {
                           {pageNum}
                         </button>
                       );
-                    },
+                    }
                   )}
                   <button
                     onClick={() => handlePageChange(pagination.page + 1)}
