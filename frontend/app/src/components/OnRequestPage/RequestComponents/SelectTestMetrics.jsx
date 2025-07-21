@@ -24,7 +24,7 @@ const SelectTestMetrics = ({ register }) => {
               value={option.value}
               id={`test-metric-${option.value}`}
               className="w-4 h-4 accent-blue-500"
-              {...register("metric")}
+              {...register("test_metrics")}
             />
             <span className="text-gray-700 text-sm">{option.label}</span>
           </label>

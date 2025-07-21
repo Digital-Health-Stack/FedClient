@@ -35,7 +35,7 @@ export default function SelectDatasetsStep() {
   const [errorClient, setErrorClient] = useState(null);
   const [errorServer, setErrorServer] = useState(null);
   const [errorTasks, setErrorTasks] = useState(null);
-  const [outputColumns, setOutputColumns] = useState([]);
+  const [outputColumns, setOutputColumns] = useState(null);
   const [inputColumns, setInputColumns] = useState([]);
   const [showColumnSelection, setShowColumnSelection] = useState(true);
   const [uploadedFiles, setUploadedFiles] = useState([]);
@@ -64,6 +64,8 @@ export default function SelectDatasetsStep() {
           setTasks(data);
           if (data.length > 0 && !selectedTaskId) {
             setValue("task_id", String(data[0].task_id));
+            setValue("output_columns", [data[0].output_column]);
+            setOutputColumns(data[0].output_column);
             setValue("task_name", data[0].task_name);
             setValue("metric", data[0].metric);
           }
@@ -127,7 +129,6 @@ export default function SelectDatasetsStep() {
 
     setLoadingServer(true);
     setErrorServer(null);
-
     try {
       const response = await getDatasetOverview(serverFilename);
 
@@ -138,7 +139,6 @@ export default function SelectDatasetsStep() {
       if (data.details) {
         throw new Error(data.details);
       }
-
       setServerStats(data);
       setValue("server_stats", data.datastats);
       setErrorServer(null);
@@ -157,11 +157,8 @@ export default function SelectDatasetsStep() {
   };
 
   const handleOutputColumnChange = (column) => {
-    const newColumns = outputColumns.includes(column)
-      ? outputColumns.filter((c) => c !== column)
-      : [...outputColumns, column];
-    setOutputColumns(newColumns);
-    setValue("output_columns", newColumns);
+    setOutputColumns(column);
+    setValue("output_columns", [column]);
   };
 
   const handleInputColumnChange = (column) => {
@@ -178,6 +175,7 @@ export default function SelectDatasetsStep() {
       setValue("task_id", String(selectedTask.task_id));
       setValue("metric", selectedTask.metric);
     }
+    handleOutputColumnChange(selectedTask.output_column);
   };
 
   const columnsMatch = () => {
@@ -570,6 +568,11 @@ export default function SelectDatasetsStep() {
                             type="checkbox"
                             disabled={
                               selectedTaskId &&
+                              tasks.length > 0 &&
+                              tasks.find(
+                                (t) =>
+                                  String(t.task_id) === String(selectedTaskId)
+                              ) &&
                               column ===
                                 tasks.find(
                                   (t) =>
