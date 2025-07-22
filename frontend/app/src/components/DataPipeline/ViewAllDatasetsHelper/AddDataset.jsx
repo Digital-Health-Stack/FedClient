@@ -43,12 +43,10 @@ const AddDataset = () => {
       delete: `${process.env.REACT_APP_PRIVATE_SERVER_BASE_URL}/file-upload/delete`,
     },
   };
+  console.log("fetching files", fetchingFiles);
 
   // Fetch uploaded files from HDFS
-  const fetchUploadedFiles = async (loading = true) => {
-    if (loading) {
-      setFetchingFiles(true);
-    }
+  const fetchUploadedFiles = async () => {
     try {
       const response = await axios.get(endpoints.upload.list);
       if (response.data && response.data.contents) {
@@ -59,10 +57,6 @@ const AddDataset = () => {
     } catch (err) {
       console.error("Error fetching uploaded files:", err);
       setError("Failed to fetch uploaded files");
-    } finally {
-      if (loading) {
-        setFetchingFiles(false);
-      }
     }
   };
 
@@ -98,23 +92,20 @@ const AddDataset = () => {
 
   // Fetch files on component mount and after successful upload, but only if keepFetchingFiles is true
   useEffect(() => {
-    if (!keepFetchingFiles) return;
-
-    fetchUploadedFiles();
     const interval = setInterval(() => {
-      if (keepFetchingFiles) {
-        fetchUploadedFiles(false);
+      if (uploadedFiles.length > 0) {
+        fetchUploadedFiles();
       }
     }, 5000); // every 5 seconds
 
     return () => clearInterval(interval);
-  }, [keepFetchingFiles]);
+  }, [uploadedFiles]);
 
   // Refresh files list after successful upload
   useEffect(() => {
-    if (success && success.includes("uploaded successfully")) {
-      setKeepFetchingFiles(true);
-      // fetchUploadedFiles();
+    if (success && success.includes("uploaded")) {
+      // setKeepFetchingFiles(true);
+      fetchUploadedFiles();
     }
   }, [success]);
 
@@ -208,7 +199,7 @@ const AddDataset = () => {
 
       if (successfulUploads.length > 0) {
         setSuccess(
-          `${successfulUploads.length} file(s) are set to be summarized!`
+          `${successfulUploads.length} file(s) uploaded. Doing some checks & Performing summarization...`
         );
         setSelectedFiles([]); // Clear selected files
       }
@@ -286,9 +277,8 @@ const AddDataset = () => {
           {/* Centered File Upload UI with fixed height */}
           <div className="flex items-center justify-center w-full">
             <div
-              className={`add-dataset-upload-area bg-white p-8 rounded-2xl min-h-[350px] shadow-lg border flex flex-col items-center justify-center w-full transition-all duration-200 ${
-                isDragOver ? "border-blue-400 bg-blue-50 shadow-blue-200" : ""
-              }`}
+              className={`add-dataset-upload-area bg-white p-8 rounded-2xl min-h-[350px] shadow-lg border flex flex-col items-center justify-center w-full transition-all duration-200 ${isDragOver ? "border-blue-400 bg-blue-50 shadow-blue-200" : ""
+                }`}
               onDragOver={handleDragOver}
               onDragLeave={handleDragLeave}
               onDrop={handleDrop}
@@ -298,9 +288,8 @@ const AddDataset = () => {
                 className="flex flex-col items-center gap-2 cursor-pointer text-blue-600 hover:text-blue-800 font-medium"
               >
                 <ArrowUpTrayIcon
-                  className={`h-10 w-10 mb-2 transition-colors ${
-                    isDragOver ? "text-blue-500" : ""
-                  }`}
+                  className={`h-10 w-10 mb-2 transition-colors ${isDragOver ? "text-blue-500" : ""
+                    }`}
                 />
                 <span className="mb-2">
                   {isDragOver
@@ -360,12 +349,12 @@ const AddDataset = () => {
                           <div className="ml-2">
                             {uploadProgress[file.name].status ===
                               "uploading" && (
-                              <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-                            )}
+                                <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                              )}
                             {uploadProgress[file.name].status ===
                               "completed" && (
-                              <CheckCircleIcon className="h-4 w-4 text-green-500" />
-                            )}
+                                <CheckCircleIcon className="h-4 w-4 text-green-500" />
+                              )}
                             {uploadProgress[file.name].status === "failed" && (
                               <XCircleIcon
                                 className="h-4 w-4 text-red-500"
