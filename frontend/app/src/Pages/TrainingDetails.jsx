@@ -25,32 +25,32 @@ import Result from "../components/Training/Result";
 import TrainingProgress from "../components/Training/TrainingProgress";
 
 const statusConfig = {
-  0: {
-    text: "Pending",
+  STARTED: {
+    text: "Training Started",
     color: "bg-blue-100 text-blue-800",
     icon: <ClockIcon className="h-5 w-5" />,
   },
-  1: {
+  ACCEPTING_CLIENTS: {
     text: "Waiting for Clients",
     color: "bg-blue-100 text-blue-800",
     icon: <InformationCircleIcon className="h-5 w-5" />,
   },
-  2: {
-    text: "Active",
+  PRICE_NEGOTIATION: {
+    text: "Awaiting price approval",
     color: "bg-yellow-100 text-yellow-800",
     icon: <BoltIcon className="h-5 w-5" />,
   },
-  3: {
+  COMPLETED: {
     text: "Completed",
     color: "bg-green-100 text-green-800",
     icon: <CheckCircleIcon className="h-5 w-5" />,
   },
-  "-2": {
+  FAILED: {
     text: "Failed",
     color: "bg-red-100 text-red-800",
     icon: <ExclamationTriangleIcon className="h-5 w-5" />,
   },
-  "-1": {
+  CANCELLED: {
     text: "Cancelled",
     color: "bg-red-100 text-red-800",
     icon: <XCircleIcon className="h-5 w-5" />,
@@ -117,15 +117,15 @@ export default function TrainingDetails() {
 
   const renderStatusBadge = () => {
     const status = federatedSessionData?.training_status;
-    const config = statusConfig[status] || statusConfig["-1"];
+    const config = statusConfig[status] || statusConfig["CANCELLED"];
 
     return (
-      <span
-        className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${config.color}`}
+      <div
+        className={`inline-flex items-center px-3 py-1  rounded-full text-sm font-medium ${config.color}`}
       >
         {config.icon}
         <span className="ml-2">{config.text}</span>
-      </span>
+      </div>
     );
   };
 
