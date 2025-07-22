@@ -10,6 +10,7 @@ import {
 } from "@heroicons/react/24/solid";
 import PreprocessingOptions from "./ProcessingComponents/PreprocessingOptions.jsx";
 import { preprocessDataset } from "../../../services/privateService";
+import { WrenchIcon } from "@heroicons/react/24/outline";
 
 const PreprocessingDetails = ({ columns, filename, directory }) => {
   const [selectedColumn, setSelectedColumn] = useState("");
@@ -59,7 +60,7 @@ const PreprocessingDetails = ({ columns, filename, directory }) => {
     <div className="bg-white rounded-xl p-2">
       <div className="p-4 border-b flex items-center justify-between bg-blue-50 rounded-t-xl">
         <div className="flex items-center gap-2">
-          <Cog6ToothIcon className="w-6 h-6 text-blue-600" />
+          <WrenchIcon className="w-6 h-6 text-blue-600" />
           <h2 className="text-xl font-semibold text-blue-800">
             Data Preprocessing
           </h2>
@@ -96,9 +97,8 @@ const PreprocessingDetails = ({ columns, filename, directory }) => {
 
       {/* Configuration Banner */}
       <div
-        className={`${
-          isBannerFixed ? "fixed top-0 left-0 right-0" : "relative"
-        } w-full bg-white border-b border-gray-200 shadow-sm p-4 grid grid-cols-1 md:grid-cols-3 gap-4 items-start z-50 transition-all`}
+        className={`${isBannerFixed ? "fixed top-0 left-0 right-0" : "relative"
+          } w-full bg-white border-b border-gray-200 shadow-sm p-4 grid grid-cols-1 md:grid-cols-3 gap-4 items-start z-50 transition-all`}
       >
         {/* Column Selector */}
         <div className="space-y-2">
@@ -145,7 +145,7 @@ const PreprocessingDetails = ({ columns, filename, directory }) => {
         </div>
 
         {/* Pin Button */}
-        <button
+        {/* <button
           className="absolute top-3 right-3 p-1.5 hover:bg-gray-100 rounded-md transition-colors"
           onClick={() => setIsBannerFixed(!isBannerFixed)}
         >
@@ -154,14 +154,14 @@ const PreprocessingDetails = ({ columns, filename, directory }) => {
           ) : (
             <ArrowUpOnSquareIcon className="h-4 w-4 text-gray-600" />
           )}
-        </button>
+        </button> */}
 
         {/* Submit Button */}
         {
           <div className="pt-4">
             <button
               onClick={handleSubmit}
-              disabled={isSubmitted}
+              disabled={isSubmitted || operations.length === 0}
               className="bg-indigo-500 text-white px-5 py-2.5 rounded-lg hover:bg-indigo-600 disabled:opacity-70 disabled:cursor-not-allowed transition-all flex items-center gap-2"
             >
               <CloudArrowUpIcon className="h-5 w-5" />

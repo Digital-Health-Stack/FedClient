@@ -1,10 +1,16 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useParams } from "react-router-dom";
+import {
+  ChartBarIcon,
+  InformationCircleIcon,
+  TableCellsIcon,
+  WrenchIcon,
+} from "@heroicons/react/24/outline";
 import SummaryStats from "./SummaryStats.jsx";
 import ColumnDetails from "./ColumnDetails.jsx";
 import PreprocessingDetails from "./PreprocessingDetails.jsx";
-
+import DatasetLayout from "./ProcessingComponents/DatasetLayout.jsx";
 import { getDatasetDetails } from "../../../services/privateService";
 // const PROCESSED_DATASET_DETAILS_URL =
 //   process.env.REACT_APP_PROCESSED_OVERVIEW_PATH;
@@ -12,6 +18,29 @@ import { getDatasetDetails } from "../../../services/privateService";
 const DataSetOverview = () => {
   const [data, setData] = useState(null);
   const filename = useParams().filename;
+
+  const sections = [
+    {
+      id: "summary",
+      title: "Dataset Overview",
+      icon: <InformationCircleIcon className="w-5 h-5" />,
+    },
+    // {
+    //   id: "head",
+    //   title: "Dataset Head",
+    //   icon: <TableCellsIcon className="w-5 h-5" />,
+    // },
+    {
+      id: "columns",
+      title: "Column Analysis",
+      icon: <ChartBarIcon className="w-5 h-5" />,
+    },
+    {
+      id: "preprocessing",
+      title: "Data Preprocessing",
+      icon: <WrenchIcon className="w-5 h-5" />,
+    },
+  ];
 
   useEffect(() => {
     const loadData = async () => {
@@ -32,19 +61,23 @@ const DataSetOverview = () => {
   });
 
   return (
-    <div>
-      <SummaryStats
-        filename={filename}
-        numRows={data.numRows}
-        numCols={data.numColumns}
-      />
-      <ColumnDetails columnStats={data.columnStats} />
-      <PreprocessingDetails
+    <DatasetLayout sections={sections}>
+      <section id="summary" className="scroll-mt-20">
+        <SummaryStats
+          filename={filename}
+          numRows={data.numRows}
+          numCols={data.numColumns}
+        />
+      </section>
+      <section id="columns" className="scroll-mt-20 mt-12">
+        {data?.columnStats && (<ColumnDetails columnStats={data.columnStats} />)}
+      </section>
+      <section id="preprocessing" className="scroll-mt-20 mt-12"><PreprocessingDetails
         columns={columnDetails}
         filename={filename}
         directory="processed"
-      />
-    </div>
+      /></section>
+    </DatasetLayout>
   );
 };
 

@@ -99,10 +99,7 @@ const ColumnDetails = ({ columnStats }) => {
             >
               {columnStats.map((col, index) => (
                 <option key={col.name} value={col.name}>
-                  {`${index + 1}. ${col.name} (${col.type.replace(
-                    "Type()",
-                    "",
-                  )})`}
+                  {`${index + 1}. ${col.name} `}
                 </option>
               ))}
             </select>
@@ -121,13 +118,12 @@ const ColumnDetails = ({ columnStats }) => {
                 <h3 className="font-medium text-gray-900 text-lg">
                   {currentColumn.name}
                 </h3>
-                <p className="text-sm text-gray-500">{currentColumn.type}</p>
+                <p className="text-sm text-gray-500">{currentColumn.description || "No Description Available"}</p>
               </div>
               <button
                 onClick={handlePin}
-                className={`p-1 rounded-full ${
-                  isPinned ? "text-blue-600" : "text-gray-400"
-                }`}
+                className={`p-1 rounded-full ${isPinned ? "text-blue-600" : "text-gray-400"
+                  }`}
               >
                 {isPinned ? (
                   <BookmarkSlashIcon className="w-6 h-6 fill-current" />
