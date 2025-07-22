@@ -26,7 +26,7 @@ ChartJS.register(
   Legend,
   LineElement,
   PointElement,
-  Filler,
+  Filler
 );
 
 const HistogramPlot = ({
@@ -39,18 +39,27 @@ const HistogramPlot = ({
   const randomColors = counts.map(
     () =>
       `rgba(${Math.floor(Math.random() * 256)}, ${Math.floor(
-        Math.random() * 256,
-      )}, ${Math.floor(Math.random() * 256)}, 0.8)`,
+        Math.random() * 256
+      )}, ${Math.floor(Math.random() * 256)}, 0.8)`
   );
 
   // Formatting bins to show ranges with 2 decimal places
-  const formattedBins = bins.map((bin, index) => {
-    const nextBin = bins[index + 1];
-    return nextBin
-      ? `${bin.toFixed(2)}-${nextBin.toFixed(2)}`
-      : `${bin.toFixed(2)}+`; // Last bin with a "+" sign
-  });
-
+  // const formattedBins = bins.map((bin, index) => {
+  //   const nextBin = bins[index + 1];
+  //   return nextBin
+  //     ? `${bin.toFixed(2)}-${nextBin.toFixed(2)}`
+  //     : `${bin.toFixed(2)}+`; // Last bin with a "+" sign
+  // });
+  const formattedBins = bins
+    .slice(0, counts.length)
+    .map((bin) => bin.toFixed(2));
+  // const formattedBins = bins.slice(0, counts.length).map((bin, i) => {
+  //   const nextBin = bins[i + 1];
+  //   if (nextBin !== undefined) {
+  //     return ((bin + nextBin) / 2).toFixed(2);
+  //   }
+  //   return bin.toFixed(2);
+  // });
   const data = {
     labels: formattedBins,
     datasets: [
@@ -82,6 +91,7 @@ const HistogramPlot = ({
     maintainAspectRatio: false,
     scales: {
       x: {
+        offset: true,
         title: {
           display: true,
           text: xTitle,
