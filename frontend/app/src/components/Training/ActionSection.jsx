@@ -476,19 +476,19 @@ const ActionSection = ({ data, sessionId }) => {
   console.log("data", data);
   console.log(trainingStatus);
   switch (trainingStatus) {
-    case 0:
+    case "PRICE_NEGOTIATION":
       return renderPriceAcceptanceForm();
-    case 1:
+    case "ACCEPTING_CLIENTS":
       if (clientStatus === -1) {
         return renderParticipationDecisionForm();
       } else {
         return ParticipationConfirmedAlert();
       }
-    case 2:
+    case "STARTED":
       return renderTrainingInProgress();
-    case 3:
+    case "COMPLETED":
       return renderTrainingCompleted();
-    case -1:
+    case "FAILED":
       return (
         <div className="bg-red-50 border-l-4 border-red-400 p-4 rounded-lg">
           <div className="flex items-center">

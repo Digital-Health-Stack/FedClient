@@ -41,11 +41,6 @@ const SessionInfo = ({ data }) => {
       variant: "primary",
       icon: <Cog6ToothIcon className="h-5 w-5" />,
     },
-    4: {
-      label: "Training Active",
-      variant: "primary",
-      icon: <ArrowPathIcon className="h-5 w-5 animate-spin" />,
-    },
     5: {
       label: "Completed",
       variant: "success",
@@ -83,22 +78,33 @@ const SessionInfo = ({ data }) => {
     { key: 0, label: "Session Created" },
     { key: 1, label: "Price Negotiation" },
     { key: 2, label: "Client Recruitment" },
-    { key: 3, label: "Model Initialization" },
-    { key: 4, label: "Training Active" },
-    { key: 5, label: "Completed" },
+    { key: 3, label: "Training Active" },
+    { key: 4, label: "Completed" },
   ];
+  // Map string training_status to numeric step for progress bar
+  const TRAINING_STATUS_MAP = {
+    PRICE_NEGOTIATION: 0,
+    ACCEPTING_CLIENTS: 1,
+    STARTED: 2,
+    COMPLETED: 3,
+  };
+
   // Map training_status to progress index
   const currentStatus =
-    typeof data?.training_status === "number" ? data.training_status : 0;
+    typeof TRAINING_STATUS_MAP[data?.training_status] === "number"
+      ? TRAINING_STATUS_MAP[data?.training_status]
+      : 0;
   // If failed, show as completed but with error color
   const isFailed = currentStatus === -1;
   const progressIndex = isFailed
     ? steps.length - 1
     : Math.max(0, Math.min(currentStatus, steps.length - 1));
 
-  useEffect(() => {
-    console.log("Training Status Value:", data);
-  }, [data]);
+  // Helper to get time left for the current step
+  const getStepTimeInfo = (idx) => {
+    if (idx === 0) return "Waiting for your price negotiation. Go to actions";
+    return "--";
+  };
 
   return (
     <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
@@ -109,10 +115,10 @@ const SessionInfo = ({ data }) => {
           Session Details
         </h3>
       </div>
-      {/* Progress Bar */}
-      <div className="p-6 mt-5 m-10">
+      {/* Progress Bar with hoverable tooltip for time left */}
+      <div className="relative p-6 mt-5 m-10">
         <ProgressBar
-          percent={(progressIndex / (steps.length - 1)) * 100}
+          percent={(progressIndex / (steps.length - 1)) * 100 + 10}
           filledBackground="#22c55e"
           height={6}
         >
@@ -164,6 +170,31 @@ const SessionInfo = ({ data }) => {
             </Step>
           ))}
         </ProgressBar>
+        {/* Hoverable area for tooltip between current and next step */}
+        {progressIndex < steps.length - 1 && !isFailed && (
+          <div
+            className="absolute"
+            style={{
+              left: `${(progressIndex / (steps.length - 1)) * 100}%`,
+              width: `${100 / (steps.length - 1)}%`,
+              top: 0,
+              height: "100%",
+              zIndex: 10,
+              pointerEvents: "auto",
+            }}
+          >
+            <div className="w-full h-full group">
+              {/* Invisible hover area */}
+              <div className="w-full h-6 cursor-pointer" />
+              {/* Tooltip */}
+              <div className="absolute left-1/2 -translate-x-1/2 -top-2 hidden group-hover:block">
+                <span className="text-sm text-white bg-gray-800 px-2 py-1 rounded shadow">
+                  {getStepTimeInfo(progressIndex)}
+                </span>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
       {/* Session Details Content */}
       <div className="p-6">
