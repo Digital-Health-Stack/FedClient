@@ -428,7 +428,7 @@ export default function Dashboard() {
                 Active Training Sessions
               </h2>
               <Link
-                to="/TrainingStatus"
+                to="/trainings"
                 className="text-blue-600 text-sm hover:underline"
               >
                 View All →
@@ -490,7 +490,7 @@ export default function Dashboard() {
                         </td>
                         <td className="px-6 py-4">
                           <Link
-                            to={`/TrainingStatus/details/${session.session_id}`}
+                            to={`/trainings/${session.session_id}`}
                             className="text-blue-600 hover:text-blue-900 text-sm font-medium"
                           >
                             Details →
@@ -647,7 +647,7 @@ export default function Dashboard() {
                   Recent Sessions
                 </h2>
                 <Link
-                  to="/TrainingStatus"
+                  to="/trainings"
                   className="text-blue-600 text-sm hover:underline"
                 >
                   View All →
@@ -675,7 +675,7 @@ export default function Dashboard() {
                           </div>
                         </div>
                         <Link
-                          to={`/TrainingStatus/details/${session.id}`}
+                          to={`/trainings/${session.id}`}
                           className="text-blue-600 hover:text-blue-900 text-sm font-medium"
                         >
                           View →
