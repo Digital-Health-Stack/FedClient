@@ -10,6 +10,7 @@ import {
   ExclamationTriangleIcon,
   CogIcon,
   XCircleIcon,
+  CheckIcon,
   DocumentPlusIcon,
   Cog6ToothIcon,
   CheckBadgeIcon,
@@ -118,7 +119,7 @@ const SessionInfo = ({ data }) => {
       {/* Progress Bar with hoverable tooltip for time left */}
       <div className="relative p-6 mt-5 m-10">
         <ProgressBar
-          percent={(progressIndex / (steps.length - 1)) * 100 + 10}
+          percent={(progressIndex / (steps.length - 1)) * 100}
           filledBackground="#22c55e"
           height={6}
         >
@@ -132,21 +133,25 @@ const SessionInfo = ({ data }) => {
                       position: "absolute",
                       top: 0,
                       left: "50%",
-                      transform: "translate(-50%, 0)",
+                      transform: "translate(-50%, -10%)",
                       zIndex: 2,
                     }}
-                    className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold border-2
+                    className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-extrabold mb-2 
                       ${
                         isFailed && idx === steps.length - 1
-                          ? "bg-red-500 border-red-700 text-white"
-                          : idx === progressIndex
-                          ? "bg-green-500 border-green-400 text-white"
+                          ? "bg-red-500 text-white"
                           : accomplished
-                          ? "bg-green-500 border-green-400 text-white"
-                          : "bg-gray-200 border-gray-400 text-gray-500"
+                          ? "bg-green-500 text-white"
+                          : "bg-gray-200 border-2 border-gray-400 text-gray-500"
                       }`}
                   >
-                    {idx + 1}
+                    {isFailed && idx === steps.length - 1 ? (
+                      <ExclamationTriangleIcon className="h-5 w-5 text-white" />
+                    ) : accomplished ? (
+                      <CheckIcon className="h-5 w-5 text-white" />
+                    ) : (
+                      <div className="h-5 w-5 text-white" />
+                    )}
                   </div>
                   {/* Label */}
                   <span
@@ -154,7 +159,7 @@ const SessionInfo = ({ data }) => {
                       position: "absolute",
                       top: 32,
                       left: "50%",
-                      transform: "translate(-50%, 0)",
+                      transform: "translate(-50%, 40%)",
                       width: 80,
                       textAlign: "center",
                       fontSize: 12,
@@ -200,7 +205,7 @@ const SessionInfo = ({ data }) => {
       <div className="p-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
           <InfoItem
-            label="Organisation Name"
+            label="Training Name"
             value={data?.federated_info?.organisation_name || "N/A"}
             icon={<BuildingOfficeIcon className="h-5 w-5 text-gray-400" />}
           />

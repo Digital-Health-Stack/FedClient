@@ -3,7 +3,7 @@ import { BuildingOfficeIcon } from "@heroicons/react/24/outline";
 import { InformationCircleIcon } from "@heroicons/react/24/outline";
 import { useFormContext } from "react-hook-form";
 
-export default function OrganizationDetailsStep() {
+export default function TrainingDetailsStep() {
   const {
     register,
     formState: { errors },

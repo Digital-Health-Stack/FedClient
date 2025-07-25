@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import { useParams } from "react-router-dom";
 import SummaryStats from "./SummaryStats.jsx";
@@ -18,16 +18,19 @@ import DatasetHead from "./DatasetHead.jsx";
 
 const DataSetOverview = () => {
   const [data, setData] = useState(null);
+  const [selectedColumnIndex, setSelectedColumnIndex] = useState(0);
+  const headRef = useRef(null);
+  const columnsRef = useRef(null);
   const filename = useParams().filename;
   const sections = [
     {
       id: "summary",
-      title: "Dataset Overview",
+      title: "Overview",
       icon: <InformationCircleIcon className="w-5 h-5" />,
     },
     {
       id: "head",
-      title: "Dataset Head",
+      title: "Sample Data",
       icon: <TableCellsIcon className="w-5 h-5" />,
     },
     {
@@ -59,6 +62,18 @@ const DataSetOverview = () => {
     columnDetails[column.name] = column.type;
   });
 
+  // Handler for column click that scrolls both sections into view
+  const handleColumnHeaderClick = (col, idx) => {
+    setSelectedColumnIndex(idx);
+    if (columnsRef.current)
+      columnsRef.current.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
+    if (headRef.current)
+      headRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
   return (
     <DatasetLayout sections={sections}>
       <section id="summary" className="scroll-mt-20">
@@ -68,12 +83,23 @@ const DataSetOverview = () => {
           numCols={data.numColumns}
         />
       </section>
-      <section id="head" className="scroll-mt-20 mt-12">
-        <DatasetHead datasetHead={data.datasetHead} />
+      <section id="head" className="scroll-mt-20 mt-12" ref={headRef}>
+        <DatasetHead
+          datasetHead={data.datasetHead}
+          onColumnHeaderClick={handleColumnHeaderClick}
+          selectedColumnIndex={selectedColumnIndex}
+          columnDescriptions={Object.fromEntries(
+            data.columnStats.map((col) => [col.name, col.description])
+          )}
+        />
       </section>
-      <section id="columns" className="scroll-mt-20 mt-12">
+      <section id="columns" className="scroll-mt-20 mt-12" ref={columnsRef}>
         {data?.columnStats && (
-          <ColumnDetails columnStats={data.columnStats} />)}
+          <ColumnDetails
+            columnStats={data.columnStats}
+            selectedColumnIndex={selectedColumnIndex}
+          />
+        )}
       </section>
       <section id="preprocessing" className="scroll-mt-20 mt-12">
         <PreprocessingDetails

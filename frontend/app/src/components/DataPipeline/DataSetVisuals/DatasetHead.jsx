@@ -1,25 +1,14 @@
 import React from "react";
 import { TableCellsIcon } from "@heroicons/react/24/outline";
 
-const DatasetHead = ({ datasetHead, maxRows = 5 }) => {
-  if (!datasetHead || datasetHead.length === 0) {
-    return (
-      <div className="bg-white rounded-xl shadow-sm p-2 mt-4">
-        <div className="p-4 border-b flex items-center justify-between bg-blue-50 rounded-t-xl">
-          <div className="flex items-center gap-2">
-            <TableCellsIcon className="w-6 h-6 text-blue-600" />
-            <h2 className="text-xl font-semibold text-blue-800">
-              Dataset Head
-            </h2>
-          </div>
-        </div>
-        <div className="p-4 text-center text-gray-500">
-          No data available to display
-        </div>
-      </div>
-    );
-  }
-
+const DatasetHead = ({
+  ref,
+  datasetHead,
+  maxRows = 5,
+  onColumnHeaderClick,
+  selectedColumnIndex,
+  columnDescriptions = {},
+}) => {
   // Get column names from the first row
   const columns = Object.keys(datasetHead[0]);
 
@@ -31,7 +20,7 @@ const DatasetHead = ({ datasetHead, maxRows = 5 }) => {
       <div className="p-4 border-b flex items-center justify-between bg-blue-50 rounded-t-xl">
         <div className="flex items-center gap-2">
           <TableCellsIcon className="w-6 h-6 text-blue-600" />
-          <h2 className="text-xl font-semibold text-blue-800">Dataset Head</h2>
+          <h2 className="text-xl font-semibold text-blue-800">Sample Data</h2>
         </div>
       </div>
 
@@ -42,7 +31,15 @@ const DatasetHead = ({ datasetHead, maxRows = 5 }) => {
               {columns.map((column, index) => (
                 <th
                   key={index}
-                  className="px-6 py-4 text-left text-sm font-semibold text-white border-r border-blue-400 last:border-r-0"
+                  className={`px-6 py-4 text-left text-sm font-semibold text-white border-r border-blue-400 last:border-r-0 cursor-pointer hover:bg-blue-400 ${
+                    selectedColumnIndex === index ? "bg-blue-700" : ""
+                  }`}
+                  onClick={() =>
+                    onColumnHeaderClick && onColumnHeaderClick(column, index)
+                  }
+                  title={
+                    columnDescriptions[column] || "No description available"
+                  }
                 >
                   {column}
                 </th>
@@ -60,7 +57,13 @@ const DatasetHead = ({ datasetHead, maxRows = 5 }) => {
                 {columns.map((column, colIndex) => (
                   <td
                     key={colIndex}
-                    className="px-6 py-4 text-sm text-gray-800 border-r last:border-r-0 border-b border-gray-200 last:border-b-0"
+                    className={`px-6 py-4 text-sm text-gray-800 border-r last:border-r-0 border-b border-gray-200 last:border-b-0 cursor-pointer ${
+                      selectedColumnIndex === colIndex ? "bg-blue-100" : ""
+                    }`}
+                    onClick={() =>
+                      onColumnHeaderClick &&
+                      onColumnHeaderClick(column, colIndex)
+                    }
                   >
                     <div
                       className="max-w-xs truncate font-medium"

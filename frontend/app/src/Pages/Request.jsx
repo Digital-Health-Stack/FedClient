@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useForm, FormProvider } from "react-hook-form";
 import Stepper from "../components/OnRequestPage/RequestComponents/Stepper";
-import OrganizationDetailsStep from "../components/OnRequestPage/RequestComponents/OrganizationDetailsStep";
+import TrainingDetailsStep from "../components/OnRequestPage/RequestComponents/TrainingDetailsStep";
 import SelectDatasetsStep from "../components/OnRequestPage/RequestComponents/SelectDatasetsStep";
 import StatisticalInfoStep from "../components/OnRequestPage/RequestComponents/StatisticalInfoStep";
 import ModelSelectionStep from "../components/OnRequestPage/RequestComponents/ModelSelectionStep";
@@ -164,7 +164,7 @@ export default function Request() {
             </div>
 
             <div className="space-y-8">
-              {currentStep === 0 && <OrganizationDetailsStep />}
+              {currentStep === 0 && <TrainingDetailsStep />}
               {currentStep === 1 && <SelectDatasetsStep />}
               {currentStep === 2 && <ModelSelectionStep />}
               {currentStep === 3 && <StatisticalInfoStep />}

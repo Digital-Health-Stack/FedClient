@@ -12,17 +12,19 @@ import ColumnDetails from "./ColumnDetails.jsx";
 import PreprocessingDetails from "./PreprocessingDetails.jsx";
 import DatasetLayout from "./ProcessingComponents/DatasetLayout.jsx";
 import { getDatasetDetails } from "../../../services/privateService";
+import DatasetHead from "./DatasetHead.jsx";
 // const PROCESSED_DATASET_DETAILS_URL =
 //   process.env.REACT_APP_PROCESSED_OVERVIEW_PATH;
 
 const DataSetOverview = () => {
   const [data, setData] = useState(null);
+  const [selectedColumnIndex, setSelectedColumnIndex] = useState(0);
   const filename = useParams().filename;
 
   const sections = [
     {
       id: "summary",
-      title: "Dataset Overview",
+      title: "Overview",
       icon: <InformationCircleIcon className="w-5 h-5" />,
     },
     // {
@@ -69,14 +71,33 @@ const DataSetOverview = () => {
           numCols={data.numColumns}
         />
       </section>
+      {data.datasetHead && (
+        <section id="head" className="scroll-mt-20 mt-12">
+          <DatasetHead
+            datasetHead={data.datasetHead}
+            onColumnHeaderClick={(col, idx) => setSelectedColumnIndex(idx)}
+            selectedColumnIndex={selectedColumnIndex}
+            columnDescriptions={Object.fromEntries(
+              data.columnStats.map((col) => [col.name, col.description])
+            )}
+          />
+        </section>
+      )}
       <section id="columns" className="scroll-mt-20 mt-12">
-        {data?.columnStats && (<ColumnDetails columnStats={data.columnStats} />)}
+        {data?.columnStats && (
+          <ColumnDetails
+            columnStats={data.columnStats}
+            selectedColumnIndex={selectedColumnIndex}
+          />
+        )}
       </section>
-      <section id="preprocessing" className="scroll-mt-20 mt-12"><PreprocessingDetails
-        columns={columnDetails}
-        filename={filename}
-        directory="processed"
-      /></section>
+      <section id="preprocessing" className="scroll-mt-20 mt-12">
+        <PreprocessingDetails
+          columns={columnDetails}
+          filename={filename}
+          directory="processed"
+        />
+      </section>
     </DatasetLayout>
   );
 };
