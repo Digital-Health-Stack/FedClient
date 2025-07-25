@@ -1,11 +1,59 @@
 import React, { useState } from "react";
-import { ChartBarIcon } from "@heroicons/react/24/outline";
+import {
+  ArrowDownCircleIcon,
+  ArrowDownIcon,
+  ArrowUpCircleIcon,
+  ArrowUpIcon,
+  ChartBarIcon,
+  PlusCircleIcon,
+} from "@heroicons/react/24/outline";
 import { InformationCircleIcon } from "@heroicons/react/24/outline";
 import { useFormContext } from "react-hook-form";
 
 export default function HyperparametersInfoStep() {
-  const { register } = useFormContext();
+  const { register, setValue } = useFormContext();
   const [showInfo, setShowInfo] = useState(false);
+  const [days, setDays] = useState(0);
+  const [hours, setHours] = useState(0);
+  const [minutes, setMinutes] = useState(0);
+
+  // Helper to clamp values
+  const clamp = (val, min, max) => Math.max(min, Math.min(max, val));
+
+  // Update all fields from total minutes
+  const setFromTotalMinutes = (total) => {
+    total = Math.max(0, Math.floor(total));
+    const d = Math.floor(total / (24 * 60));
+    const h = Math.floor((total % (24 * 60)) / 60);
+    const m = total % 60;
+    setDays(d);
+    setHours(h);
+    setMinutes(m);
+  };
+
+  // On manual change
+  const handleChange = (setter, min, max, value) => (e) => {
+    const input = e.target.value;
+    // If the current value is 0 and the user types a digit, replace 0 with the digit
+    if ((value === 0 || value === "0") && /^[1-9]$/.test(input)) {
+      setter(Number(parseInt(input)));
+    } else {
+      const val = parseInt(input) || 0;
+      setter(clamp(val, min, max));
+    }
+  };
+
+  // On + or - button
+  const getTotalMinutes = () =>
+    Number(days) * 24 * 60 + Number(hours) * 60 + Number(minutes);
+  const handleInc = () => setFromTotalMinutes(getTotalMinutes() + 1);
+  const handleDec = () =>
+    setFromTotalMinutes(Math.max(0, getTotalMinutes() - 1));
+
+  // Sync hidden field
+  React.useEffect(() => {
+    setValue("wait_time", getTotalMinutes());
+  }, [days, hours, minutes, setValue]);
 
   return (
     <div className="space-y-6">
@@ -47,22 +95,91 @@ export default function HyperparametersInfoStep() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
+          <style>
+            {`
+              .no-spinner::-webkit-inner-spin-button,
+              .no-spinner::-webkit-outer-spin-button {
+                -webkit-appearance: none;
+                margin: 0;
+              }
+            `}
+          </style>
           <label
             className="block text-sm font-medium mb-1"
             htmlFor="wait_time"
-            title="Waiting time (in minutes) for which the server will wait for other clients to join the training"
+            title="Waiting time for which the server will wait for other clients to join the training (in days, hours, minutes)"
           >
-            Waiting time (in minutes)
+            Waiting time
+            <div className="flex mt-1 items-center justify-between pr-4 border-2 border-gray-300 rounded-md">
+              {/* Days */}
+              <div className="flex gap-2">
+                <div className="flex items-center">
+                  <input
+                    type="number"
+                    min={0}
+                    max={99}
+                    value={days}
+                    onChange={handleChange(setDays, 0, 99, days)}
+                    className=" py-2 text-center no-spinner focus:outline-none focus:border-b border-black"
+                    placeholder="Days"
+                    aria-label="Days"
+                  />
+                  <span className="ml-1 text-md">Days</span>
+                </div>
+                {/* Hours */}
+                <div className="flex items-center">
+                  <input
+                    type="number"
+                    min={0}
+                    max={23}
+                    value={hours}
+                    onChange={handleChange(setHours, 0, 23, hours)}
+                    className=" py-2 text-center no-spinner focus:outline-none focus:border-b border-black"
+                    placeholder="Hours"
+                    aria-label="Hours"
+                  />
+                  <span className="ml-1 text-md">Hrs</span>
+                </div>
+                {/* Minutes */}
+                <div className="flex items-center">
+                  <input
+                    type="number"
+                    min={0}
+                    max={59}
+                    value={minutes}
+                    onChange={handleChange(setMinutes, 0, 59, minutes)}
+                    className=" py-2 text-center no-spinner focus:outline-none focus:border-b border-black"
+                    placeholder="Minutes"
+                    aria-label="Minutes"
+                  />
+                  <span className="ml-1 text-md">Mins</span>
+                </div>
+              </div>
+              {/* Increment/Decrement buttons */}
+              <div className="flex gap-2 items-center">
+                <button
+                  type="button"
+                  onClick={handleInc}
+                  aria-label="Add minute"
+                >
+                  <ArrowUpIcon className="h-8 w-8 p-1 hover:bg-gray-200 rounded-full" />
+                </button>
+                <button
+                  type="button"
+                  onClick={handleDec}
+                  aria-label="Subtract minute"
+                >
+                  <ArrowDownIcon className="h-8 w-8 p-1 hover:bg-gray-200 rounded-full" />
+                </button>
+              </div>
+            </div>
+            {/* Hidden input to register wait_time in minutes */}
             <input
-              type="number"
-              step="1"
-              min={1}
-              max={100}
+              type="hidden"
               {...register("wait_time", {
-                required: "Expected Standard Deviation is required",
+                required: true,
                 min: { value: 0, message: "Value must be greater than 0" },
               })}
-              className="w-full p-2 border rounded-md mt-1"
             />
           </label>
         </div>
