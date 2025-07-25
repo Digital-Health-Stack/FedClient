@@ -110,9 +110,9 @@ export default function HyperparametersInfoStep() {
             title="Waiting time for which the server will wait for other clients to join the training (in days, hours, minutes)"
           >
             Waiting time
-            <div className="flex mt-1 items-center justify-between pr-4 border-2 border-gray-300 rounded-md">
+            <div className="flex mt-1 items-center justify-between pr-4 border   border-gray-300 rounded-md">
               {/* Days */}
-              <div className="flex gap-2">
+              <div className="flex gap-2 ml-2">
                 <div className="flex items-center">
                   <input
                     type="number"
