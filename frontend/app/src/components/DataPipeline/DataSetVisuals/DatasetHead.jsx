@@ -1,10 +1,16 @@
 import React from "react";
 import { TableCellsIcon } from "@heroicons/react/24/outline";
 
-const DatasetHead = ({ datasetHead, maxRows = 5 }) => {
+const DatasetHead = ({
+  ref,
+  datasetHead,
+  maxRows = 5,
+  onColumnHeaderClick,
+  selectedColumnIndex,
+}) => {
   if (!datasetHead || datasetHead.length === 0) {
     return (
-      <div className="bg-white rounded-xl shadow-sm p-2 mt-4">
+      <div className="bg-white rounded-xl shadow-sm p-2 mt-4" ref={ref}>
         <div className="p-4 border-b flex items-center justify-between bg-blue-50 rounded-t-xl">
           <div className="flex items-center gap-2">
             <TableCellsIcon className="w-6 h-6 text-blue-600" />
@@ -42,7 +48,12 @@ const DatasetHead = ({ datasetHead, maxRows = 5 }) => {
               {columns.map((column, index) => (
                 <th
                   key={index}
-                  className="px-6 py-4 text-left text-sm font-semibold text-white border-r border-blue-400 last:border-r-0"
+                  className={`px-6 py-4 text-left text-sm font-semibold text-white border-r border-blue-400 last:border-r-0 cursor-pointer hover:bg-blue-400 ${
+                    selectedColumnIndex === index ? "bg-blue-700" : ""
+                  }`}
+                  onClick={() =>
+                    onColumnHeaderClick && onColumnHeaderClick(column, index)
+                  }
                 >
                   {column}
                 </th>
@@ -60,7 +71,13 @@ const DatasetHead = ({ datasetHead, maxRows = 5 }) => {
                 {columns.map((column, colIndex) => (
                   <td
                     key={colIndex}
-                    className="px-6 py-4 text-sm text-gray-800 border-r last:border-r-0 border-b border-gray-200 last:border-b-0"
+                    className={`px-6 py-4 text-sm text-gray-800 border-r last:border-r-0 border-b border-gray-200 last:border-b-0 cursor-pointer ${
+                      selectedColumnIndex === colIndex ? "bg-blue-100" : ""
+                    }`}
+                    onClick={() =>
+                      onColumnHeaderClick &&
+                      onColumnHeaderClick(column, colIndex)
+                    }
                   >
                     <div
                       className="max-w-xs truncate font-medium"

@@ -17,6 +17,7 @@ import { getDatasetDetails } from "../../../services/privateService";
 
 const DataSetOverview = () => {
   const [data, setData] = useState(null);
+  const [selectedColumnIndex, setSelectedColumnIndex] = useState(0);
   const filename = useParams().filename;
 
   const sections = [
@@ -69,14 +70,26 @@ const DataSetOverview = () => {
           numCols={data.numColumns}
         />
       </section>
-      <section id="columns" className="scroll-mt-20 mt-12">
-        {data?.columnStats && (<ColumnDetails columnStats={data.columnStats} />)}
+      {/*
+      <section id="head" className="scroll-mt-20 mt-12">
+        <DatasetHead datasetHead={data.datasetHead} onColumnHeaderClick={(col, idx) => setSelectedColumnIndex(idx)} />
       </section>
-      <section id="preprocessing" className="scroll-mt-20 mt-12"><PreprocessingDetails
-        columns={columnDetails}
-        filename={filename}
-        directory="processed"
-      /></section>
+      */}
+      <section id="columns" className="scroll-mt-20 mt-12">
+        {data?.columnStats && (
+          <ColumnDetails
+            columnStats={data.columnStats}
+            selectedColumnIndex={selectedColumnIndex}
+          />
+        )}
+      </section>
+      <section id="preprocessing" className="scroll-mt-20 mt-12">
+        <PreprocessingDetails
+          columns={columnDetails}
+          filename={filename}
+          directory="processed"
+        />
+      </section>
     </DatasetLayout>
   );
 };
