@@ -29,7 +29,8 @@ const FederatedSessionLogs = ({ sessionId }) => {
     "AGGREGATED_WEIGHTS",
     "TEST_RESULTS",
     "CLIENT_LEFT",
-    "PRIZE_NEGOTIATION",
+    // "PRIZE_NEGOTIATION",
+    "PRICE_NEGOTIATION"
   ];
 
   const fetchLogsSessionData = async () => {
@@ -144,12 +145,19 @@ const FederatedSessionLogs = ({ sessionId }) => {
           border: "border-orange-300",
           text: "text-orange-700",
         };
-      case "PRIZE_NEGOTIATION":
+      // case "PRIZE_NEGOTIATION":
+      //   return {
+      //     dot: "bg-teal-500",
+      //     border: "border-teal-300",
+      //     text: "text-teal-700",
+      //   };
+      case "PRICE_NEGOTIATION":
         return {
           dot: "bg-teal-500",
           border: "border-teal-300",
           text: "text-teal-700",
         };
+
       case "INFO":
         return {
           dot: "bg-gray-500",
@@ -324,8 +332,8 @@ const FederatedSessionLogs = ({ sessionId }) => {
                           {searchQuery || selectedTag !== "ALL"
                             ? "No logs match your search or filter criteria."
                             : sessionId
-                            ? "No logs available"
-                            : "Select a session to view logs"}
+                              ? "No logs available"
+                              : "Select a session to view logs"}
                         </div>
                       </td>
                     </tr>
