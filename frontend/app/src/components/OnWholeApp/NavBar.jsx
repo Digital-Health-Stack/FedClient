@@ -104,9 +104,9 @@ const NavBar = () => {
               <li>
                 <NavLink
                   className="navbar-new-training flex items-center gap-2 py-2 px-4 hover:text-gray-400"
-                  to="/view-all-datasets"
+                  to="/view-all-datasets#datasets"
                 >
-                  <CircleStackIcon className="w-5 h-5" /> Server Datasets
+                  <CircleStackIcon className="w-5 h-5" /> Testing Datasets
                 </NavLink>
               </li>
               <li>
@@ -163,7 +163,7 @@ const NavBar = () => {
                           notifications.map((notification, index) => (
                             <div
                               key={index}
-                              className="px-3 py-2 hover:bg-gray-100 cursor-pointer block text-black flex justify-between items-center"
+                              className="px-3 py-2 hover:bg-gray-100 cursor-pointer text-black flex justify-between items-center"
                             >
                               {notification.data}
                               <Link
