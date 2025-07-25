@@ -200,7 +200,7 @@ const SessionInfo = ({ data }) => {
       <div className="p-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
           <InfoItem
-            label="Organisation Name"
+            label="Training Name"
             value={data?.federated_info?.organisation_name || "N/A"}
             icon={<BuildingOfficeIcon className="h-5 w-5 text-gray-400" />}
           />
