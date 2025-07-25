@@ -11,6 +11,7 @@ import {
   ServerStackIcon,
   QuestionMarkCircleIcon,
   ArrowRightEndOnRectangleIcon,
+  CircleStackIcon
 } from "@heroicons/react/24/solid";
 import { closeWebSocket, connectWebSocket } from "../../services/redisSocket";
 import { BellIcon } from "@heroicons/react/24/outline";
@@ -87,9 +88,8 @@ const NavBar = () => {
 
         {/* Navigation Links */}
         <div
-          className={`absolute md:static top-10 right-0 w-full md:w-auto bg-gray-900 md:bg-transparent md:flex md:items-center p-4 md:p-0 transition-all duration-300 ${
-            isNavbarOpen ? "block" : "hidden"
-          } md:ml-auto`}
+          className={`absolute md:static top-10 right-0 w-full md:w-auto bg-gray-900 md:bg-transparent md:flex md:items-center p-4 md:p-0 transition-all duration-300 ${isNavbarOpen ? "block" : "hidden"
+            } md:ml-auto`}
         >
           {user && (
             <ul className="md:flex justify-end items-center space-y-4 md:space-y-0 md:space-x-6 w-full">
@@ -104,9 +104,9 @@ const NavBar = () => {
               <li>
                 <NavLink
                   className="navbar-new-training flex items-center gap-2 py-2 px-4 hover:text-gray-400"
-                  to="/Request"
+                  to="/view-all-datasets"
                 >
-                  <DocumentArrowUpIcon className="w-5 h-5" /> New Training
+                  <CircleStackIcon className="w-5 h-5" /> Server Datasets
                 </NavLink>
               </li>
               <li>

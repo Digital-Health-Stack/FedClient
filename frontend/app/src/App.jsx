@@ -188,6 +188,8 @@ import RawDataSetOverview from "./components/DataPipeline/DataSetVisuals/RawData
 import ProcessedDataSetOverview from "./components/DataPipeline/DataSetVisuals/ProcessedDataSetOverview";
 import PreprocessingDocs from "./components/DataPipeline/DataSetVisuals/ProcessingComponents/PreprocessingDocs.jsx";
 import Dashboard from "./Pages/Dashboard.jsx";
+import TestingDataSetOverview from "./components/DataPipeline/DataSetVisuals/TestingDataSetOverview.jsx";
+import Leaderboard from "./Pages/Leaderboard.jsx";
 /*
 The App component is the main component of the application. It is the parent component of all the other components.
 It contains the NavBar component, which is a navigation bar that allows the user to navigate between different 
@@ -326,6 +328,14 @@ export default function App() {
                       }
                     />
                     <Route
+                      path="/testing-dataset-overview/:filename"
+                      element={
+                        <PrivateRoute>
+                          <TestingDataSetOverview />
+                        </PrivateRoute>
+                      }
+                    />
+                    <Route
                       path="/preprocessing-docs"
                       element={
                         <PrivateRoute>
@@ -333,6 +343,7 @@ export default function App() {
                         </PrivateRoute>
                       }
                     />
+                    <Route path="/history/:task_id" element={<Leaderboard />} />
                     <Route
                       path="/*"
                       element={

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useHelp } from "../../contexts/HelpContext";
 import Joyride from "react-joyride";
@@ -8,6 +8,8 @@ import {
   DocumentTextIcon,
   ArrowUpTrayIcon,
   XCircleIcon,
+  HashtagIcon,
+  CircleStackIcon,
 } from "@heroicons/react/24/solid";
 import Pagination from "./ViewAllFiles/Pagination";
 import FileCard from "./ViewAllFiles/FileCard";
@@ -16,15 +18,32 @@ import AddDataset from "./ViewAllDatasetsHelper/AddDataset";
 
 const ViewAllDatasets = () => {
   // Environment variables and navigation setup
+  const location = useLocation();
+  const navigate = useNavigate();
+
   const [selectedFolder, setSelectedFolder] = useState("add");
   const [datasets, setDatasets] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const navigate = useNavigate();
   const { showWalkthrough, stopWalkthrough } = useHelp();
   const [walkthroughKey, setWalkthroughKey] = useState(0);
+
+  useEffect(() => {
+    const hash = window.location.hash.replace("#", "");
+    if (["add", "raw", "processed", "datasets"].includes(hash)) {
+      setSelectedFolder(hash);
+    } else {
+      setSelectedFolder("add");
+      navigate(`${location.pathname}#add`);
+    }
+  }, [location.hash, location.pathname]);
+
+  const handleTabClick = (folder) => {
+    navigate(`${location.pathname}#${folder}`);
+    setSelectedFolder(folder);
+  };
 
   const PAGE_SIZE = 20; // Number of datasets per page
   const endpoints = {
@@ -40,6 +59,11 @@ const ViewAllDatasets = () => {
       delete: `${process.env.REACT_APP_PRIVATE_SERVER_BASE_URL}/delete-dataset-file`,
       overview: "/processed-dataset-overview",
     },
+    datasets: {
+      fetch: `${process.env.REACT_APP_SERVER_BASE_URL}/list-datasets`,
+      delete: `${process.env.REACT_APP_SERVER_BASE_URL}/delete-dataset-file`,
+      overview: "/testing-dataset-overview",
+    }
   };
 
   const fetchData = async () => {
@@ -161,13 +185,13 @@ const ViewAllDatasets = () => {
     if (action === "next" || action === "update") {
       switch (index) {
         case 0: // Add Dataset step - switch to add tab
-          setTimeout(() => setSelectedFolder("add"), 100);
+          setTimeout(() => handleTabClick("add"), 100);
           break;
         case 5: // Raw Datasets step - switch to raw tab
-          setTimeout(() => setSelectedFolder("raw"), 100);
+          setTimeout(() => handleTabClick("raw"), 100);
           break;
         case 9: // Processed Datasets step - switch to processed tab
-          setTimeout(() => setSelectedFolder("processed"), 100);
+          setTimeout(() => handleTabClick("processed"), 100);
           break;
         default:
           break;
@@ -180,7 +204,7 @@ const ViewAllDatasets = () => {
     if (showWalkthrough) {
       setWalkthroughKey((prev) => prev + 1);
       // Reset to "add" tab when walkthrough starts
-      setSelectedFolder("add");
+      ("add");
     }
   }, [showWalkthrough]);
 
@@ -290,12 +314,11 @@ const ViewAllDatasets = () => {
           {/* Sidebar */}
           <div className="space-y-3">
             <button
-              onClick={() => setSelectedFolder("add")}
+              onClick={() => handleTabClick("add")}
               className={`manage-data-add-dataset w-full flex items-center gap-3 p-3 rounded-xl text-left
-                ${
-                  selectedFolder === "add"
-                    ? "bg-blue-50 text-blue-700"
-                    : "hover:bg-gray-100"
+                ${selectedFolder === "add"
+                  ? "bg-blue-50 text-blue-700"
+                  : "hover:bg-gray-100"
                 }`}
             >
               <FilePlus className="h-5 w-5" />
@@ -304,18 +327,28 @@ const ViewAllDatasets = () => {
             {["raw", "processed"].map((folder) => (
               <button
                 key={folder}
-                onClick={() => setSelectedFolder(folder)}
+                onClick={() => handleTabClick(folder)}
                 className={`manage-data-${folder}-datasets w-full flex items-center gap-3 p-3 rounded-xl text-left
-                ${
-                  selectedFolder === folder
+                ${selectedFolder === folder
                     ? "bg-blue-50 text-blue-700"
                     : "hover:bg-gray-100"
-                }`}
+                  }`}
               >
                 <FolderIcon className="h-5 w-5" />
                 {folder.charAt(0).toUpperCase() + folder.slice(1)} Datasets
               </button>
             ))}
+            <button
+              onClick={() => handleTabClick("datasets")}
+              className={`manage-data-datasets w-full flex items-center gap-3 p-3 rounded-xl text-left
+                      ${selectedFolder === "datasets"
+                  ? "bg-blue-50 text-blue-700"
+                  : "hover:bg-gray-100"
+                }`}
+            >
+              <CircleStackIcon className="h-5 w-5" />
+              Testing Datasets
+            </button>
           </div>
           {selectedFolder === "add" && <AddDataset />}
           {/* Main Content */}
@@ -328,7 +361,9 @@ const ViewAllDatasets = () => {
                     <DocumentTextIcon className="h-8 w-8 text-blue-500" />
                     {selectedFolder === "raw"
                       ? "Raw Datasets"
-                      : "Processed Datasets"}
+                      : selectedFolder == "datasets"
+                        ? "Server Datasets"
+                        : "Processed Datasets"}
                   </h1>
                   <a
                     href="/preprocessing-docs"

@@ -30,3 +30,11 @@ export const logout = async (api: AxiosInstance) => {
 export const getMe = async (api: AxiosInstance) => {
   return api.get("/users/me");
 };
+
+export const listTasksFromDatasetId = (datasetId: number) => {
+  return HTTPService.get(`/list-tasks-with-datasetid/${datasetId}`);
+};
+
+export const getDatasetDetails = (datasetId: number) => {
+  return HTTPService.get(`/dataset-details/${datasetId}`);
+};

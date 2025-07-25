@@ -13,56 +13,103 @@ import {
   ChevronRightIcon,
   InformationCircleIcon,
 } from "@heroicons/react/24/outline";
+import { DocumentArrowUpIcon } from "@heroicons/react/24/solid";
+import { InView } from 'react-intersection-observer';
+
 
 export default function Trainings() {
   const navigate = useNavigate();
   const { api } = useAuth();
   const [sessions, setSessions] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingOneTime, setIsLoadingOneTime] = useState(true);
   const [error, setError] = useState(null);
   const [pagination, setPagination] = useState({
     page: 1,
-    perPage: 6, // Match your grid layout (3 cols × 2 rows)
+    perPage: 11,
     total: 0,
     totalPages: 1,
   });
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+
   const [showInfo, setShowInfo] = useState(false);
 
   const openDetails = (sessionId) => {
     navigate(`/trainings/${sessionId}`);
   };
+  const openNewTraining = () => {
+    navigate(`/Request`);
+  };
 
+  // const fetchSessions = async () => {
+  //   try {
+  //     setIsLoading(true);
+  //     setError(null);
+  //     const response = await getAllSessions(
+  //       api,
+  //       pagination.page,
+  //       pagination.perPage
+  //     );
+  //     setSessions(response.data.data || []);
+  //     setPagination((prev) => ({
+  //       ...prev,
+  //       total: response.data.total,
+  //       totalPages: Math.ceil(response.data.total / pagination.perPage), // Ensure correct page count
+  //     }));
+  //   } catch (err) {
+  //     console.error("Error fetching sessions:", err);
+  //     setError("Failed to load training sessions");
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
   const fetchSessions = async () => {
+    if (!hasMore) return;
+
     try {
       setIsLoading(true);
       setError(null);
-      const response = await getAllSessions(
-        api,
-        pagination.page,
-        pagination.perPage
-      );
-      setSessions(response.data.data || []);
-      setPagination((prev) => ({
-        ...prev,
-        total: response.data.total,
-        totalPages: Math.ceil(response.data.total / pagination.perPage), // Ensure correct page count
-      }));
+
+      const response = await getAllSessions(api, page, pagination.perPage);
+      const newSessions = response.data.data || [];
+
+      // setSessions((prev) => [...prev, ...newSessions]);
+      setSessions((prev) => {
+        const all = [...prev, ...newSessions];
+        const unique = Array.from(new Map(all.map(s => [s.id, s])).values());
+        return unique;
+      });
+
+      const total = response.data.total;
+      const totalPages = Math.ceil(total / pagination.perPage);
+
+      setHasMore(page < totalPages);
+      setPage((prev) => prev + 1);
+
     } catch (err) {
       console.error("Error fetching sessions:", err);
       setError("Failed to load training sessions");
     } finally {
       setIsLoading(false);
+      setIsLoadingOneTime(false);
     }
   };
+
   const handlePageChange = (newPage) => {
     if (newPage >= 1 && newPage <= pagination.totalPages) {
-      setPagination((prev) => ({ ...prev, page: newPage }));
+      // setPagination((prev) => ({ ...prev, page: newPage }));
+      setPagination(prev => ({
+        ...prev,
+        total,
+        totalPages,
+      }));
     }
   };
 
   useEffect(() => {
     fetchSessions();
-  }, [pagination.page]);
+  }, []);
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -106,7 +153,7 @@ export default function Trainings() {
     }
   };
 
-  if (isLoading) {
+  if (isLoadingOneTime) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[300px]">
         <ArrowPathIcon className="h-12 w-12 text-blue-500 animate-spin" />
@@ -184,30 +231,48 @@ export default function Trainings() {
             Monitor active and completed federated learning sessions
           </p>
         </div>
-        <button
-          onClick={fetchSessions}
+        {/* <button
+          onClick={() => {
+            fetchSessions();
+          }}
           className="inline-flex items-center px-3 py-1.5 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
         >
           <ArrowPathIcon className="h-4 w-4 mr-2" />
           Refresh
-        </button>
+        </button> */}
       </div>
 
       {sessions.length === 0 ? (
-        <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-lg">
-          <div className="flex items-center">
-            <ExclamationTriangleIcon className="h-5 w-5 text-yellow-500 mr-2" />
-            <h3 className="text-lg font-medium text-yellow-800">
-              No training sessions
-            </h3>
+        <div className="flex flex-col gap-4">
+          <div
+            className="bg-blue-200 hover:bg-blue-300  rounded-lg shadow-sm border-2 border-blue-600 overflow-hidden hover:shadow-md transition-shadow cursor-pointer h-40"
+            onClick={openNewTraining}
+          >
+            <div className="p-5 h-full flex items-center justify-center">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-medium text-gray-800 truncate flex items-center gap-3">
+                  <DocumentArrowUpIcon className="w-8 h-8" /> New Training
+                </h3>
+              </div>
+            </div>
           </div>
-          <p className="mt-2 text-sm text-yellow-700">
-            There are currently no training sessions to display.
-          </p>
+          <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-lg">
+            <div className="flex items-center">
+              <ExclamationTriangleIcon className="h-5 w-5 text-yellow-500 mr-2" />
+              <h3 className="text-lg font-medium text-yellow-800">
+                No training sessions
+              </h3>
+            </div>
+            <p className="mt-2 text-sm text-yellow-700">
+              There are currently no training sessions to display.
+            </p>
+          </div>
+
         </div>
+
       ) : (
         <>
-          <div className="mb-4 flex justify-between items-center">
+          {/* <div className="mb-4 flex justify-between items-center">
             <p className="text-sm text-gray-500">
               Showing{" "}
               <span className="font-medium">
@@ -223,9 +288,21 @@ export default function Trainings() {
               of <span className="font-medium">{pagination.total}</span>{" "}
               training sessions
             </p>
-          </div>
+          </div> */}
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+            <div
+              className="bg-blue-200 hover:bg-blue-300  rounded-lg shadow-sm border-2 border-blue-600 overflow-hidden hover:shadow-md transition-shadow cursor-pointer"
+              onClick={openNewTraining}
+            >
+              <div className="p-5 h-full flex items-center justify-center">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-medium text-gray-800 truncate flex items-center gap-3">
+                    <DocumentArrowUpIcon className="w-8 h-8" /> New Training
+                  </h3>
+                </div>
+              </div>
+            </div>
             {sessions.map((session) => (
               <div
                 key={session.id}
@@ -266,8 +343,19 @@ export default function Trainings() {
               </div>
             ))}
           </div>
-
-          <div className="mt-8 flex items-center justify-between border-t border-gray-200 px-4 py-3 sm:px-6">
+          <InView
+            as="div"
+            onChange={(inView) => {
+              if (inView) fetchSessions();
+            }}
+          >
+            {isLoading && (
+              <div className="flex justify-center my-4">
+                <ArrowPathIcon className="h-6 w-6 text-blue-500 animate-spin" />
+              </div>
+            )}
+          </InView>
+          {/* <div className="mt-8 flex items-center justify-between border-t border-gray-200 px-4 py-3 sm:px-6">
             <div className="flex flex-1 justify-between sm:hidden">
               <button
                 onClick={() => handlePageChange(pagination.page - 1)}
@@ -333,11 +421,10 @@ export default function Trainings() {
                         <button
                           key={pageNum}
                           onClick={() => handlePageChange(pageNum)}
-                          className={`relative inline-flex items-center px-4 py-2 text-sm font-semibold ${
-                            pagination.page === pageNum
-                              ? "bg-blue-600 text-white focus:z-20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
-                              : "text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0"
-                          }`}
+                          className={`relative inline-flex items-center px-4 py-2 text-sm font-semibold ${pagination.page === pageNum
+                            ? "bg-blue-600 text-white focus:z-20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+                            : "text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0"
+                            }`}
                         >
                           {pageNum}
                         </button>
@@ -355,7 +442,7 @@ export default function Trainings() {
                 </nav>
               </div>
             </div>
-          </div>
+          </div> */}
         </>
       )}
     </div>
