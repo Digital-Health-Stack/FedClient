@@ -7,10 +7,7 @@ const SummaryStats = ({ filename, numRows, numCols }) => {
       <div className="p-4 border-b flex items-center justify-between bg-blue-50 rounded-t-xl">
         <div className="flex items-center gap-2">
           <InformationCircleIcon className="w-6 h-6 text-blue-600" />
-          <h2 className="text-xl font-semibold text-blue-800">
-            Dataset Overview
-          </h2>
-          {/* <h1 className="text-2xl font-semibold">Dataset Overview</h1> */}
+          <h2 className="text-xl font-semibold text-blue-800">Overview</h2>
         </div>
       </div>
 

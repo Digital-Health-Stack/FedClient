@@ -12,6 +12,7 @@ import ColumnDetails from "./ColumnDetails.jsx";
 import PreprocessingDetails from "./PreprocessingDetails.jsx";
 import DatasetLayout from "./ProcessingComponents/DatasetLayout.jsx";
 import { getDatasetDetails } from "../../../services/privateService";
+import DatasetHead from "./DatasetHead.jsx";
 // const PROCESSED_DATASET_DETAILS_URL =
 //   process.env.REACT_APP_PROCESSED_OVERVIEW_PATH;
 
@@ -23,7 +24,7 @@ const DataSetOverview = () => {
   const sections = [
     {
       id: "summary",
-      title: "Dataset Overview",
+      title: "Overview",
       icon: <InformationCircleIcon className="w-5 h-5" />,
     },
     // {
@@ -70,11 +71,18 @@ const DataSetOverview = () => {
           numCols={data.numColumns}
         />
       </section>
-      {/*
-      <section id="head" className="scroll-mt-20 mt-12">
-        <DatasetHead datasetHead={data.datasetHead} onColumnHeaderClick={(col, idx) => setSelectedColumnIndex(idx)} />
-      </section>
-      */}
+      {data.datasetHead && (
+        <section id="head" className="scroll-mt-20 mt-12">
+          <DatasetHead
+            datasetHead={data.datasetHead}
+            onColumnHeaderClick={(col, idx) => setSelectedColumnIndex(idx)}
+            selectedColumnIndex={selectedColumnIndex}
+            columnDescriptions={Object.fromEntries(
+              data.columnStats.map((col) => [col.name, col.description])
+            )}
+          />
+        </section>
+      )}
       <section id="columns" className="scroll-mt-20 mt-12">
         {data?.columnStats && (
           <ColumnDetails

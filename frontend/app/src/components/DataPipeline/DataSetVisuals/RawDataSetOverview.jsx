@@ -25,12 +25,12 @@ const DataSetOverview = () => {
   const sections = [
     {
       id: "summary",
-      title: "Dataset Overview",
+      title: "Overview",
       icon: <InformationCircleIcon className="w-5 h-5" />,
     },
     {
       id: "head",
-      title: "Dataset Head",
+      title: "Sample Data",
       icon: <TableCellsIcon className="w-5 h-5" />,
     },
     {
@@ -88,6 +88,9 @@ const DataSetOverview = () => {
           datasetHead={data.datasetHead}
           onColumnHeaderClick={handleColumnHeaderClick}
           selectedColumnIndex={selectedColumnIndex}
+          columnDescriptions={Object.fromEntries(
+            data.columnStats.map((col) => [col.name, col.description])
+          )}
         />
       </section>
       <section id="columns" className="scroll-mt-20 mt-12" ref={columnsRef}>

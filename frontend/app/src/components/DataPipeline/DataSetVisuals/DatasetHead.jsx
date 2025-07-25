@@ -7,25 +7,8 @@ const DatasetHead = ({
   maxRows = 5,
   onColumnHeaderClick,
   selectedColumnIndex,
+  columnDescriptions = {},
 }) => {
-  if (!datasetHead || datasetHead.length === 0) {
-    return (
-      <div className="bg-white rounded-xl shadow-sm p-2 mt-4" ref={ref}>
-        <div className="p-4 border-b flex items-center justify-between bg-blue-50 rounded-t-xl">
-          <div className="flex items-center gap-2">
-            <TableCellsIcon className="w-6 h-6 text-blue-600" />
-            <h2 className="text-xl font-semibold text-blue-800">
-              Dataset Head
-            </h2>
-          </div>
-        </div>
-        <div className="p-4 text-center text-gray-500">
-          No data available to display
-        </div>
-      </div>
-    );
-  }
-
   // Get column names from the first row
   const columns = Object.keys(datasetHead[0]);
 
@@ -37,7 +20,7 @@ const DatasetHead = ({
       <div className="p-4 border-b flex items-center justify-between bg-blue-50 rounded-t-xl">
         <div className="flex items-center gap-2">
           <TableCellsIcon className="w-6 h-6 text-blue-600" />
-          <h2 className="text-xl font-semibold text-blue-800">Dataset Head</h2>
+          <h2 className="text-xl font-semibold text-blue-800">Sample Data</h2>
         </div>
       </div>
 
@@ -53,6 +36,9 @@ const DatasetHead = ({
                   }`}
                   onClick={() =>
                     onColumnHeaderClick && onColumnHeaderClick(column, index)
+                  }
+                  title={
+                    columnDescriptions[column] || "No description available"
                   }
                 >
                   {column}

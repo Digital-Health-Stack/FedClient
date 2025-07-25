@@ -109,7 +109,7 @@ const DatasetLayout = ({ children, sections }) => {
           }
         });
       },
-      { threshold: 0.5 },
+      { threshold: 0.5 }
     );
 
     sections.forEach((section) => {
@@ -133,7 +133,7 @@ const DatasetLayout = ({ children, sections }) => {
           >
             <div className="p-6 sticky top-0 bg-white">
               <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-bold text-gray-800">Navigation</h2>
+                <h2 className="text-xl font-bold text-gray-800">Dataset</h2>
                 <button
                   onClick={() => setIsPanelOpen(false)}
                   className="p-1 hover:bg-gray-100 rounded-full"
