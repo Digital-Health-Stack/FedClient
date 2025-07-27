@@ -96,6 +96,9 @@ const AddDataset = () => {
       if (uploadedFiles.length > 0) {
         fetchUploadedFiles();
       }
+      else if (success && success.includes("uploaded") && !uploading) {
+        navigate("/view-all-datasets#raw")
+      }
     }, 5000); // every 5 seconds
 
     return () => clearInterval(interval);

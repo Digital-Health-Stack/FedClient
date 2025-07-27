@@ -15,10 +15,7 @@ hdfs_manager = HDFSServiceManager()
 
 # Get HDFS configuration from environment variables
 HDFS_URL = os.getenv("HDFS_URL")
-HADOOP_USER_NAME = os.getenv("HADOOP_USER_NAME")
-HDFS_TARGET_PATH = os.getenv(
-    "HDFS_TARGET_PATH", "/user/keshav-pc/tmpuploads"
-)  # Default target path
+HDFS_TARGET_PATH = f"/user/{os.getenv('HADOOP_USER_NAME')}/{os.getenv('RECENTLY_UPLOADED_DATASETS_DIR')}"
 
 
 @file_upload_router.post("/upload")

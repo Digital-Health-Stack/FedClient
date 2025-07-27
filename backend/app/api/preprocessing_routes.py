@@ -49,8 +49,8 @@ dataset_router = APIRouter(tags=["Dataset"])
 HDFS_RAW_DATASETS_DIR = os.getenv("HDFS_RAW_DATASETS_DIR")
 HDFS_PROCESSED_DATASETS_DIR = os.getenv("HDFS_PROCESSED_DATASETS_DIR")
 RECENTLY_UPLOADED_DATASETS_DIR = os.getenv("RECENTLY_UPLOADED_DATASETS_DIR")
-HDFS_NEW_TARGET_PATH = os.getenv("HDFS_NEW_TARGET_PATH")
-HDFS_TARGET_PATH = os.getenv("HDFS_TARGET_PATH")
+HDFS_NEW_TARGET_PATH = f"/user/{os.getenv('HADOOP_USER_NAME')}/{os.getenv('HDFS_RAW_DATASETS_DIR')}"
+HDFS_TARGET_PATH = f"/user/{os.getenv('HADOOP_USER_NAME')}/{os.getenv('RECENTLY_UPLOADED_DATASETS_DIR')}"
 
 hdfs_client = HDFSServiceManager()
 spark_client = SparkSessionManager()

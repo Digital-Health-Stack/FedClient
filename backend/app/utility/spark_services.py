@@ -318,9 +318,9 @@ class SparkSessionManager:
 
     async def delete_file_from_hdfs(self, filename):
         try:
-            await hdfs_client.delete_file_from_hdfs("tmpuploads", filename)
+            await hdfs_client.delete_file_from_hdfs(RECENTLY_UPLOADED_DATASETS_DIR, filename)
         except Exception as e:
-            print(f"Warning: Failed to delete tmpuploads/{filename} from HDFS: {e}")
+            print(f"Warning: Failed to delete {RECENTLY_UPLOADED_DATASETS_DIR}/{filename} from HDFS: {e}")
 
     async def create_new_dataset(self, filename, filetype):
         """
@@ -332,13 +332,15 @@ class SparkSessionManager:
             print(f"in create_new_dataset {filename} is {filetype}")
             with SparkSessionManager() as spark:
                 # later create a switch case based on file type
+
+                print("reaching 1")
                 if filetype == "csv":
                     print(
                         # f"Reading CSV file: {HDFS_FILE_READ_URL}/{RECENTLY_UPLOADED_DATASETS_DIR}/{filename}"
-                        f"Reading CSV file: {HDFS_FILE_READ_URL}/tmpuploads/{filename}"
+                        f"Reading CSV file: {HDFS_FILE_READ_URL}/{RECENTLY_UPLOADED_DATASETS_DIR}/{filename}"
                     )
                     df = spark.read.csv(
-                        f"{HDFS_FILE_READ_URL}/tmpuploads/{filename}",
+                        f"{HDFS_FILE_READ_URL}/{RECENTLY_UPLOADED_DATASETS_DIR}/{filename}",
                         header=True,
                         inferSchema=True,
                     )
@@ -355,11 +357,11 @@ class SparkSessionManager:
 
                 elif filetype == "parquet":
                     print(
-                        f"Reading Parquet file: {HDFS_FILE_READ_URL}/tmpuploads/{filename}"
+                        f"Reading Parquet file: {HDFS_FILE_READ_URL}/{RECENTLY_UPLOADED_DATASETS_DIR}/{filename}"
                     )
                     # we don't need inferSchema=True with parquet (as parquet stores the schema as metadata)
                     df = spark.read.parquet(
-                        f"{HDFS_FILE_READ_URL}/tmpuploads/{filename}"
+                        f"{HDFS_FILE_READ_URL}/{RECENTLY_UPLOADED_DATASETS_DIR}/{filename}"
                     )
                     df.write.mode("overwrite").parquet(
                         f"{HDFS_FILE_READ_URL}/{HDFS_RAW_DATASETS_DIR}/{filename}"
@@ -377,7 +379,6 @@ class SparkSessionManager:
                 return dataset_overview
             return {"message": "Dataset created."}
         except Exception as e:
-            print("KYA RE GANDU 5")
             print(f"Error creating new dataset: {e}")
             raise e
 

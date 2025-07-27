@@ -129,7 +129,7 @@ const ViewRecentUploads = () => {
                   {isProcessingOrCopying(filename) || (
                     <TrashIcon
                       className="h-6 w-6 text-red-500 cursor-pointer hover:text-red-700"
-                      onClick={() => handleDelete("tmpuploads", filename)}
+                      onClick={() => handleDelete(process.env.RECENTLY_UPLOADED_DATASETS_DIR, filename)}
                     />
                   )}
                 </div>
