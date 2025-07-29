@@ -6,6 +6,7 @@ import {
   BookmarkSlashIcon,
   ChartBarIcon,
   ArrowsPointingInIcon,
+  PencilIcon,
 } from "@heroicons/react/24/outline";
 import NumericColumn from "./ColumnComponents/NumericColumn";
 import StringColumn from "./ColumnComponents/StringColumn";
@@ -17,10 +18,12 @@ const columnComponents = {
   Array: ArrayColumn,
 };
 
-const ColumnDetails = ({ columnStats, selectedColumnIndex }) => {
+const ColumnDetails = ({ columnStats, selectedColumnIndex, sendToBackend }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [pinnedColumns, setPinnedColumns] = useState([]);
   const [isExpanded, setIsExpanded] = useState(true);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [editedDescriptions, setEditedDescriptions] = useState({});
 
   useEffect(() => {
     if (
@@ -47,6 +50,33 @@ const ColumnDetails = ({ columnStats, selectedColumnIndex }) => {
     } else {
       setPinnedColumns([...pinnedColumns, currentColumn]);
     }
+  };
+
+  const handleEditDescriptions = () => {
+    // Initialize edited descriptions with current values
+    const initialDescriptions = {};
+    columnStats.forEach((col) => {
+      initialDescriptions[col.name] = col.description || "";
+    });
+    setEditedDescriptions(initialDescriptions);
+    setIsEditDialogOpen(true);
+  };
+
+  const handleSaveDescriptions = () => {
+    // Here you would typically make an API call to save the descriptions
+    sendToBackend(editedDescriptions);
+    // For now, we'll just update the local state
+    columnStats.forEach((col) => {
+      if (editedDescriptions[col.name] !== undefined) {
+        col.description = editedDescriptions[col.name];
+      }
+    });
+    setIsEditDialogOpen(false);
+  };
+
+  const handleCancelEdit = () => {
+    setIsEditDialogOpen(false);
+    setEditedDescriptions({});
   };
 
   if (columnStats.length === 0) return null;
@@ -128,9 +158,18 @@ const ColumnDetails = ({ columnStats, selectedColumnIndex }) => {
                 <h3 className="font-medium text-gray-900 text-lg">
                   {currentColumn.name}
                 </h3>
-                <p className="text-sm text-gray-500">
-                  {currentColumn.description || "No Description Available"}
-                </p>
+                <div className="flex items-center gap-2">
+                  <p className="text-sm text-gray-500">
+                    {currentColumn.description || "No Description Available"}
+                  </p>
+                  <button
+                    onClick={handleEditDescriptions}
+                    className="p-1 hover:bg-gray-100 rounded-full text-gray-400 hover:text-gray-600"
+                    title="Edit all column descriptions"
+                  >
+                    <PencilIcon className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
               <button
                 onClick={handlePin}
@@ -198,6 +237,64 @@ const ColumnDetails = ({ columnStats, selectedColumnIndex }) => {
               })}
             </div>
           )}
+        </div>
+      )}
+
+      {/* Edit Descriptions Dialog */}
+      {isEditDialogOpen && (
+        <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center p-4">
+          <div
+            className="bg-white rounded-lg w-full max-w-2xl shadow-xl max-h-[80vh] overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="p-6 border-b">
+              <h2 className="text-xl font-bold text-gray-900">
+                Edit Column Descriptions
+              </h2>
+              <p className="text-sm text-gray-500 mt-1">
+                Update descriptions for all columns in this dataset
+              </p>
+            </div>
+
+            <div className="p-6 overflow-y-auto max-h-[60vh]">
+              <div className="space-y-4">
+                {columnStats.map((col) => (
+                  <div key={col.name} className="space-y-2">
+                    <label className="block text-sm font-medium text-gray-700">
+                      {col.name}
+                    </label>
+                    <textarea
+                      value={editedDescriptions[col.name] || ""}
+                      onChange={(e) =>
+                        setEditedDescriptions((prev) => ({
+                          ...prev,
+                          [col.name]: e.target.value,
+                        }))
+                      }
+                      className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+                      rows="2"
+                      placeholder="Enter description for this column..."
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="p-6 border-t bg-gray-50 flex justify-end gap-3">
+              <button
+                onClick={handleCancelEdit}
+                className="px-4 py-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSaveDescriptions}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                Save Changes
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

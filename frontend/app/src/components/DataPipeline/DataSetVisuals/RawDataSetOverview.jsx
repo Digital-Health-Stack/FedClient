@@ -11,7 +11,10 @@ import {
   TableCellsIcon,
   WrenchIcon,
 } from "@heroicons/react/24/outline";
-import { getRawDatasetDetails } from "../../../services/privateService";
+import {
+  getRawDatasetDetails,
+  updateColumnDescriptionRaw,
+} from "../../../services/privateService";
 import DatasetHead from "./DatasetHead.jsx";
 
 // const RAW_DATASET_DETAILS_URL = process.env.REACT_APP_RAW_OVERVIEW_PATH;
@@ -74,6 +77,10 @@ const DataSetOverview = () => {
       headRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
+  const sendToBackend = (editedDescriptions) => {
+    updateColumnDescriptionRaw(data.filename, editedDescriptions);
+  };
+
   return (
     <DatasetLayout sections={sections}>
       <section id="summary" className="scroll-mt-20">
@@ -98,6 +105,7 @@ const DataSetOverview = () => {
           <ColumnDetails
             columnStats={data.columnStats}
             selectedColumnIndex={selectedColumnIndex}
+            sendToBackend={sendToBackend}
           />
         )}
       </section>

@@ -11,7 +11,10 @@ import SummaryStats from "./SummaryStats.jsx";
 import ColumnDetails from "./ColumnDetails.jsx";
 import PreprocessingDetails from "./PreprocessingDetails.jsx";
 import DatasetLayout from "./ProcessingComponents/DatasetLayout.jsx";
-import { getDatasetDetails } from "../../../services/privateService";
+import {
+  getDatasetDetails,
+  updateColumnDescriptionProcessed,
+} from "../../../services/privateService";
 import DatasetHead from "./DatasetHead.jsx";
 // const PROCESSED_DATASET_DETAILS_URL =
 //   process.env.REACT_APP_PROCESSED_OVERVIEW_PATH;
@@ -62,6 +65,10 @@ const DataSetOverview = () => {
     columnDetails[column.name] = column.type;
   });
 
+  const sendToBackend = (editedDescriptions) => {
+    updateColumnDescriptionProcessed(filename, editedDescriptions);
+  };
+
   return (
     <DatasetLayout sections={sections}>
       <section id="summary" className="scroll-mt-20">
@@ -88,6 +95,7 @@ const DataSetOverview = () => {
           <ColumnDetails
             columnStats={data.columnStats}
             selectedColumnIndex={selectedColumnIndex}
+            sendToBackend={sendToBackend}
           />
         )}
       </section>

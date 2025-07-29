@@ -1,5 +1,6 @@
 from sqlalchemy.orm import Session, load_only
 from sqlalchemy.exc import SQLAlchemyError, IntegrityError, NoResultFound
+from sqlalchemy.orm.attributes import flag_modified
 from schemas.dataset import DatasetCreate, DatasetUpdate
 from models.Dataset import RawDataset, Dataset
 from dotenv import load_dotenv
@@ -109,6 +110,29 @@ def edit_raw_dataset_details(db: Session, newdetails: DatasetUpdate):
         dataset.datastats["filename"] = newdetails.filename
         db.commit()
         return {"message": "Raw dataset details updated successfully."}
+    except SQLAlchemyError as e:
+        db.rollback()
+        return {"error": f"Database error: {e}"}
+
+
+def update_column_description(db: Session, filename: str, col_to_desc: dict):
+    try:
+        dataset = db.query(RawDataset).filter(RawDataset.filename == filename).first()
+        if not dataset:
+            return {"error": "Dataset not found."}
+        print("Pre-update", dataset.datastats["columnStats"][0])
+
+        # Modify the JSON field in-place
+        for item in dataset.datastats["columnStats"]:
+            if item["name"] in col_to_desc:
+                item["description"] = col_to_desc[item["name"]]
+
+        # Explicitly flag the JSON field as modified for PostgreSQL
+        flag_modified(dataset, "datastats")
+        print("Post-update", dataset.datastats["columnStats"][0])
+
+        db.commit()
+        return {"message": "Column descriptions updated successfully."}
     except SQLAlchemyError as e:
         db.rollback()
         return {"error": f"Database error: {e}"}
@@ -232,3 +256,24 @@ def handle_file_renaming_during_processing(
     else:
         print(f"Invalid directory: {directory}")
         return {"error": "Invalid directory"}
+
+
+def update_column_description_in_dataset(db: Session, filename: str, col_to_desc: dict):
+    try:
+        dataset = db.query(Dataset).filter(Dataset.filename == filename).first()
+        if not dataset:
+            return {"error": "Dataset not found."}
+
+        # Modify the JSON field in-place
+        for item in dataset.datastats["columnStats"]:
+            if item["name"] in col_to_desc:
+                item["description"] = col_to_desc[item["name"]]
+
+        # Explicitly flag the JSON field as modified for PostgreSQL
+        flag_modified(dataset, "datastats")
+
+        db.commit()
+        return {"message": "Column descriptions updated successfully."}
+    except SQLAlchemyError as e:
+        db.rollback()
+        return {"error": f"Database error: {e}"}

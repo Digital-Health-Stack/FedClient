@@ -33,6 +33,8 @@ from crud.datasets_crud import (
     edit_dataset_details,
     edit_raw_dataset_details,
     handle_file_renaming_during_processing,
+    update_column_description,
+    update_column_description_in_dataset,
 )
 
 from utility.db import get_db
@@ -49,7 +51,9 @@ dataset_router = APIRouter(tags=["Dataset"])
 HDFS_RAW_DATASETS_DIR = os.getenv("HDFS_RAW_DATASETS_DIR")
 HDFS_PROCESSED_DATASETS_DIR = os.getenv("HDFS_PROCESSED_DATASETS_DIR")
 RECENTLY_UPLOADED_DATASETS_DIR = os.getenv("RECENTLY_UPLOADED_DATASETS_DIR")
-HDFS_NEW_TARGET_PATH = f"/user/{os.getenv('HADOOP_USER_NAME')}/{os.getenv('HDFS_RAW_DATASETS_DIR')}"
+HDFS_NEW_TARGET_PATH = (
+    f"/user/{os.getenv('HADOOP_USER_NAME')}/{os.getenv('HDFS_RAW_DATASETS_DIR')}"
+)
 HDFS_TARGET_PATH = f"/user/{os.getenv('HADOOP_USER_NAME')}/{os.getenv('RECENTLY_UPLOADED_DATASETS_DIR')}"
 
 hdfs_client = HDFSServiceManager()
@@ -446,6 +450,34 @@ async def delete_raw_dataset_file(
         return {"message": "File deleted successfully"}
     except Exception as e:
         print("Error in deleting recent upload: ", str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
+
+
+@dataset_router.put("/update-column-description-raw/{filename}")
+async def update_column_description_raw(
+    filename: str, description: dict, db: Session = Depends(get_db)
+):
+    try:
+        result = update_column_description(db, filename, description)
+        if isinstance(result, dict) and "error" in result:
+            raise HTTPException(status_code=400, detail=result["error"])
+        return result
+    except Exception as e:
+        print("Error in updating column description: ", str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
+
+
+@dataset_router.put("/update-column-description-processed/{filename}")
+async def update_description(
+    filename: str, description: dict, db: Session = Depends(get_db)
+):
+    try:
+        result = update_column_description_in_dataset(db, filename, description)
+        if isinstance(result, dict) and "error" in result:
+            raise HTTPException(status_code=400, detail=result["error"])
+        return result
+    except Exception as e:
+        print("Error in updating description: ", str(e))
         raise HTTPException(status_code=500, detail=str(e)) from e
 
 

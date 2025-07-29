@@ -68,3 +68,24 @@ export const saveToken = (token: string) => {
 export const removeToken = () => {
   return PrivateHTTPService.delete("/remove-token");
 };
+
+export const updateColumnDescriptionRaw = (
+  filename: string,
+  descriptions: any
+) => {
+  console.log("filename", filename);
+  return PrivateHTTPService.put(
+    `/update-column-description-raw/${filename}`,
+    descriptions
+  );
+};
+
+export const updateColumnDescriptionProcessed = (
+  filename: string,
+  descriptions: any
+) => {
+  return PrivateHTTPService.put(
+    `/update-column-description-processed/${filename}`,
+    descriptions
+  );
+};
