@@ -11,14 +11,15 @@ import {
 import PreprocessingOptions from "./ProcessingComponents/PreprocessingOptions.jsx";
 import { preprocessDataset } from "../../../services/privateService";
 import { WrenchIcon } from "@heroicons/react/24/outline";
-
+import { useLocation, useNavigate } from "react-router-dom";
 const PreprocessingDetails = ({ columns, filename, directory }) => {
   const [selectedColumn, setSelectedColumn] = useState("");
   const [selectedOption, setSelectedOption] = useState("");
   const [operations, setOperations] = useState([]);
   const [isBannerFixed, setIsBannerFixed] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
-
+  const navigate = useNavigate();
+  const location = useLocation();
   const handleOptionChange = (option) => {
     setSelectedOption(option);
   };
@@ -50,12 +51,16 @@ const PreprocessingDetails = ({ columns, filename, directory }) => {
       setIsSubmitted(true);
       preprocessDataset(payload);
       console.log("Data submitted for preprocessing:", payload);
+      if (location.pathname.includes("raw")) {
+        navigate("/view-all-datasets#raw");
+      } else {
+        navigate("/view-all-datasets#processed");
+      }
     } catch (error) {
       console.error("Error in submitting data for preprocessing:", error);
       setIsSubmitted(false);
     }
   };
-
   return (
     <div className="bg-white rounded-xl p-2">
       <div className="p-4 border-b flex items-center justify-between bg-blue-50 rounded-t-xl">

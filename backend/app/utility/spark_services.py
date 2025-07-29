@@ -27,6 +27,7 @@ import os
 import time
 import json
 import uuid
+from datetime import date, datetime
 
 load_dotenv()
 hdfs_client = HDFSServiceManager()
@@ -45,6 +46,27 @@ S3_PREFIX = os.getenv("S3_PREFIX")  # "temp"
 # import socket
 # host_ip = socket.gethostbyname(socket.gethostname())
 # print(f"Host IP of docker comtainer: {host_ip}")
+
+
+def serialize_for_json(obj):
+    """
+    Convert datetime objects to strings for JSON serialization.
+    This function recursively processes nested dictionaries and lists.
+    """
+    if isinstance(obj, dict):
+        return {key: serialize_for_json(value) for key, value in obj.items()}
+    elif isinstance(obj, list):
+        return [serialize_for_json(item) for item in obj]
+    elif isinstance(obj, (date, datetime)):
+        return obj.isoformat()
+    elif isinstance(obj, np.integer):
+        return int(obj)
+    elif isinstance(obj, np.floating):
+        return float(obj)
+    elif isinstance(obj, np.ndarray):
+        return obj.tolist()
+    else:
+        return obj
 
 
 class SparkSessionManager:
@@ -119,7 +141,7 @@ class SparkSessionManager:
             self._session.stop()
             self._session = None
 
-    async def _get_overview(self, df, filename):
+    async def _get_overview(self, df, filename=None):
         """
         Get an overview of the dataset given pyspark dataframe.
         """
@@ -131,6 +153,8 @@ class SparkSessionManager:
         # Get the first 5 rows of the dataframe and store it
         try:
             dataset_head = df.limit(5).toPandas().to_dict(orient="records")
+            # Serialize datetime objects to strings for JSON compatibility
+            dataset_head = serialize_for_json(dataset_head)
         except Exception as e:
             dataset_head = []
         for column in df.columns:
@@ -313,7 +337,13 @@ class SparkSessionManager:
             "columnStats": column_stats,
             "datasetHead": dataset_head,
         }
-        await self.delete_file_from_hdfs(filename)
+        
+        # Serialize the entire overview to ensure JSON compatibility
+        overview = serialize_for_json(overview)
+        
+        # Only delete file if filename is provided
+        if filename:
+            await self.delete_file_from_hdfs(filename)
         return overview
 
     async def delete_file_from_hdfs(self, filename):
@@ -470,7 +500,7 @@ class SparkSessionManager:
                     time.time() - t1,
                 )
 
-                overview = self._get_overview(df)
+                overview = await self._get_overview(df, filename)
                 overview["filename"] = newfilename
                 return overview
         except Exception as e:
@@ -503,7 +533,7 @@ class SparkSessionManager:
                 )  # no overwrite since it will be unique path
                 print(f"Created QPD dataset saved to: {write_path}")
 
-                overview = self._get_overview(df_subset)
+                overview = await self._get_overview(df_subset, filename)
                 overview["datapath"] = write_path
                 return overview
         except Exception as e:

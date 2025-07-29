@@ -105,7 +105,7 @@ const DataSetOverview = () => {
         <PreprocessingDetails
           columns={columnDetails}
           filename={filename}
-          directory={process.env.HDFS_RAW_DATASETS_DIR}
+          directory={process.env.REACT_APP_HDFS_RAW_DATASETS_DIR}
         />
       </section>
     </DatasetLayout>
