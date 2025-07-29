@@ -219,7 +219,7 @@ export default function App() {
             }}
           > */}
               <div className="flex-1 flex flex-col">
-                <lol>
+                <div>
                   <Routes>
                     <Route
                       path="/"
@@ -353,7 +353,7 @@ export default function App() {
                       }
                     />
                   </Routes>
-                </lol>
+                </div>
               </div>
               <Footer />
             </div>
