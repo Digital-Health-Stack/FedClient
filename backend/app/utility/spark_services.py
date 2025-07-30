@@ -52,6 +52,7 @@ def serialize_for_json(obj):
     """
     Convert datetime objects to strings for JSON serialization.
     This function recursively processes nested dictionaries and lists.
+    Handles NaN, inf, and -inf values by converting them to None (null in JSON).
     """
     if isinstance(obj, dict):
         return {key: serialize_for_json(value) for key, value in obj.items()}
@@ -62,9 +63,17 @@ def serialize_for_json(obj):
     elif isinstance(obj, np.integer):
         return int(obj)
     elif isinstance(obj, np.floating):
+        # Handle NaN, inf, and -inf values
+        if np.isnan(obj) or np.isinf(obj):
+            return None
         return float(obj)
     elif isinstance(obj, np.ndarray):
         return obj.tolist()
+    elif isinstance(obj, float):
+        # Handle Python float NaN and inf values
+        if obj != obj or obj == float("inf") or obj == float("-inf"):
+            return None
+        return obj
     else:
         return obj
 
@@ -337,10 +346,10 @@ class SparkSessionManager:
             "columnStats": column_stats,
             "datasetHead": dataset_head,
         }
-        
+
         # Serialize the entire overview to ensure JSON compatibility
         overview = serialize_for_json(overview)
-        
+
         # Only delete file if filename is provided
         if filename:
             await self.delete_file_from_hdfs(filename)
@@ -348,9 +357,13 @@ class SparkSessionManager:
 
     async def delete_file_from_hdfs(self, filename):
         try:
-            await hdfs_client.delete_file_from_hdfs(RECENTLY_UPLOADED_DATASETS_DIR, filename)
+            await hdfs_client.delete_file_from_hdfs(
+                RECENTLY_UPLOADED_DATASETS_DIR, filename
+            )
         except Exception as e:
-            print(f"Warning: Failed to delete {RECENTLY_UPLOADED_DATASETS_DIR}/{filename} from HDFS: {e}")
+            print(
+                f"Warning: Failed to delete {RECENTLY_UPLOADED_DATASETS_DIR}/{filename} from HDFS: {e}"
+            )
 
     async def create_new_dataset(self, filename, filetype):
         """
