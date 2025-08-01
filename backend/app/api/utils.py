@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 from schemas.training_data_transfer import SaveToken
-from utility.redis import redis_bhai as redis_client
+from utility.redis import redis_client
 
 utils_router = APIRouter(tags=["Utils"])
 
@@ -11,7 +11,7 @@ async def save_token_endpoint(request: SaveToken):
     # Save the client token to the database
     # -------------------------------------------------------------------
     client_token = request.client_token
-    await redis_client.set(f"client_token", client_token)
+    await redis_client.set("client_token", client_token)
     return {"message": "Token saved successfully."}
 
 
