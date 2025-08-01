@@ -68,13 +68,21 @@ def sanitize_history(history):
     return sanitized
 
 
-def get_model_config(session_id: int):
+def get_model_config(session_id: int, client_token: str):
     db: Session = next(get_db())
     try:
         record = db.query(CurrentTrainings).filter_by(session_id=session_id).first()
-        if not record:
+        response = requests.get(
+            f"{BASE_URL}/v2/get-federated-session/{session_id}",
+            headers={"Authorization": f"Bearer {client_token}"},
+        )
+        response.raise_for_status()
+        result = response.json()
+        federated_info = result.get("federated_info")
+        # record = type("Record", (), {"training_details": federated_info})()
+        if not federated_info:
             raise ValueError(f"No training config found for session_id {session_id}")
-        return record.training_details
+        return federated_info
     finally:
         db.close()
 
@@ -235,8 +243,8 @@ def main(session_id, client_token):
         get_url = f"{BASE_URL}/get-model-parameters"
         post_url = f"{BASE_URL}/receive-client-parameters"
 
-        model_config = get_model_config(session_id)
-        test_metrics = model_config.get("model_info").get("test_metrics")
+        model_config = get_model_config(session_id, client_token)
+        test_metrics = model_config.get("metric")
         print("Test Metrics : ", test_metrics)
 
         # ==== Load model ====
@@ -277,9 +285,10 @@ def main(session_id, client_token):
 
         # ==== Train ====
         model.fit(X, Y)
-
+        print("Training completed")
         after_training = model.get_parameters()
-        compare_parameters(before_training, after_training)
+        # TODO: Compare parameters for all model types
+        # compare_parameters(before_training, after_training)
 
         # Save updated parameters after training
         # with open("updated_parameters.txt", "a", encoding="utf-8") as f:

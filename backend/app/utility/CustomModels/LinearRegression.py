@@ -1,5 +1,5 @@
 import numpy as np
-
+from sklearn.metrics import mean_squared_error
 
 """
     Assumptions: 
@@ -70,3 +70,7 @@ class LinearRegression:
             "c": [self.c] if self.c is not None else None,
         }
         return local_parameter
+
+    def evaluate(self, X_test, Y_test):
+        Y_pred = self.predict(X_test)
+        return mean_squared_error(Y_pred, Y_test)

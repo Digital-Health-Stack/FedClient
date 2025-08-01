@@ -41,7 +41,11 @@ def reshape_image(img_array):
 
 
 def process_parquet_and_save_xy(
-    filename: str, session_id: str, output_column: list, client_token: str
+    filename: str,
+    session_id: str,
+    input_columns: list,
+    output_column: list,
+    client_token: str,
 ):
     """
     Download and combine multiple parquet files from HDFS,
@@ -101,13 +105,12 @@ def process_parquet_and_save_xy(
     print(combined_df.dtypes)
     print("Check head", combined_df.head())
 
-    X = np.array([reshape_image(img) for img in combined_df["image"]])
+    # X = np.array([reshape_image(img) for img in combined_df["image"]])
+    X = combined_df[input_columns].values
     Y = combined_df[output_column].values
 
     print(f"X shape: {X.shape}")
     print(f"Y shape: {Y.shape}")
-    print(type(Y[0]), type(Y[0][0]))
-    print("Head Data Y: ", Y[:5])
 
     # print("First Array : ", type(X), getattr(X, 'shape', 'no shape'))
     # print("Second Array : ", type(X[0]), getattr(X[0], 'shape', 'no shape'))
@@ -123,5 +126,6 @@ def process_parquet_and_save_xy(
     np.save(Y_filename, Y)
 
     # Sending Model Initialization signal to server
+
     send_client_initialize_model_signal(session_id, client_token)
     return

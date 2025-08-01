@@ -1,6 +1,5 @@
 import requests
 from sqlalchemy.orm import Session
-from models.Trainings import CurrentTrainings
 from utility.db import get_db
 from utility.redis import redis_pubsub, redis_client, redis_pubsub2
 import asyncio
@@ -55,13 +54,11 @@ async def redis_round_listener():
     try:
         async for message in pubsub2.listen():
             if message is None or message["type"] != "message":
-                continue            
-            print("Received round message:", message)
+                continue
             message_data = json.loads(message["data"])
             session_id = message_data.get("session_id")
             redis_key = f"client_filename:{session_id}"
             client_filename = await redis_client.get(redis_key)
-            print("client_filename", client_filename)
             round_number = message_data.get("round_number")
             client_token = await redis_client.get("client_token")
 
@@ -80,7 +77,6 @@ async def redis_round_listener():
                     session["federated_info"]["output_columns"],
                     client_token,
                 )
-
             process_id = str(uuid.uuid4())
             # Use asyncio.create_task instead of background_tasks
             asyncio.create_task(
