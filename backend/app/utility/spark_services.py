@@ -150,7 +150,7 @@ class SparkSessionManager:
             self._session.stop()
             self._session = None
 
-    async def _get_overview(self, df, filename=None):
+    async def _get_overview(self, df, filename=None, tmp_deletion=True):
         """
         Get an overview of the dataset given pyspark dataframe.
         """
@@ -351,7 +351,7 @@ class SparkSessionManager:
         overview = serialize_for_json(overview)
 
         # Only delete file if filename is provided
-        if filename:
+        if filename and tmp_deletion:
             await self.delete_file_from_hdfs(filename)
         return overview
 
@@ -513,7 +513,7 @@ class SparkSessionManager:
                     time.time() - t1,
                 )
 
-                overview = await self._get_overview(df, filename)
+                overview = await self._get_overview(df, filename, tmp_deletion=False)
                 overview["filename"] = newfilename
                 return overview
         except Exception as e:
