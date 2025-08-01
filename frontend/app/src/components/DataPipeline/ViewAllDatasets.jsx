@@ -362,7 +362,7 @@ const ViewAllDatasets = () => {
                     {selectedFolder === "raw"
                       ? "Raw Datasets"
                       : selectedFolder == "datasets"
-                        ? "Server Datasets"
+                        ? "Testing Datasets"
                         : "Processed Datasets"}
                   </h1>
                   <a
