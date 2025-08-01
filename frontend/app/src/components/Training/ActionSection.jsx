@@ -19,6 +19,7 @@ import {
 } from "../../services/federatedService";
 
 import {
+  acceptClientFilenameTraining,
   createQPDataset,
   getDatasetDetails,
 } from "../../services/privateService";
@@ -127,7 +128,14 @@ const ActionSection = ({ data, sessionId }) => {
         decision: data.decision === "accepted" ? 1 : 0,
       };
       const response = await submitPriceAcceptanceResponse(api, requestData);
-      // alert(response?.data?.message);
+      const responseFilename = await acceptClientFilenameTraining({
+        session_id: sessionId,
+        client_filename: clientFilename,
+      });
+      toast.success(responseFilename?.data?.message, {
+        position: "bottom-center",
+        autoClose: 4000,
+      });
       toast.success(response?.data?.message, {
         position: "bottom-center",
         autoClose: 4000,
@@ -201,11 +209,10 @@ const ActionSection = ({ data, sessionId }) => {
       {/* Column Matching Status */}
       {clientStats && serverStats && (
         <div
-          className={`p-3 mb-3 rounded-md border ${
-            columnsMatch()
-              ? "bg-green-50 border-green-200 text-green-800"
-              : "bg-yellow-50 border-yellow-200 text-yellow-800"
-          }`}
+          className={`p-3 mb-3 rounded-md border ${columnsMatch()
+            ? "bg-green-50 border-green-200 text-green-800"
+            : "bg-yellow-50 border-yellow-200 text-yellow-800"
+            }`}
         >
           <div className="flex items-start">
             {columnsMatch() ? (
@@ -278,11 +285,10 @@ const ActionSection = ({ data, sessionId }) => {
           <button
             type="submit"
             disabled={!isQpdCreated}
-            className={`w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white ${
-              isQpdCreated
-                ? "bg-blue-600 hover:bg-blue-700 focus:ring-blue-500"
-                : "bg-gray-400 cursor-not-allowed focus:ring-gray-500"
-            } focus:outline-none focus:ring-2 focus:ring-offset-2`}
+            className={`w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white ${isQpdCreated
+              ? "bg-blue-600 hover:bg-blue-700 focus:ring-blue-500"
+              : "bg-gray-400 cursor-not-allowed focus:ring-gray-500"
+              } focus:outline-none focus:ring-2 focus:ring-offset-2`}
           >
             Submit Price Decision
           </button>
@@ -403,9 +409,8 @@ const ActionSection = ({ data, sessionId }) => {
         <button
           onClick={handleDownload}
           disabled={isDownloading}
-          className={`inline-flex items-center px-3 py-1 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 ${
-            isDownloading ? "opacity-75 cursor-not-allowed" : ""
-          }`}
+          className={`inline-flex items-center px-3 py-1 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 ${isDownloading ? "opacity-75 cursor-not-allowed" : ""
+            }`}
         >
           {isDownloading ? (
             <>

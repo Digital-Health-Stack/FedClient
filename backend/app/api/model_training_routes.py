@@ -2,7 +2,7 @@ from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
 from sqlalchemy.orm import Session
 from utility.db import get_db
 from crud.trainings_crud import create_training, get_training_details
-from schemas.trainings import InitiateModelRequest
+from schemas.trainings import InitiateModelRequest, AcceptClientFilenameTrainingRequest
 import requests
 import subprocess
 from subprocess import CalledProcessError
@@ -14,7 +14,7 @@ from typing import Dict
 import uuid
 from datetime import datetime
 from utility.federated_services import process_parquet_and_save_xy
-
+from utility.redis import redis_client
 
 model_router = APIRouter(tags=["Model Training"])
 BASE_URL = os.getenv("REACT_APP_SERVER_BASE_URL")
@@ -209,3 +209,18 @@ def get_process_status(process_id: str):
 #     model_path_with_id = f"{model_path}/{local_model_id}.json"
 #     result = subprocess.run(["python", training_script_path, model_path_with_id, train_X_path, train_Y_path, server_argument], capture_output=True, text=True, encoding='utf-8')
 #     return {"stdout": result.stdout, "stderr": result.stderr, "returncode": result.returncode}
+
+
+@model_router.post("/accept-client-filename-training")
+async def accept_client_filename_training(request: AcceptClientFilenameTrainingRequest):
+    try:
+        session_id = request.session_id
+        client_filename = request.client_filename
+
+        redis_key = f"client_filename:{session_id}"
+        await redis_client.set(redis_key, client_filename)
+        
+        return {"message": "Client filename saved successfully"}
+    except Exception as e:
+        print(f"Error accepting client filename training: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error")

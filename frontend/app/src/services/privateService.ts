@@ -89,3 +89,17 @@ export const updateColumnDescriptionProcessed = (
     descriptions
   );
 };
+
+export const acceptClientFilenameTraining = ({
+  session_id,
+  client_filename,
+}: {
+  session_id: number;
+  client_filename: string;
+}) => {
+  return PrivateHTTPService.post("/accept-client-filename-training", {
+    session_id,
+    client_filename,
+  });
+};
+
