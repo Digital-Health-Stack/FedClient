@@ -2,7 +2,7 @@ import requests
 from sqlalchemy.orm import Session
 from models.Trainings import CurrentTrainings
 from utility.db import get_db
-from utility.redis import redis_pubsub, redis_client
+from utility.redis import redis_pubsub, redis_client, redis_pubsub2
 import asyncio
 from fastapi import APIRouter, WebSocket
 from fastapi.websockets import WebSocketDisconnect
@@ -28,6 +28,7 @@ async def _run_script_async(process_id: str, session_id: int, client_token: str)
 
 
 pubsub = redis_pubsub.pubsub()
+pubsub2 = redis_pubsub2.pubsub()
 connected_websockets = set()
 
 
@@ -50,15 +51,17 @@ async def redis_listener():
 
 
 async def redis_round_listener():
-    await pubsub.subscribe("new-round")
+    await pubsub2.subscribe("new-round")
     try:
-        async for message in pubsub.listen():
+        async for message in pubsub2.listen():
             if message is None or message["type"] != "message":
-                continue
-
+                continue            
             print("Received round message:", message)
             message_data = json.loads(message["data"])
             session_id = message_data.get("session_id")
+            redis_key = f"client_filename:{session_id}"
+            client_filename = await redis_client.get(redis_key)
+            print("client_filename", client_filename)
             round_number = message_data.get("round_number")
             client_token = await redis_client.get("client_token")
 
@@ -71,8 +74,9 @@ async def redis_round_listener():
 
             if round_number == 1:
                 process_parquet_and_save_xy(
-                    session["federated_info"]["server_filename"],
+                    client_filename,
                     str(session_id),
+                    session["federated_info"]["input_columns"],
                     session["federated_info"]["output_columns"],
                     client_token,
                 )

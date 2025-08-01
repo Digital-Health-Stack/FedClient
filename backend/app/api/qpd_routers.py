@@ -8,7 +8,7 @@ import os
 import asyncio
 from concurrent.futures import ThreadPoolExecutor
 from dotenv import load_dotenv
-
+from utility.redis import redis_client
 load_dotenv()
 
 # instead ensure max free cpu, if no one is free wait !!
@@ -23,8 +23,12 @@ spark_client = SparkSessionManager()
 async def create_qpd_dataset_from_client_data(
     fed_info, num_points, client_token, session_id
 ):
+    return {"message": "QPD Dataset will be created later in LIFE."}
+    # TODO: After researching
     try:
-        filename = fed_info.get("dataset_info", {}).get("client_filename")
+        # filename = fed_info.get("dataset_info", {}).get("client_filename")
+        session_key = f"client_filename:{session_id}"
+        filename = await redis_client.get(session_key)
         parent_filename = fed_info.get("dataset_info", {}).get("server_filename")
         overview = await spark_client.create_qpd_dataset(filename, num_points)
 
