@@ -22,36 +22,36 @@ import "react-step-progress-bar/styles.css";
 const SessionInfo = ({ data }) => {
   // Training Status Configuration
   const TRAINING_STATUS = {
-    0: {
-      label: "Session Created",
-      variant: "neutral",
+    STARTED: {
+      label: "Training Started",
+      variant: "info",
       icon: <DocumentPlusIcon className="h-5 w-5" />,
     },
-    1: {
+    PRICE_NEGOTIATION: {
       label: "Price Negotiation",
       variant: "warning",
       icon: <CurrencyDollarIcon className="h-5 w-5" />,
     },
-    2: {
+    ACCEPTING_CLIENTS: {
       label: "Client Recruitment",
       variant: "info",
       icon: <UserGroupIcon className="h-5 w-5" />,
     },
-    3: {
-      label: "Model Initialization",
-      variant: "primary",
-      icon: <Cog6ToothIcon className="h-5 w-5" />,
-    },
-    5: {
+    COMPLETED: {
       label: "Completed",
       variant: "success",
       icon: <CheckBadgeIcon className="h-5 w-5" />,
       description: "Training successfully completed",
     },
-    [-1]: {
+    FAILED: {
       label: "Failed",
       variant: "danger",
       icon: <ExclamationTriangleIcon className="h-5 w-5" />,
+    },
+    CANCELLED: {
+      label: "Cancelled",
+      variant: "danger",
+      icon: <XCircleIcon className="h-5 w-5" />,
     },
   };
 
@@ -79,8 +79,7 @@ const SessionInfo = ({ data }) => {
     { key: 0, label: "Session Created" },
     { key: 1, label: "Price Negotiation" },
     { key: 2, label: "Client Recruitment" },
-    { key: 3, label: "Training Active" },
-    { key: 4, label: "Completed" },
+    { key: 3, label: "Training Completed" },
   ];
   // Map string training_status to numeric step for progress bar
   const TRAINING_STATUS_MAP = {
@@ -117,9 +116,10 @@ const SessionInfo = ({ data }) => {
         </h3>
       </div>
       {/* Progress Bar with hoverable tooltip for time left */}
+      {/* {alert(progressIndex + " " + steps.length)} */}
       <div className="relative p-6 mt-5 m-10">
         <ProgressBar
-          percent={(progressIndex / (steps.length - 1)) * 100}
+          percent={progressIndex * 33.33333333333333 + 1}
           filledBackground="#22c55e"
           height={6}
         >
@@ -215,27 +215,25 @@ const SessionInfo = ({ data }) => {
             icon={<CpuChipIcon className="h-5 w-5 text-gray-400" />}
           />
           <InfoItem
-            label="Expected Value"
-            value={data?.federated_info?.expected_results?.std_mean}
+            label={"Expected " + data?.federated_info?.metric}
+            value={data?.federated_info?.expected_std_mean}
             icon={<ScaleIcon className="h-5 w-5 text-gray-400" />}
           />
           <InfoItem
-            label="Expected Deviation"
-            value={data?.federated_info?.expected_results?.std_deviation}
+            label={"Expected Variation in " + data?.federated_info?.metric}
+            value={data?.federated_info?.expected_std_deviation}
             icon={<ArrowPathIcon className="h-5 w-5 text-gray-400" />}
           />
           <StatusItem
             label="Training Status"
-            statusConfig={
-              TRAINING_STATUS[data?.training_status] || TRAINING_STATUS[0]
-            }
+            statusConfig={TRAINING_STATUS[data?.training_status || "FAILED"]}
           />
-          <StatusItem
+          {/* <StatusItem
             label="Client Status"
             statusConfig={
               CLIENT_STATUS[data?.client_status] || CLIENT_STATUS[-1]
             }
-          />
+          /> */}
         </div>
       </div>
     </div>
@@ -262,7 +260,7 @@ const StatusItem = ({ label, statusConfig }) => {
     info: "bg-cyan-50 text-cyan-800",
     neutral: "bg-gray-50 text-gray-800",
   };
-
+  console.log(statusConfig);
   return (
     <div className="flex items-start space-x-3">
       <div className="flex-shrink-0 mt-0.5">
