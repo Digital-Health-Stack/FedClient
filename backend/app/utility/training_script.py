@@ -241,7 +241,7 @@ def main(session_id, client_token):
 
         print("Starting training script...")
         get_url = f"{BASE_URL}/get-model-parameters"
-        post_url = f"{BASE_URL}/receive-client-parameters"
+        post_url = f"{BASE_URL}/v2/send-weights"
 
         model_config = get_model_config(session_id, client_token)
         test_metrics = model_config.get("metric")
