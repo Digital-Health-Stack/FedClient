@@ -77,8 +77,7 @@ const Result = ({ sessionId }) => {
     if (!selectedMetric || !results.server_results[selectedMetric]) return [];
 
     const chartData = [];
-    const rounds = Object.keys(results.server_results[selectedMetric]);
-
+    const rounds = Object.keys(results.client_results[selectedMetric]);
     rounds.forEach((round) => {
       const roundNumber = parseInt(round.split("_")[1]);
       const roundData = {
@@ -201,7 +200,7 @@ const Result = ({ sessionId }) => {
                       </tr>
                     ) : (
                       Object.keys(
-                        results.server_results[selectedMetric] || {},
+                        results.server_results[selectedMetric] || {}
                       ).map((round) => {
                         const roundNumber = round.split("_")[1];
                         return (
@@ -211,7 +210,7 @@ const Result = ({ sessionId }) => {
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                               {formatMetricValue(
-                                results.server_results[selectedMetric][round],
+                                results.server_results[selectedMetric][round]
                               )}
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
@@ -219,7 +218,7 @@ const Result = ({ sessionId }) => {
                                 ? formatMetricValue(
                                     results.client_results[selectedMetric][
                                       round
-                                    ],
+                                    ]
                                   )
                                 : "-"}
                             </td>
@@ -286,7 +285,10 @@ const Result = ({ sessionId }) => {
                       />
                       <Legend />
                       <Line
-                        name={`Server ${capitalize(selectedMetric).replace(/_/g, " ")}`}
+                        name={`Server ${capitalize(selectedMetric).replace(
+                          /_/g,
+                          " "
+                        )}`}
                         type="monotone"
                         dataKey={`server_${selectedMetric}`}
                         stroke="#3b82f6"
@@ -294,7 +296,10 @@ const Result = ({ sessionId }) => {
                       />
                       {results.client_results[selectedMetric] && (
                         <Line
-                          name={`Your ${capitalize(selectedMetric).replace(/_/g, " ")}`}
+                          name={`Your ${capitalize(selectedMetric).replace(
+                            /_/g,
+                            " "
+                          )}`}
                           type="monotone"
                           dataKey={`client_${selectedMetric}`}
                           stroke="#10b981"
@@ -312,7 +317,9 @@ const Result = ({ sessionId }) => {
 
         <div className="px-6 py-3 bg-gray-50 text-right text-xs text-gray-500 border-t border-gray-200">
           {sessionId &&
-            `Session ID #${sessionId} | Current Round: ${results.current_round || "N/A"}`}
+            `Session ID #${sessionId} | Current Round: ${
+              results.current_round || "N/A"
+            }`}
         </div>
       </div>
     </div>

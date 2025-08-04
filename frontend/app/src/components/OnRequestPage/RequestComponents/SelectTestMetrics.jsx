@@ -1,3 +1,5 @@
+import { RectangleStackIcon } from "@heroicons/react/24/outline";
+
 const testMetricsOptions = [
   { value: "accuracy", label: "Accuracy" },
   { value: "f1_score", label: "F1 Score" },
@@ -9,11 +11,16 @@ const testMetricsOptions = [
 
 const SelectTestMetrics = ({ register }) => {
   return (
-    <div className="mt-4 p-4 border border-gray-300 rounded-lg shadow-sm">
-      <h5 className="text-lg font-semibold text-gray-700 mb-3">
+    <div className="mb-4">
+      <label
+        className="flex items-center text-gray-700 font-medium mb-1"
+        htmlFor="test_metrics"
+        title="Select the test metrics to be used for evaluation"
+      >
+        <RectangleStackIcon className="h-5 w-5 mr-2 text-blue-500" />
         Select Test Metrics:
-      </h5>
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 gap-3">
+      </label>
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 gap-3 p-2 border border-gray-300 rounded-lg shadow-sm">
         {testMetricsOptions.map((option) => (
           <label
             key={option.value}
@@ -24,7 +31,7 @@ const SelectTestMetrics = ({ register }) => {
               value={option.value}
               id={`test-metric-${option.value}`}
               className="w-4 h-4 accent-blue-500"
-              {...register("test_metrics")}
+              {...register("model_info.test_metrics")}
             />
             <span className="text-gray-700 text-sm">{option.label}</span>
           </label>

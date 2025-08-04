@@ -429,7 +429,7 @@ const ModelConfig = ({ data }) => {
       {renderModelSpecificConfig()}
 
       {/* Metrics Section */}
-      <div className="mt-6">
+      {/* <div className="mt-6">
         <h4 className="text-sm font-medium text-gray-700 mb-2">Metrics</h4>
         <div className="flex flex-wrap gap-2">
           {Object.entries(data?.training_metrics || {}).map(
@@ -444,7 +444,7 @@ const ModelConfig = ({ data }) => {
               )
           )}
         </div>
-      </div>
+      </div> */}
 
       {/* Test Metrics Section */}
       {data?.model_info?.test_metrics?.length > 0 && (
