@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   ArrowDownCircleIcon,
   ArrowDownIcon,
@@ -11,11 +11,29 @@ import { InformationCircleIcon } from "@heroicons/react/24/outline";
 import { useFormContext } from "react-hook-form";
 
 export default function HyperparametersInfoStep() {
-  const { register, setValue } = useFormContext();
+  const { register, setValue, watch } = useFormContext();
   const [showInfo, setShowInfo] = useState(false);
-  const [days, setDays] = useState(0);
-  const [hours, setHours] = useState(0);
-  const [minutes, setMinutes] = useState(0);
+
+  // Get initial values from form
+  const initialWaitTime = watch("wait_time") || 0;
+
+  // Initialize time values from form data
+  const [days, setDays] = useState(Math.floor(initialWaitTime / (24 * 60)));
+  const [hours, setHours] = useState(
+    Math.floor((initialWaitTime % (24 * 60)) / 60)
+  );
+  const [minutes, setMinutes] = useState(initialWaitTime % 60);
+
+  // Initialize time values when component mounts or when wait_time changes
+  useEffect(() => {
+    const waitTime = watch("wait_time") || 0;
+    const d = Math.floor(waitTime / (24 * 60));
+    const h = Math.floor((waitTime % (24 * 60)) / 60);
+    const m = waitTime % 60;
+    setDays(d);
+    setHours(h);
+    setMinutes(m);
+  }, [watch("wait_time")]);
 
   // Helper to clamp values
   const clamp = (val, min, max) => Math.max(min, Math.min(max, val));
@@ -29,6 +47,7 @@ export default function HyperparametersInfoStep() {
     setDays(d);
     setHours(h);
     setMinutes(m);
+    setValue("wait_time", total);
   };
 
   // On manual change
@@ -50,8 +69,8 @@ export default function HyperparametersInfoStep() {
   const handleDec = () =>
     setFromTotalMinutes(Math.max(0, getTotalMinutes() - 1));
 
-  // Sync hidden field
-  React.useEffect(() => {
+  // Sync hidden field whenever time values change
+  useEffect(() => {
     setValue("wait_time", getTotalMinutes());
   }, [days, hours, minutes, setValue]);
 

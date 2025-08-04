@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import SelectTestMetrics from "../RequestComponents/SelectTestMetrics";
 import { useFormContext } from "react-hook-form";
 import {
@@ -25,12 +25,24 @@ sample model_info object:
 */
 
 const LinearRegression = () => {
-  const { register } = useFormContext();
+  const { register, getValues, setValue, watch } = useFormContext();
   const defaultValues = {
     lr: 0.01,
     n_iters: 1,
   };
 
+  // Initialize model_info values if they don't exist
+  useEffect(() => {
+    const currentModelInfo = watch("model_info") || {};
+    if (!currentModelInfo.lr) {
+      setValue("model_info.lr", defaultValues.lr);
+    }
+    if (!currentModelInfo.n_iters) {
+      setValue("model_info.n_iters", defaultValues.n_iters);
+    }
+  }, [setValue, watch]);
+
+  console.log(getValues());
   return (
     <div className="p-4 bg-white rounded-lg shadow-md">
       <p className="text-lg font-semibold mb-4">
@@ -51,7 +63,6 @@ const LinearRegression = () => {
           type="number"
           step="0.01"
           placeholder="e.g. 0.01"
-          defaultValue={defaultValues.lr}
           {...register("model_info.lr")}
           className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none"
         />
@@ -70,7 +81,6 @@ const LinearRegression = () => {
         <input
           type="number"
           placeholder="e.g. 1"
-          defaultValue={defaultValues.n_iters}
           {...register("model_info.n_iters")}
           className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none"
         />

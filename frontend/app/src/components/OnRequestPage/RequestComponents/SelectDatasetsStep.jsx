@@ -24,6 +24,11 @@ import { getDatasetDetails } from "../../../services/privateService";
 // const LIST_TASKS_WITH_DATASET_ID =
 //   process.env.REACT_APP_GET_TASKS_WITH_DATASET_ID;
 
+// Cache for uploaded files to prevent re-fetching
+let uploadedFilesCache = null;
+let filesCacheTimestamp = null;
+const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+
 export default function SelectDatasetsStep() {
   const { register, setValue, watch } = useFormContext();
   const [loadingClient, setLoadingClient] = useState(false);
@@ -47,6 +52,35 @@ export default function SelectDatasetsStep() {
   const clientFilename = watch("client_filename");
   const serverFilename = watch("server_filename");
   const selectedTaskId = watch("task_id");
+  const formInputColumns = watch("input_columns") || [];
+  const formOutputColumns = watch("output_columns") || [];
+  const formServerStats = watch("server_stats");
+  const formServerStatsData = watch("server_stats_data");
+
+  // Initialize local state from form values when component mounts
+  useEffect(() => {
+    if (formInputColumns.length > 0) {
+      setInputColumns(formInputColumns);
+    }
+    if (formOutputColumns.length > 0) {
+      setOutputColumns(formOutputColumns[0]); // Assuming single output column
+    }
+    // Restore server stats from form state if they exist
+    if (formServerStatsData) {
+      setServerStats(formServerStatsData);
+    }
+  }, []);
+
+  // Sync local state with form state
+  useEffect(() => {
+    setValue("input_columns", inputColumns);
+  }, [inputColumns, setValue]);
+
+  useEffect(() => {
+    if (outputColumns) {
+      setValue("output_columns", [outputColumns]);
+    }
+  }, [outputColumns, setValue]);
 
   useEffect(() => {
     const fetchTasks = async () => {
@@ -88,41 +122,11 @@ export default function SelectDatasetsStep() {
     };
 
     fetchTasks();
-  }, [serverStats?.dataset_id, setValue]);
+  }, [serverStats?.dataset_id, setValue, selectedTaskId]);
+
   const shortenText = (text, maxLength) => {
     if (text.length <= maxLength) return text;
     return text.slice(0, maxLength) + "...";
-  };
-  const fetchClientDatasetStats = async () => {
-    if (!clientFilename) return;
-
-    setLoadingClient(true);
-    setErrorClient(null);
-
-    try {
-      const response = await getDatasetDetails(clientFilename);
-      const data = response.data;
-
-      console.log("Client dataset stats received: ", data);
-
-      if (data.details) {
-        throw new Error(data.details);
-      }
-
-      setClientStats(data);
-      setValue("client_stats", data.datastats);
-      setErrorClient(null);
-    } catch (err) {
-      const errorMessage =
-        err.response?.data?.details ||
-        err.message ||
-        "Failed to fetch client dataset stats";
-      setErrorClient(errorMessage);
-      setClientStats(null);
-      setValue("client_stats", null);
-    } finally {
-      setLoadingClient(false);
-    }
   };
 
   const fetchServerDatasetStats = async () => {
@@ -142,6 +146,7 @@ export default function SelectDatasetsStep() {
       }
       setServerStats(data);
       setValue("server_stats", data.datastats);
+      setValue("server_stats_data", data); // Store the full data for persistence
       setErrorServer(null);
     } catch (err) {
       console.error("Error fetching server dataset stats: ", err);
@@ -152,6 +157,7 @@ export default function SelectDatasetsStep() {
       setErrorServer(errorMessage);
       setServerStats(null);
       setValue("server_stats", null);
+      setValue("server_stats_data", null);
     } finally {
       setLoadingServer(false);
     }
@@ -198,14 +204,27 @@ export default function SelectDatasetsStep() {
     const task = tasks.find((t) => t.task_id === selectedTaskId);
     return task ? task.metric : null;
   };
-  // Fetch uploaded files from HDFS
+
+  // Fetch uploaded files from HDFS with caching
   const fetchUploadedFiles = async () => {
-    // console.log("fetching uploaded files");
+    // Check if we have cached data that's still valid
+    const now = Date.now();
+    if (
+      uploadedFilesCache &&
+      filesCacheTimestamp &&
+      now - filesCacheTimestamp < CACHE_DURATION
+    ) {
+      setUploadedFiles(uploadedFilesCache);
+      return;
+    }
+
     setFetchingFiles(true);
     try {
       const response = await getServerDatasets();
       if (response.data && response.status == 200) {
-        // Extract files from the response structure
+        // Cache the files and timestamp
+        uploadedFilesCache = response.data;
+        filesCacheTimestamp = now;
         setUploadedFiles(response.data);
       }
     } catch (err) {
@@ -215,9 +234,11 @@ export default function SelectDatasetsStep() {
       setFetchingFiles(false);
     }
   };
+
   useEffect(() => {
     fetchUploadedFiles();
   }, []);
+
   return (
     <div className="space-y-8">
       <div className="flex items-center space-x-3">
@@ -260,72 +281,6 @@ export default function SelectDatasetsStep() {
 
       <div className="space-y-6">
         <div className="grid grid-cols-1 gap-6">
-          {/* Client Dataset Section */}
-          {/* <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
-            <div className="space-y-3">
-              <label className="block text-sm font-medium text-gray-700">
-                Client Dataset
-              </label>
-              <div className="flex space-x-2">
-                <input
-                  type="text"
-                  placeholder="Enter client filename"
-                  {...register("dataset_info.client_filename", {
-                    required: "*required",
-                  })}
-                  className="flex-1 p-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                />
-                <button
-                  type="button"
-                  onClick={fetchClientDatasetStats}
-                  disabled={loadingClient || !clientFilename}
-                  className="px-4 py-2.5 bg-blue-600 text-white rounded-md hover:bg-blue-700 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                >
-                  {loadingClient ? (
-                    <ArrowPathIcon className="h-4 w-4 animate-spin" />
-                  ) : (
-                    <ArrowPathIcon className="h-4 w-4" />
-                  )}
-                  <span className="ml-2">Fetch</span>
-                </button>
-              </div>
-
-              {errorClient && (
-                <div className="mt-2 p-2 bg-red-50 text-red-600 text-sm rounded-md flex items-start">
-                  <ExclamationTriangleIcon className="h-4 w-4 mt-0.5 mr-2 flex-shrink-0" />
-                  {errorClient}
-                </div>
-              )}
-
-              {clientStats && (
-                <div cla// Fetch uploaded files from HDFS
-  const fetchUploadedFiles = async () => {
-    setFetchingFiles(true);
-    try {
-      const response = await axios.get(endpoints.upload.list);
-      if (response.data && response.data.contents) {
-        // Extract files from the response structure
-        const files = Object.values(response.data.contents).flat();
-        setUploadedFiles(files);
-      }
-    } catch (err) {
-      console.error("Error fetching uploaded files:", err);
-      setError("Failed to fetch uploaded files");
-    } finally {
-      setFetchingFiles(false);
-    }
-  };ssName="mt-2 p-2 bg-green-50 text-green-700 text-sm rounded-md flex items-start">
-                  <CheckCircleIcon className="h-4 w-4 mt-0.5 mr-2 flex-shrink-0" />
-                  <span>
-                    Successfully loaded dataset with{" "}
-                    {clientStats.datastats.numRows} rows and{" "}
-                    {clientStats.datastats.numColumns} columns
-                  </span>
-                </div>
-              )}
-            </div>
-          </div> */}
-
           {/* Server Dataset Section */}
           <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
             <div className="space-y-3">
@@ -396,35 +351,6 @@ export default function SelectDatasetsStep() {
         {/* Dataset Comparison and Task Selection */}
         {serverStats && (
           <div className="space-y-6">
-            {/* Column Matching Status */}
-            {/* <div
-              className={`p-3 rounded-md border ${
-                columnsMatch()
-                  ? "bg-green-50 border-green-200 text-green-800"
-                  : "bg-yellow-50 border-yellow-200 text-yellow-800"
-              }`}
-            >
-               <div className="flex items-start">
-                {columnsMatch() ? (
-                  <CheckCircleIcon className="h-5 w-5 mr-2 mt-0.5 flex-shrink-0" />
-                ) : (
-                  <ExclamationTriangleIcon className="h-5 w-5 mr-2 mt-0.5 flex-shrink-0" />
-                )}
-                <div>
-                  <p className="font-medium">
-                    {columnsMatch()
-                      ? "Column names match between client and server datasets"
-                      : "Column names do not match between client and server datasets"}
-                  </p>
-                  {!columnsMatch() && (
-                    <p className="text-sm mt-1">
-                      statistics for client and server datasets are different.
-                      <br />
-                    </p>
-                  )}
-                </div>
-              </div> 
-            </div> */}
             {/* Task Selection */}
             <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
               {loadingTasks ? (
@@ -637,61 +563,6 @@ export default function SelectDatasetsStep() {
                 )}
               </div>
             }
-            {/* {
-              <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
-                <button
-                  type="button"
-                  onClick={() => setShowColumnSelection(!showColumnSelection)}
-                  className="flex items-center text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors"
-                  title="Select the columns you want to use as output for training"
-                >
-                  {showColumnSelection ? (
-                    <ChevronUpIcon className="h-4 w-4 mr-2" />
-                  ) : (
-                    <ChevronDownIcon className="h-4 w-4 mr-2" />
-                  )}
-                  Select Output Columns
-                </button>
-
-                {showColumnSelection && (
-                  <div className="mt-4 space-y-3">
-                    <p className="text-sm text-gray-600">
-                      Select which columns should be marked as output column(s).
-                      <br />
-                    </p>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-                      {getAvailableColumns().map((column) => (
-                        <label
-                          key={column}
-                          className="flex items-center space-x-3 p-2 bg-gray-50 rounded-md hover:bg-gray-100 transition-colors cursor-pointer"
-                        >
-                          <input
-                            type="checkbox"
-                            checked={outputColumns.includes(column)}
-                            onChange={() => handleOutputColumnChange(column)}
-                            className="h-4 w-4 text-blue-600 rounded focus:ring-blue-500 border-gray-300"
-                          />
-                          <span className="text-sm text-gray-700">
-                            {column}
-                          </span>
-                        </label>
-                      ))}
-                    </div>
-                    {selectedTaskId && (
-                      <div className="px-1 py-3">
-                        <div className="flex items-center">
-                          <InformationCircleIcon className="h-5 w-5 text-blue-500 mr-2 flex-shrink-0" />
-                          <p className="text-sm text-gray-600">
-                            Remember that the output column must be selected
-                            which is specified in the task.
-                          </p>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-            } */}
           </div>
         )}
       </div>

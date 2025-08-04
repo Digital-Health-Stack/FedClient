@@ -1,14 +1,15 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { CubeIcon } from "@heroicons/react/24/outline";
 import { InformationCircleIcon } from "@heroicons/react/24/outline";
 import { availableModels } from "./modelsConfig";
 import { useFormContext } from "react-hook-form";
 
 export default function ModelSelectionStep() {
-  const { register, watch } = useFormContext();
+  const { register, watch, setValue } = useFormContext();
   const selectedModel = watch("model_name");
-  const [showInfo, setShowInfo] = React.useState(false);
+  const [showInfo, setShowInfo] = useState(false);
 
+  // Get the model component based on selected model
   const ModelComponent = selectedModel
     ? availableModels[selectedModel]?.component
     : null;
