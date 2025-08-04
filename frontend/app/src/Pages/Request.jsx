@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useForm, FormProvider } from "react-hook-form";
 import Stepper from "../components/OnRequestPage/RequestComponents/Stepper";
 import TrainingDetailsStep from "../components/OnRequestPage/RequestComponents/TrainingDetailsStep";
@@ -29,12 +29,68 @@ const steps = [
   { id: 4, label: "Hyperparameters", icon: WrenchScrewdriverIcon },
 ];
 
-export default function Request() {
-  const [currentStep, setCurrentStep] = useState(0);
+const REQUEST_FORM_STORAGE_KEY = "fedclient_request_form_data";
+const REQUEST_STEP_STORAGE_KEY = "fedclient_request_current_step";
 
-  // Initialize form with default values for better persistence
+// Function to get saved form data from localStorage
+const getSavedFormData = () => {
+  try {
+    const saved = localStorage.getItem(REQUEST_FORM_STORAGE_KEY);
+    return saved ? JSON.parse(saved) : null;
+  } catch (error) {
+    console.error("Error loading saved form data:", error);
+    return null;
+  }
+};
+
+// Function to get saved current step from localStorage
+const getSavedCurrentStep = () => {
+  try {
+    const saved = localStorage.getItem(REQUEST_STEP_STORAGE_KEY);
+    return saved ? parseInt(saved, 10) : 0;
+  } catch (error) {
+    console.error("Error loading saved current step:", error);
+    return 0;
+  }
+};
+
+// Function to save form data to localStorage
+const saveFormData = (data) => {
+  try {
+    localStorage.setItem(REQUEST_FORM_STORAGE_KEY, JSON.stringify(data));
+  } catch (error) {
+    console.error("Error saving form data:", error);
+  }
+};
+
+// Function to save current step to localStorage
+const saveCurrentStep = (step) => {
+  try {
+    localStorage.setItem(REQUEST_STEP_STORAGE_KEY, step.toString());
+  } catch (error) {
+    console.error("Error saving current step:", error);
+  }
+};
+
+// Function to clear saved form data
+const clearSavedFormData = () => {
+  try {
+    localStorage.removeItem(REQUEST_FORM_STORAGE_KEY);
+    localStorage.removeItem(REQUEST_STEP_STORAGE_KEY);
+  } catch (error) {
+    console.error("Error clearing saved form data:", error);
+  }
+};
+
+export default function Request() {
+  const [currentStep, setCurrentStep] = useState(() => getSavedCurrentStep());
+
+  // Get saved form data or use defaults
+  const savedFormData = getSavedFormData();
+
+  // Initialize form with saved data or default values
   const methods = useForm({
-    defaultValues: {
+    defaultValues: savedFormData || {
       organisation_name: "",
       server_filename: "",
       task_id: "",
@@ -59,6 +115,32 @@ export default function Request() {
 
   const { api } = useAuth();
   const navigate = useNavigate();
+
+  // Watch form values and save to localStorage
+  useEffect(() => {
+    const subscription = methods.watch((data) => {
+      // Only save if there's meaningful data to preserve
+      const hasData = Object.values(data).some((value) => {
+        if (Array.isArray(value)) return value.length > 0;
+        if (typeof value === "object" && value !== null)
+          return Object.keys(value).length > 0;
+        return (
+          value !== "" && value !== null && value !== undefined && value !== 0
+        );
+      });
+
+      if (hasData) {
+        saveFormData(data);
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [methods]);
+
+  // Save current step to localStorage whenever it changes
+  useEffect(() => {
+    saveCurrentStep(currentStep);
+  }, [currentStep]);
 
   const handleNext = async () => {
     const isValid = await methods.trigger();
@@ -106,6 +188,8 @@ export default function Request() {
 
     try {
       const res = await createSession(api, requestData);
+      // Clear saved form data on successful submission
+      clearSavedFormData();
       navigate(`/trainings/${res.data.session_id}`);
     } catch (error) {
       console.error("Submission error:", error);
