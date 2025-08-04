@@ -102,7 +102,15 @@ const SessionInfo = ({ data }) => {
 
   // Helper to get time left for the current step
   const getStepTimeInfo = (idx) => {
-    if (idx === 0) return "Waiting for your price negotiation. Go to actions";
+    if (idx === 0) return "Waiting for your price confirmation. Go to Actions";
+    else if (idx === 1) return "Waiting for client recruitment. ";
+    else if (idx === 2)
+      return (
+        <p>
+          Training in progress. <br /> On round {data?.curr_round}/{" "}
+          {data?.federated_info?.no_of_rounds}
+        </p>
+      );
     return "--";
   };
 
@@ -192,10 +200,8 @@ const SessionInfo = ({ data }) => {
               {/* Invisible hover area */}
               <div className="w-full h-6 cursor-pointer" />
               {/* Tooltip */}
-              <div className="absolute left-1/2 -translate-x-1/2 -top-2 hidden group-hover:block">
-                <span className="text-sm text-white bg-gray-800 px-2 py-1 rounded shadow">
-                  {getStepTimeInfo(progressIndex)}
-                </span>
+              <div className="absolute left-1/2 -translate-x-1/2 -top-2 hidden group-hover:block text-center text-white bg-gray-800 px-2 py-1 rounded shadow">
+                {getStepTimeInfo(progressIndex)}
               </div>
             </div>
           </div>

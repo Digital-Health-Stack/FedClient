@@ -14,8 +14,7 @@ import {
   InformationCircleIcon,
 } from "@heroicons/react/24/outline";
 import { DocumentArrowUpIcon } from "@heroicons/react/24/solid";
-import { InView } from 'react-intersection-observer';
-
+import { InView } from "react-intersection-observer";
 
 export default function Trainings() {
   const navigate = useNavigate();
@@ -77,7 +76,7 @@ export default function Trainings() {
       // setSessions((prev) => [...prev, ...newSessions]);
       setSessions((prev) => {
         const all = [...prev, ...newSessions];
-        const unique = Array.from(new Map(all.map(s => [s.id, s])).values());
+        const unique = Array.from(new Map(all.map((s) => [s.id, s])).values());
         return unique;
       });
 
@@ -86,7 +85,6 @@ export default function Trainings() {
 
       setHasMore(page < totalPages);
       setPage((prev) => prev + 1);
-
     } catch (err) {
       console.error("Error fetching sessions:", err);
       setError("Failed to load training sessions");
@@ -99,7 +97,7 @@ export default function Trainings() {
   const handlePageChange = (newPage) => {
     if (newPage >= 1 && newPage <= pagination.totalPages) {
       // setPagination((prev) => ({ ...prev, page: newPage }));
-      setPagination(prev => ({
+      setPagination((prev) => ({
         ...prev,
         total,
         totalPages,
@@ -113,19 +111,19 @@ export default function Trainings() {
 
   const getStatusColor = (status) => {
     switch (status) {
-      case 0:
+      case "CREATED":
         return "bg-gray-100 text-gray-800"; // Session Created
-      case 1:
+      case "PRICE_NEGOTIATION":
         return "bg-yellow-100 text-yellow-800"; // Price Negotiation
-      case 2:
+      case "CLIENT_RECRUITMENT":
         return "bg-blue-100 text-blue-800"; // Client Recruitment
-      case 3:
+      case "MODEL_INITIALIZATION":
         return "bg-indigo-100 text-indigo-800"; // Model Initialization
-      case 4:
+      case "STARTED":
         return "bg-purple-100 text-purple-800"; // Training Active
-      case 5:
+      case "COMPLETED":
         return "bg-green-100 text-green-800"; // Completed
-      case -1:
+      case "FAILED":
         return "bg-red-100 text-red-800"; // Failed
       default:
         return "bg-gray-100 text-gray-800"; // Unknown
@@ -133,13 +131,12 @@ export default function Trainings() {
   };
 
   const TrainingStatuses = {
-    0: "Session Created",
-    1: "Price Negotiation",
-    2: "Client Recruitment",
-    3: "Model Initialization",
-    4: "Training Active",
-    5: "Completed",
-    [-1]: "Failed",
+    PRICE_NEGOTIATION: "Price Negotiation",
+    CLIENT_RECRUITMENT: "Client Recruitment",
+    STARTED: "Training Active",
+    COMPLETED: "Completed",
+    CANCELLED: "Cancelled",
+    FAILED: "Failed",
   };
   const formatTimestamp = (timestamp) => {
     try {
@@ -267,9 +264,7 @@ export default function Trainings() {
               There are currently no training sessions to display.
             </p>
           </div>
-
         </div>
-
       ) : (
         <>
           {/* <div className="mb-4 flex justify-between items-center">
