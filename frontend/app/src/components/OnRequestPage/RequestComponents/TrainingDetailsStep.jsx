@@ -3,7 +3,7 @@ import { BuildingOfficeIcon } from "@heroicons/react/24/outline";
 import { InformationCircleIcon } from "@heroicons/react/24/outline";
 import { useFormContext } from "react-hook-form";
 
-export default function TrainingDetailsStep() {
+export default function TrainingDetailsStep({ disabled = false }) {
   const {
     register,
     formState: { errors },
@@ -65,6 +65,7 @@ export default function TrainingDetailsStep() {
                 ? "focus:ring-red-500 border-red-300"
                 : "focus:ring-blue-500"
             }`}
+            disabled={disabled}
           />
         </label>
 

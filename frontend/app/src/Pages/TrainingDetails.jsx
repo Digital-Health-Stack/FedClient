@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { useAuth } from "../contexts/AuthContext";
 import { getFederatedSession } from "../services/federatedService";
@@ -64,6 +64,7 @@ export default function TrainingDetails() {
   const [currentSection, setCurrentSection] = useState("session-info");
   const [showSectionInfo, setShowSectionInfo] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const navigate = useNavigate();
 
   const fetchFederatedSessionData = async () => {
     try {
@@ -81,6 +82,9 @@ export default function TrainingDetails() {
     fetchFederatedSessionData();
   }, [sessionId]);
 
+  const canRetry = ["FAILED", "CANCELLED"].includes(
+    federatedSessionData?.training_status
+  );
   const sections = [
     {
       id: "session-info",
@@ -108,6 +112,15 @@ export default function TrainingDetails() {
       icon: <ChartBarIcon className="h-5 w-5" />,
     },
     { id: "actions", label: "Actions", icon: <BoltIcon className="h-5 w-5" /> },
+    ...(canRetry
+      ? [
+          {
+            id: "retry",
+            label: "Retry Training",
+            icon: <ArrowPathIcon className="h-5 w-5" />,
+          },
+        ]
+      : []),
     // {
     //   id: "training-progress", // New section
     //   label: "Training Progress",
@@ -127,6 +140,49 @@ export default function TrainingDetails() {
         <span className="ml-2">{config.text}</span>
       </div>
     );
+  };
+
+  const handleRetryNavigation = () => {
+    const fed = federatedSessionData?.federated_info || {};
+    const originalName = (fed.organisation_name || "").trim();
+    let retryName = originalName || "training";
+    const retryMatch = retryName.match(/^(.*)_retry(\d+)$/i);
+    if (retryMatch) {
+      const base = retryMatch[1];
+      const n = parseInt(retryMatch[2], 10) || 0;
+      retryName = `${base}_retry${n + 1}`;
+    } else {
+      retryName = `${retryName}_retry1`;
+    }
+    const prefill = {
+      organisation_name: retryName,
+      server_filename: fed.server_filename || "",
+      task_id: fed.task_id ? String(fed.task_id) : "",
+      task_name: fed.task_name || "",
+      metric: fed.metric || "",
+      input_columns: Array.isArray(fed.input_columns) ? fed.input_columns : [],
+      output_columns: Array.isArray(fed.output_columns)
+        ? fed.output_columns
+        : [],
+      model_name: fed.model_name || "",
+      model_info: fed.model_info || {},
+      expected_std_mean: fed.expected_std_mean || "",
+      expected_std_deviation: fed.expected_std_deviation || "",
+      wait_time: fed.wait_time ?? 0,
+      no_of_rounds: fed.no_of_rounds || "",
+      server_stats: null,
+      server_stats_data: null,
+      client_stats: null,
+    };
+
+    navigate("/Request", {
+      state: {
+        retry: true,
+        fromSessionId: sessionId,
+        prefill,
+        lockedStepIds: [0, 1],
+      },
+    });
   };
 
   if (!federatedSessionData) {
@@ -259,6 +315,20 @@ export default function TrainingDetails() {
           {/* {currentSection === "training-progress" && (
             <TrainingProgress sessionId={sessionId} />
           )} */}
+          {currentSection === "retry" && canRetry && (
+            <div className="text-center">
+              <button
+                onClick={handleRetryNavigation}
+                className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium"
+              >
+                Retry this training as new request
+              </button>
+              <p className="mt-3 text-sm text-gray-500">
+                You will be redirected to the new training page with the same
+                details. Model configuration and later steps will be reset.
+              </p>
+            </div>
+          )}
         </div>
       </div>
     </div>

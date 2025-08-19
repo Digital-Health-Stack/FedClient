@@ -7,7 +7,7 @@ import StatisticalInfoStep from "../components/OnRequestPage/RequestComponents/S
 import ModelSelectionStep from "../components/OnRequestPage/RequestComponents/ModelSelectionStep";
 import HyperparametersInfoStep from "../components/OnRequestPage/RequestComponents/Hyperparameters";
 import { useAuth } from "../contexts/AuthContext";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { createSession } from "../services/federatedService";
 import {
   BuildingOfficeIcon,
@@ -83,10 +83,17 @@ const clearSavedFormData = () => {
 };
 
 export default function Request() {
-  const [currentStep, setCurrentStep] = useState(() => getSavedCurrentStep());
+  const location = useLocation();
+  const retryState = location?.state || {};
+  const isRetry = !!retryState.retry;
+  const lockedStepIds = retryState.lockedStepIds || [];
 
-  // Get saved form data or use defaults
-  const savedFormData = getSavedFormData();
+  const [currentStep, setCurrentStep] = useState(() =>
+    isRetry ? 2 : getSavedCurrentStep()
+  );
+
+  // Get saved form data or use retry prefill/defaults
+  const savedFormData = isRetry ? retryState.prefill : getSavedFormData();
 
   // Initialize form with saved data or default values
   const methods = useForm({
@@ -110,6 +117,13 @@ export default function Request() {
     },
     mode: "onChange", // Enable real-time validation
   });
+
+  // If retry with model info provided, ensure the form gets initialized with it once
+  useEffect(() => {
+    if (isRetry && retryState.prefill) {
+      methods.reset(retryState.prefill);
+    }
+  }, [isRetry, retryState, methods]);
 
   const [showStepInfo, setShowStepInfo] = useState(false);
 
@@ -203,6 +217,7 @@ export default function Request() {
           steps={steps}
           currentStep={currentStep}
           setCurrentStep={setCurrentStep}
+          lockedStepIds={lockedStepIds}
         />
 
         <div className="flex-1 p-8 ml-0">
@@ -233,8 +248,15 @@ export default function Request() {
             </div>
 
             <div className="space-y-8">
-              {currentStep === 0 && <TrainingDetailsStep />}
-              {currentStep === 1 && <SelectDatasetsStep />}
+              {currentStep === 0 && (
+                <TrainingDetailsStep disabled={lockedStepIds.includes(0)} />
+              )}
+              {currentStep === 1 && (
+                <SelectDatasetsStep
+                  disabled={lockedStepIds.includes(1)}
+                  autoFetch={isRetry}
+                />
+              )}
               {currentStep === 2 && <ModelSelectionStep />}
               {currentStep === 3 && <StatisticalInfoStep />}
               {currentStep === 4 && <HyperparametersInfoStep />}

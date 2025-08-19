@@ -29,7 +29,10 @@ let uploadedFilesCache = null;
 let filesCacheTimestamp = null;
 const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 
-export default function SelectDatasetsStep() {
+export default function SelectDatasetsStep({
+  disabled = false,
+  autoFetch = false,
+}) {
   const { register, setValue, watch } = useFormContext();
   const [loadingClient, setLoadingClient] = useState(false);
   const [loadingServer, setLoadingServer] = useState(false);
@@ -239,6 +242,13 @@ export default function SelectDatasetsStep() {
     fetchUploadedFiles();
   }, []);
 
+  // If autoFetch is enabled (retry flow), try fetching stats automatically
+  useEffect(() => {
+    if (autoFetch && serverFilename && !serverStats) {
+      fetchServerDatasetStats();
+    }
+  }, [autoFetch, serverFilename, serverStats]);
+
   return (
     <div className="space-y-8">
       <div className="flex items-center space-x-3">
@@ -298,6 +308,7 @@ export default function SelectDatasetsStep() {
                   })}
                   className="flex-1 p-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   defaultValue=""
+                  disabled={disabled}
                 >
                   <option value="" disabled>
                     Select a dataset
@@ -315,7 +326,7 @@ export default function SelectDatasetsStep() {
                 <button
                   type="button"
                   onClick={fetchServerDatasetStats}
-                  disabled={loadingServer || !serverFilename}
+                  disabled={disabled || loadingServer || !serverFilename}
                   className="px-4 py-2.5 bg-blue-600 text-white rounded-md hover:bg-blue-700 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
                   {loadingServer ? (
@@ -449,7 +460,12 @@ export default function SelectDatasetsStep() {
                                       selectedTaskId === String(task.task_id)
                                         ? "bg-blue-600 text-white hover:bg-blue-700"
                                         : "text-blue-600 hover:text-blue-900 bg-blue-50 hover:bg-blue-100"
+                                    } ${
+                                      disabled
+                                        ? "opacity-60 cursor-not-allowed"
+                                        : ""
                                     }`}
+                                    disabled={disabled}
                                   >
                                     {selectedTaskId === String(task.task_id)
                                       ? "Selected"
@@ -525,17 +541,19 @@ export default function SelectDatasetsStep() {
                           <input
                             type="checkbox"
                             disabled={
-                              selectedTaskId &&
-                              tasks.length > 0 &&
-                              tasks.find(
-                                (t) =>
-                                  String(t.task_id) === String(selectedTaskId)
-                              ) &&
-                              column ===
+                              disabled ||
+                              (selectedTaskId &&
+                                tasks.length > 0 &&
                                 tasks.find(
                                   (t) =>
                                     String(t.task_id) === String(selectedTaskId)
-                                ).output_column
+                                ) &&
+                                column ===
+                                  tasks.find(
+                                    (t) =>
+                                      String(t.task_id) ===
+                                      String(selectedTaskId)
+                                  ).output_column)
                             }
                             checked={inputColumns.includes(column)}
                             value={column}
