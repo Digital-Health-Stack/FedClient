@@ -13,7 +13,7 @@ DATABASE_URL = os.getenv("DB_URL")
 if not DATABASE_URL:
     raise ValueError("DB_URL is not set. Check .env file.")
 
-print("Checkpoint 1 : ", DATABASE_URL)
+# print("Checkpoint 1 : ", DATABASE_URL)
 
 engine = create_engine(DATABASE_URL)
 
