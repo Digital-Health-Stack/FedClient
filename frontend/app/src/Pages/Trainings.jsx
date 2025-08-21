@@ -115,7 +115,7 @@ export default function Trainings() {
         return "bg-gray-100 text-gray-800"; // Session Created
       case "PRICE_NEGOTIATION":
         return "bg-yellow-100 text-yellow-800"; // Price Negotiation
-      case "CLIENT_RECRUITMENT":
+      case "ACCEPTING_CLIENTS":
         return "bg-blue-100 text-blue-800"; // Client Recruitment
       case "MODEL_INITIALIZATION":
         return "bg-indigo-100 text-indigo-800"; // Model Initialization
@@ -134,7 +134,7 @@ export default function Trainings() {
 
   const TrainingStatuses = {
     PRICE_NEGOTIATION: "Price Negotiation",
-    CLIENT_RECRUITMENT: "Client Recruitment",
+    ACCEPTING_CLIENTS: "Client Recruitment",
     STARTED: "Training Active",
     COMPLETED: "Completed",
     CANCELLED: "Cancelled",
