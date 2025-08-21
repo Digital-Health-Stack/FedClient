@@ -82,9 +82,6 @@ export default function TrainingDetails() {
     fetchFederatedSessionData();
   }, [sessionId]);
 
-  const canRetry = ["FAILED", "CANCELLED"].includes(
-    federatedSessionData?.training_status
-  );
   const sections = [
     {
       id: "session-info",
@@ -112,15 +109,7 @@ export default function TrainingDetails() {
       icon: <ChartBarIcon className="h-5 w-5" />,
     },
     { id: "actions", label: "Actions", icon: <BoltIcon className="h-5 w-5" /> },
-    ...(canRetry
-      ? [
-          {
-            id: "retry",
-            label: "Retry Training",
-            icon: <ArrowPathIcon className="h-5 w-5" />,
-          },
-        ]
-      : []),
+    { id: "retry", label: "Retry Training", icon: <ArrowPathIcon className="h-5 w-5" /> },
     // {
     //   id: "training-progress", // New section
     //   label: "Training Progress",
@@ -227,11 +216,10 @@ export default function TrainingDetails() {
             <button
               key={section.id}
               onClick={() => setCurrentSection(section.id)}
-              className={`w-full flex items-center px-3 py-2 text-sm font-medium rounded-md transition ${
-                currentSection === section.id
-                  ? "bg-blue-100 text-blue-700"
-                  : "text-gray-600 hover:bg-gray-100"
-              }`}
+              className={`w-full flex items-center px-3 py-2 text-sm font-medium rounded-md transition ${currentSection === section.id
+                ? "bg-blue-100 text-blue-700"
+                : "text-gray-600 hover:bg-gray-100"
+                }`}
             >
               <span className="mr-3">{section.icon}</span>
               {section.label}
@@ -315,7 +303,7 @@ export default function TrainingDetails() {
           {/* {currentSection === "training-progress" && (
             <TrainingProgress sessionId={sessionId} />
           )} */}
-          {currentSection === "retry" && canRetry && (
+          {currentSection === "retry" && (
             <div className="text-center">
               <button
                 onClick={handleRetryNavigation}
