@@ -367,7 +367,7 @@ export default function SelectDatasetsStep({
               {loadingTasks ? (
                 <div className="flex items-center justify-center p-4 text-gray-500">
                   <ArrowPathIcon className="h-5 w-5 mr-3 animate-spin" />
-                  <span>Loading available tasks...</span>
+                  <span>Loading available training options...</span>
                 </div>
               ) : errorTasks ? (
                 <div className="p-3 bg-red-50 text-red-600 rounded-md flex items-start">
@@ -382,8 +382,12 @@ export default function SelectDatasetsStep({
                   <div className="bg-white shadow-sm rounded-lg border border-gray-200 overflow-hidden">
                     <div className="px-6 py-4 border-b border-gray-200">
                       <h3 className="text-lg font-medium text-gray-900">
-                        Available Tasks
+                        Available Training Options
                       </h3>
+                      <p className="text-sm text-gray-600">
+                        Select the training option you want to use for your
+                        federated learning job.
+                      </p>
                     </div>
                     <div className="px-6 py-4">
                       <div className="overflow-x-auto">
@@ -394,7 +398,7 @@ export default function SelectDatasetsStep({
                                 scope="col"
                                 className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                               >
-                                Task Name
+                                Training Option
                               </th>
                               <th
                                 scope="col"
@@ -456,15 +460,13 @@ export default function SelectDatasetsStep({
                                       handleTaskChange(task.task_id);
                                       setValue("task_id", String(task.task_id)); // Update form value if using react-hook-form
                                     }}
-                                    className={`px-4 py-2 rounded-md text-sm font-medium transition-colors duration-150 ${
-                                      selectedTaskId === String(task.task_id)
-                                        ? "bg-blue-600 text-white hover:bg-blue-700"
-                                        : "text-blue-600 hover:text-blue-900 bg-blue-50 hover:bg-blue-100"
-                                    } ${
-                                      disabled
+                                    className={`px-4 py-2 rounded-md text-sm font-medium transition-colors duration-150 ${selectedTaskId === String(task.task_id)
+                                      ? "bg-blue-600 text-white hover:bg-blue-700"
+                                      : "text-blue-600 hover:text-blue-900 bg-blue-50 hover:bg-blue-100"
+                                      } ${disabled
                                         ? "opacity-60 cursor-not-allowed"
                                         : ""
-                                    }`}
+                                      }`}
                                     disabled={disabled}
                                   >
                                     {selectedTaskId === String(task.task_id)
@@ -549,11 +551,11 @@ export default function SelectDatasetsStep({
                                     String(t.task_id) === String(selectedTaskId)
                                 ) &&
                                 column ===
-                                  tasks.find(
-                                    (t) =>
-                                      String(t.task_id) ===
-                                      String(selectedTaskId)
-                                  ).output_column)
+                                tasks.find(
+                                  (t) =>
+                                    String(t.task_id) ===
+                                    String(selectedTaskId)
+                                ).output_column)
                             }
                             checked={inputColumns.includes(column)}
                             value={column}
