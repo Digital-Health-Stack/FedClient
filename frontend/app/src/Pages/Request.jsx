@@ -106,7 +106,7 @@ export default function Request() {
       input_columns: [],
       output_columns: [],
       model_name: "",
-      model_info: {},
+      model_info: { test_metrics: [] },
       expected_std_mean: "",
       expected_std_deviation: "",
       wait_time: 0,
