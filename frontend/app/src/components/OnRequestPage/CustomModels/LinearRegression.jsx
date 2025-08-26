@@ -28,7 +28,7 @@ const LinearRegression = () => {
   const { register, getValues, setValue, watch } = useFormContext();
   const defaultValues = {
     lr: 0.01,
-    n_iters: 1,
+    n_iters: 1000,
   };
 
   // Initialize model_info values if they don't exist
@@ -80,7 +80,7 @@ const LinearRegression = () => {
         </label>
         <input
           type="number"
-          placeholder="e.g. 1"
+          placeholder="e.g. 1000"
           {...register("model_info.n_iters")}
           className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none"
         />

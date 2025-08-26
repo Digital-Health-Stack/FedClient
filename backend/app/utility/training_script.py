@@ -244,8 +244,8 @@ def main(session_id, client_token):
         post_url = f"{BASE_URL}/v2/send-weights"
 
         model_config = get_model_config(session_id, client_token)
-        test_metrics = model_config.get("metric")
-        print("Test Metrics : ", test_metrics)
+        print("Model Config : ", model_config)
+        test_metrics = model_config["model_info"]["test_metrics"]
 
         # ==== Load model ====
         model = model_instance_from_config(model_config)
@@ -266,9 +266,9 @@ def main(session_id, client_token):
 
         # ==== Load and update global parameters ====
         global_parameters = receive_global_parameters(get_url, session_id, client_token)
-        print("Checkpoint isFirst : ", global_parameters["is_first"])
+        print("Checkpoint isFirst : ", global_parameters)
         if global_parameters and global_parameters["is_first"] == 0:
-            print("Checkpint global_parameters: ", len)
+            print("Checkpint global_parameters: ", len(global_parameters["global_parameters"]))
             model.update_parameters(global_parameters["global_parameters"])
 
         # ==== Save current local parameters ====
@@ -279,6 +279,7 @@ def main(session_id, client_token):
 
         # print("Local parameters saved to local_parameters.txt")
         before_training = model.get_parameters()
+        print("Before Training : ", before_training)
 
         print(f"X dtype: {X.dtype}, Y dtype: {Y.dtype}")
         print(f"X shape: {X.shape}, Y shape: {Y.shape}")
@@ -287,6 +288,7 @@ def main(session_id, client_token):
         model.fit(X, Y)
         print("Training completed")
         after_training = model.get_parameters()
+        print("After Training : ", after_training)
         # TODO: Compare parameters for all model types
         # compare_parameters(before_training, after_training)
 
@@ -297,16 +299,16 @@ def main(session_id, client_token):
         #     f.write("\n")
         # ==== Send updated parameters ====
         updated_parameters = model.get_parameters()
-
+        print("Updated Parameters : ", updated_parameters)
         # Model Evaluation
-        results = model.evaluate(X, Y)
-
+        results = model.evaluate(X, Y, test_metrics)
+        print("Results : ", results)
         payload = {
             "session_id": int(session_id),
             "client_parameter": sanitize_parameters(updated_parameters),
             "metrics_report": results,
         }
-        print("Payload : ", results)
+        print("Payload : ", payload)
         send_updated_parameters(post_url, payload, client_token)
         print("Parameters sent to server")
 
