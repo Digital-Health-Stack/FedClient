@@ -169,7 +169,7 @@ export default function Request() {
       toast.error("Please enter your organization name.");
       return setCurrentStep(0);
     }
-    if (!data.server_stats) {
+    if (!data.server_filename) {
       toast.error("Please fetch at least one dataset.");
       return setCurrentStep(1);
     }

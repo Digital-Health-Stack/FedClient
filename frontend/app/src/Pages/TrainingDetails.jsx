@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { useAuth } from "../contexts/AuthContext";
 import { getFederatedSession } from "../services/federatedService";
+import { getDatasetOverview } from "../services/fedServerService";
 import axios from "axios";
 import FederatedSessionLogs from "../components/Training/FederatedSessionLogs";
 import SessionInfo from "../components/Training/SessionInfo";
@@ -109,7 +110,11 @@ export default function TrainingDetails() {
       icon: <ChartBarIcon className="h-5 w-5" />,
     },
     { id: "actions", label: "Actions", icon: <BoltIcon className="h-5 w-5" /> },
-    { id: "retry", label: "Retry Training", icon: <ArrowPathIcon className="h-5 w-5" /> },
+    {
+      id: "retry",
+      label: "Retry Training",
+      icon: <ArrowPathIcon className="h-5 w-5" />,
+    },
     // {
     //   id: "training-progress", // New section
     //   label: "Training Progress",
@@ -131,7 +136,7 @@ export default function TrainingDetails() {
     );
   };
 
-  const handleRetryNavigation = () => {
+  const handleRetryNavigation = async () => {
     const fed = federatedSessionData?.federated_info || {};
     const originalName = (fed.organisation_name || "").trim();
     let retryName = originalName || "training";
@@ -143,6 +148,26 @@ export default function TrainingDetails() {
     } else {
       retryName = `${retryName}_retry1`;
     }
+
+    // Fetch server stats if server_filename exists
+    let serverStats = {};
+    let serverStatsData = null;
+
+    if (fed.server_filename) {
+      try {
+        const response = await getDatasetOverview(fed.server_filename);
+        const data = response.data;
+
+        if (data && !data.details && !data.error) {
+          serverStats = data.datastats || {};
+          serverStatsData = data;
+        }
+      } catch (error) {
+        console.error("Error fetching server stats for retry:", error);
+        // Continue with empty stats if fetch fails
+      }
+    }
+
     const prefill = {
       organisation_name: retryName,
       server_filename: fed.server_filename || "",
@@ -159,8 +184,8 @@ export default function TrainingDetails() {
       expected_std_deviation: fed.expected_std_deviation || "",
       wait_time: fed.wait_time ?? 0,
       no_of_rounds: fed.no_of_rounds || "",
-      server_stats: null,
-      server_stats_data: null,
+      server_stats: serverStats,
+      server_stats_data: serverStatsData,
       client_stats: null,
     };
 
@@ -216,10 +241,11 @@ export default function TrainingDetails() {
             <button
               key={section.id}
               onClick={() => setCurrentSection(section.id)}
-              className={`w-full flex items-center px-3 py-2 text-sm font-medium rounded-md transition ${currentSection === section.id
-                ? "bg-blue-100 text-blue-700"
-                : "text-gray-600 hover:bg-gray-100"
-                }`}
+              className={`w-full flex items-center px-3 py-2 text-sm font-medium rounded-md transition ${
+                currentSection === section.id
+                  ? "bg-blue-100 text-blue-700"
+                  : "text-gray-600 hover:bg-gray-100"
+              }`}
             >
               <span className="mr-3">{section.icon}</span>
               {section.label}
