@@ -244,7 +244,7 @@ def main(session_id, client_token):
         post_url = f"{BASE_URL}/v2/send-weights"
 
         model_config = get_model_config(session_id, client_token)
-        print("Model Config : ", model_config)
+        # print("Model Config : ", model_config)
         test_metrics = model_config["model_info"]["test_metrics"]
 
         # ==== Load model ====
@@ -261,14 +261,20 @@ def main(session_id, client_token):
         Y_path = os.path.join("data", f"Y_{session_id}.npy")
 
         # Load data
-        X = np.load(X_path)
-        Y = np.load(Y_path)
+        X = np.load(X_path, allow_pickle=True)
+        if isinstance(X[0], str):
+            X = np.array([np.fromstring(img, sep=",") for img in X])
+
+        Y = np.load(Y_path, allow_pickle=True)
 
         # ==== Load and update global parameters ====
         global_parameters = receive_global_parameters(get_url, session_id, client_token)
         print("Checkpoint isFirst : ", global_parameters)
         if global_parameters and global_parameters["is_first"] == 0:
-            print("Checkpint global_parameters: ", len(global_parameters["global_parameters"]))
+            print(
+                "Checkpint global_parameters: ",
+                len(global_parameters["global_parameters"]),
+            )
             model.update_parameters(global_parameters["global_parameters"])
 
         # ==== Save current local parameters ====
@@ -299,7 +305,7 @@ def main(session_id, client_token):
         #     f.write("\n")
         # ==== Send updated parameters ====
         updated_parameters = model.get_parameters()
-        print("Updated Parameters : ", updated_parameters)
+        # print("Updated Parameters : ", updated_parameters)
         # Model Evaluation
         results = model.evaluate(X, Y, test_metrics)
         print("Results : ", results)
@@ -308,7 +314,7 @@ def main(session_id, client_token):
             "client_parameter": sanitize_parameters(updated_parameters),
             "metrics_report": results,
         }
-        print("Payload : ", payload)
+        print("Payload : ", len(payload["client_parameter"]))
         send_updated_parameters(post_url, payload, client_token)
         print("Parameters sent to server")
 
