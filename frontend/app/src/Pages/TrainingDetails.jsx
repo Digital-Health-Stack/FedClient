@@ -323,7 +323,11 @@ export default function TrainingDetails() {
             <ModelConfig data={federatedSessionData.federated_info} />
           )}
           {currentSection === "actions" && (
-            <ActionSection data={federatedSessionData} sessionId={sessionId} />
+            <ActionSection
+              data={federatedSessionData}
+              sessionId={sessionId}
+              onRefreshData={fetchFederatedSessionData}
+            />
           )}
           {currentSection === "results" && <Result sessionId={sessionId} />}
           {/* {currentSection === "training-progress" && (

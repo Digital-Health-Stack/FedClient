@@ -6,6 +6,7 @@ import SelectDatasetsStep from "../components/OnRequestPage/RequestComponents/Se
 import StatisticalInfoStep from "../components/OnRequestPage/RequestComponents/StatisticalInfoStep";
 import ModelSelectionStep from "../components/OnRequestPage/RequestComponents/ModelSelectionStep";
 import HyperparametersInfoStep from "../components/OnRequestPage/RequestComponents/Hyperparameters";
+import LoaderButton from "../components/Common/LoaderButton";
 import { useAuth } from "../contexts/AuthContext";
 import { useNavigate, useLocation } from "react-router-dom";
 import { createSession } from "../services/federatedService";
@@ -126,6 +127,7 @@ export default function Request() {
   }, [isRetry, retryState, methods]);
 
   const [showStepInfo, setShowStepInfo] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const { api } = useAuth();
   const navigate = useNavigate();
@@ -200,6 +202,7 @@ export default function Request() {
       // client_token: api.getAccessToken(),
     };
 
+    setIsSubmitting(true);
     try {
       const res = await createSession(api, requestData);
       // Clear saved form data on successful submission
@@ -207,6 +210,9 @@ export default function Request() {
       navigate(`/trainings/${res.data.session_id}`);
     } catch (error) {
       console.error("Submission error:", error);
+      toast.error("Failed to submit training request. Please try again.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -284,12 +290,18 @@ export default function Request() {
                   <ArrowRightIcon className="w-5 h-5 ml-2" />
                 </button>
               ) : (
-                <input
-                  {...methods.register("submit")}
+                <LoaderButton
                   type="submit"
-                  className="px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium flex items-center transition-colors"
-                  value={"Submit Request"}
-                />
+                  isLoading={isSubmitting}
+                  loadingText="Submitting..."
+                  className={`px-6 py-3 text-white rounded-lg font-medium ${
+                    isSubmitting
+                      ? "bg-green-400"
+                      : "bg-green-600 hover:bg-green-700"
+                  }`}
+                >
+                  Submit Request
+                </LoaderButton>
               )}
             </div>
           </form>

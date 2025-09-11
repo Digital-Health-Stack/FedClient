@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
+import LoaderButton from "../Common/LoaderButton";
 
 import {
   CheckCircleIcon,
@@ -26,7 +27,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 
-const ActionSection = ({ data, sessionId }) => {
+const ActionSection = ({ data, sessionId, onRefreshData }) => {
   const { register, handleSubmit } = useForm();
   const [isQpdCreated, setIsQpdCreated] = useState(false);
   console.log("data", data);
@@ -44,9 +45,13 @@ const ActionSection = ({ data, sessionId }) => {
   const [errorClient, setErrorClient] = useState(null);
   const [clientStats, setClientStats] = useState(null);
   const [loadingClient, setLoadingClient] = useState(false);
+  const [isCreatingQpd, setIsCreatingQpd] = useState(false);
+  const [isSubmittingPriceDecision, setIsSubmittingPriceDecision] =
+    useState(false);
   const [serverStats, _] = useState(fedInfo?.server_stats || null);
 
   const handleCreateQpd = async () => {
+    setIsCreatingQpd(true);
     try {
       const qpdDataRequest = {
         session_id: Number(sessionId),
@@ -69,6 +74,8 @@ const ActionSection = ({ data, sessionId }) => {
         autoClose: 4000,
       });
       console.error("Error creating QPD dataset:", error);
+    } finally {
+      setIsCreatingQpd(false);
     }
   };
 
@@ -122,6 +129,7 @@ const ActionSection = ({ data, sessionId }) => {
   };
 
   const onSubmitPriceAcceptance = async (data) => {
+    setIsSubmittingPriceDecision(true);
     try {
       const requestData = {
         session_id: sessionId,
@@ -140,9 +148,21 @@ const ActionSection = ({ data, sessionId }) => {
         position: "bottom-center",
         autoClose: 4000,
       });
+
+      // Refresh the data after successful submission
+      if (onRefreshData) {
+        await onRefreshData();
+      }
+
       navigate(`/trainings/${sessionId}`);
     } catch (error) {
       console.error("Error submitting price decision:", error);
+      toast.error("Failed to submit price decision. Please try again.", {
+        position: "bottom-center",
+        autoClose: 4000,
+      });
+    } finally {
+      setIsSubmittingPriceDecision(false);
     }
   };
 
@@ -209,10 +229,11 @@ const ActionSection = ({ data, sessionId }) => {
       {/* Column Matching Status */}
       {clientStats && serverStats && (
         <div
-          className={`p-3 mb-3 rounded-md border ${columnsMatch()
-            ? "bg-green-50 border-green-200 text-green-800"
-            : "bg-yellow-50 border-yellow-200 text-yellow-800"
-            }`}
+          className={`p-3 mb-3 rounded-md border ${
+            columnsMatch()
+              ? "bg-green-50 border-green-200 text-green-800"
+              : "bg-yellow-50 border-yellow-200 text-yellow-800"
+          }`}
         >
           <div className="flex items-start">
             {columnsMatch() ? (
@@ -246,14 +267,20 @@ const ActionSection = ({ data, sessionId }) => {
                 {sessionPrice || 0} Data Points
               </p>
             </div>
-            <button
+            <LoaderButton
               type="button"
               disabled={!clientStats || !columnsMatch()}
               onClick={handleCreateQpd}
-              className="h-fit py-2 px-4 disabled:cursor-not-allowed disabled:bg-blue-300 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+              isLoading={isCreatingQpd}
+              loadingText="Creating..."
+              className={`h-fit py-2 px-4 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                !clientStats || !columnsMatch() || isCreatingQpd
+                  ? "bg-blue-300 cursor-not-allowed"
+                  : "bg-blue-600 hover:bg-blue-700"
+              }`}
             >
               Contribute Dataset
-            </button>
+            </LoaderButton>
           </div>
 
           <div className="space-y-2">
@@ -282,16 +309,19 @@ const ActionSection = ({ data, sessionId }) => {
             </div>
           </div>
 
-          <button
+          <LoaderButton
             type="submit"
             disabled={!isQpdCreated}
-            className={`w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white ${isQpdCreated
-              ? "bg-blue-600 hover:bg-blue-700 focus:ring-blue-500"
-              : "bg-gray-400 cursor-not-allowed focus:ring-gray-500"
-              } focus:outline-none focus:ring-2 focus:ring-offset-2`}
+            isLoading={isSubmittingPriceDecision}
+            loadingText="Submitting..."
+            className={`w-full justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2 ${
+              !isQpdCreated || isSubmittingPriceDecision
+                ? "bg-gray-400 cursor-not-allowed focus:ring-gray-500"
+                : "bg-blue-600 hover:bg-blue-700 focus:ring-blue-500"
+            }`}
           >
             Submit Price Decision
-          </button>
+          </LoaderButton>
         </div>
       </form>
     </div>
@@ -409,8 +439,9 @@ const ActionSection = ({ data, sessionId }) => {
         <button
           onClick={handleDownload}
           disabled={isDownloading}
-          className={`inline-flex items-center px-3 py-1 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 ${isDownloading ? "opacity-75 cursor-not-allowed" : ""
-            }`}
+          className={`inline-flex items-center px-3 py-1 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 ${
+            isDownloading ? "opacity-75 cursor-not-allowed" : ""
+          }`}
         >
           {isDownloading ? (
             <>
