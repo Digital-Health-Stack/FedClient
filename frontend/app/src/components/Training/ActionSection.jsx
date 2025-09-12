@@ -29,7 +29,6 @@ import { useAuth } from "../../contexts/AuthContext";
 
 const ActionSection = ({ data, sessionId, onRefreshData }) => {
   const { register, handleSubmit } = useForm();
-  const [isQpdCreated, setIsQpdCreated] = useState(false);
   console.log("data", data);
   const {
     training_status: trainingStatus,
@@ -45,39 +44,9 @@ const ActionSection = ({ data, sessionId, onRefreshData }) => {
   const [errorClient, setErrorClient] = useState(null);
   const [clientStats, setClientStats] = useState(null);
   const [loadingClient, setLoadingClient] = useState(false);
-  const [isCreatingQpd, setIsCreatingQpd] = useState(false);
-  const [isSubmittingPriceDecision, setIsSubmittingPriceDecision] =
-    useState(false);
+  const [isAcceptingPrice, setIsAcceptingPrice] = useState(false);
+  const [isRejectingPrice, setIsRejectingPrice] = useState(false);
   const [serverStats, _] = useState(fedInfo?.server_stats || null);
-
-  const handleCreateQpd = async () => {
-    setIsCreatingQpd(true);
-    try {
-      const qpdDataRequest = {
-        session_id: Number(sessionId),
-        session_price: Number(sessionPrice),
-        client_token: JSON.parse(localStorage.getItem("user")).access_token,
-      };
-
-      console.log("QPD Data Request:", qpdDataRequest);
-      await createQPDataset(qpdDataRequest);
-      // alert("QPD dataset created successfully!");
-      toast.success("QPD dataset creation started !!", {
-        position: "bottom-center",
-        autoClose: 4000,
-      });
-      setIsQpdCreated(true);
-    } catch (error) {
-      // alert("Error creating QPD dataset. Please try again.");
-      toast.error("Error creating QPD dataset. Please try again.", {
-        position: "bottom-center",
-        autoClose: 4000,
-      });
-      console.error("Error creating QPD dataset:", error);
-    } finally {
-      setIsCreatingQpd(false);
-    }
-  };
 
   const onSubmitParticipationDecision = async (data) => {
     const requestData = {
@@ -129,21 +98,54 @@ const ActionSection = ({ data, sessionId, onRefreshData }) => {
   };
 
   const onSubmitPriceAcceptance = async (data) => {
-    setIsSubmittingPriceDecision(true);
+    const isAccepting = data.decision === "accepted";
+
+    // Set the appropriate loading state
+    if (isAccepting) {
+      setIsAcceptingPrice(true);
+    } else {
+      setIsRejectingPrice(true);
+    }
+
     try {
+      // If accepting, first create QPD dataset automatically
+      if (isAccepting) {
+        // First, create QPD dataset
+        const qpdDataRequest = {
+          session_id: Number(sessionId),
+          session_price: Number(sessionPrice),
+          client_token: JSON.parse(localStorage.getItem("user")).access_token,
+        };
+
+        console.log("QPD Data Request:", qpdDataRequest);
+        await createQPDataset(qpdDataRequest);
+        toast.success("QPD dataset creation completed!", {
+          position: "bottom-center",
+          autoClose: 2000,
+        });
+
+        // Wait a moment for QPD creation to complete
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+      }
+
       const requestData = {
         session_id: sessionId,
-        decision: data.decision === "accepted" ? 1 : 0,
+        decision: isAccepting ? 1 : 0,
       };
       const response = await submitPriceAcceptanceResponse(api, requestData);
-      const responseFilename = await acceptClientFilenameTraining({
-        session_id: sessionId,
-        client_filename: clientFilename,
-      });
-      toast.success(responseFilename?.data?.message, {
-        position: "bottom-center",
-        autoClose: 4000,
-      });
+
+      // Only call acceptClientFilenameTraining if accepting
+      if (isAccepting) {
+        const responseFilename = await acceptClientFilenameTraining({
+          session_id: sessionId,
+          client_filename: clientFilename,
+        });
+        toast.success(responseFilename?.data?.message, {
+          position: "bottom-center",
+          autoClose: 4000,
+        });
+      }
+
       toast.success(response?.data?.message, {
         position: "bottom-center",
         autoClose: 4000,
@@ -162,7 +164,12 @@ const ActionSection = ({ data, sessionId, onRefreshData }) => {
         autoClose: 4000,
       });
     } finally {
-      setIsSubmittingPriceDecision(false);
+      // Reset the appropriate loading state
+      if (isAccepting) {
+        setIsAcceptingPrice(false);
+      } else {
+        setIsRejectingPrice(false);
+      }
     }
   };
 
@@ -258,72 +265,61 @@ const ActionSection = ({ data, sessionId, onRefreshData }) => {
         </div>
       )}
 
-      <form onSubmit={handleSubmit(onSubmitPriceAcceptance)}>
-        <div className="space-y-4">
-          <div className="p-4 bg-gray-50 rounded-lg flex justify-between items-center">
-            <div>
-              <h4 className="font-medium text-gray-700">Training Price</h4>
-              <p className="text-2xl font-bold text-blue-600 mt-1">
-                {sessionPrice || 0} Data Points
-              </p>
-            </div>
+      <div className="space-y-4">
+        <div className="p-4 bg-gray-50 rounded-lg">
+          <div>
+            <h4 className="font-medium text-gray-700">Training Price</h4>
+            <p className="text-2xl font-bold text-blue-600 mt-1">
+              {sessionPrice || 0} Data Points
+            </p>
+          </div>
+        </div>
+
+        <div className="flex justify-start items-center gap-8">
+          <label className="block text-gray-700 font-medium">
+            Price Decision
+          </label>
+          <div className="flex space-x-3 justify-center">
             <LoaderButton
               type="button"
-              disabled={!clientStats || !columnsMatch()}
-              onClick={handleCreateQpd}
-              isLoading={isCreatingQpd}
-              loadingText="Creating..."
-              className={`h-fit py-2 px-4 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
-                !clientStats || !columnsMatch() || isCreatingQpd
-                  ? "bg-blue-300 cursor-not-allowed"
-                  : "bg-blue-600 hover:bg-blue-700"
+              disabled={
+                !clientStats ||
+                !columnsMatch() ||
+                isAcceptingPrice ||
+                isRejectingPrice
+              }
+              isLoading={isAcceptingPrice}
+              loadingText="Accepting..."
+              onClick={() => onSubmitPriceAcceptance({ decision: "accepted" })}
+              className={`px-6 py-1.5 border border-transparent rounded-md shadow-sm text-sm font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2 ${
+                !clientStats ||
+                !columnsMatch() ||
+                isAcceptingPrice ||
+                isRejectingPrice
+                  ? "bg-gray-400 cursor-not-allowed focus:ring-gray-500"
+                  : "bg-green-500 hover:bg-green-600 focus:ring-green-500"
               }`}
             >
-              Contribute Dataset
+              Accept
+            </LoaderButton>
+
+            <LoaderButton
+              type="button"
+              disabled={isAcceptingPrice || isRejectingPrice}
+              isLoading={isRejectingPrice}
+              loadingText="Rejecting..."
+              onClick={() => onSubmitPriceAcceptance({ decision: "rejected" })}
+              className={`px-6 py-1.5 border border-transparent rounded-md shadow-sm text-sm font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2 ${
+                isAcceptingPrice || isRejectingPrice
+                  ? "bg-gray-400 cursor-not-allowed focus:ring-gray-500"
+                  : "bg-red-500 hover:bg-red-600 focus:ring-red-500"
+              }`}
+            >
+              Reject
             </LoaderButton>
           </div>
-
-          <div className="space-y-2">
-            <label className="block text-gray-700 font-medium">Decision</label>
-            <div className="flex items-center space-x-4">
-              <label className="inline-flex items-center">
-                <input
-                  type="radio"
-                  value="accepted"
-                  {...register("decision", { required: true })}
-                  className="form-radio text-blue-600"
-                  disabled={!isQpdCreated}
-                />
-                <span className="ml-2 text-gray-700">Accept</span>
-              </label>
-              <label className="inline-flex items-center">
-                <input
-                  type="radio"
-                  value="rejected"
-                  {...register("decision", { required: true })}
-                  className="form-radio text-red-600"
-                  disabled={!isQpdCreated}
-                />
-                <span className="ml-2 text-gray-700">Reject</span>
-              </label>
-            </div>
-          </div>
-
-          <LoaderButton
-            type="submit"
-            disabled={!isQpdCreated}
-            isLoading={isSubmittingPriceDecision}
-            loadingText="Submitting..."
-            className={`w-full justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2 ${
-              !isQpdCreated || isSubmittingPriceDecision
-                ? "bg-gray-400 cursor-not-allowed focus:ring-gray-500"
-                : "bg-blue-600 hover:bg-blue-700 focus:ring-blue-500"
-            }`}
-          >
-            Submit Price Decision
-          </LoaderButton>
         </div>
-      </form>
+      </div>
     </div>
   );
 
