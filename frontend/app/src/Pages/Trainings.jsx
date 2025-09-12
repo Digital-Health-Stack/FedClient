@@ -142,7 +142,8 @@ export default function Trainings() {
   };
   const formatTimestamp = (timestamp) => {
     try {
-      const date = new Date(timestamp);
+      const utcTimestamp = timestamp + "Z";
+      const date = new Date(utcTimestamp);
       return date.toLocaleString("en-IN", {
         dateStyle: "medium",
         timeStyle: "short",
