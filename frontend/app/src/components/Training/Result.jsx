@@ -6,6 +6,7 @@ import {
   ExclamationTriangleIcon,
   InformationCircleIcon,
   ChartBarIcon,
+  ArrowDownTrayIcon,
 } from "@heroicons/react/24/solid";
 import {
   LineChart,
@@ -72,6 +73,82 @@ const Result = ({ sessionId }) => {
     return str.charAt(0).toUpperCase() + str.slice(1);
   };
 
+  // Download chart as PNG
+  const downloadChartAsPNG = () => {
+    const chartElement = document.querySelector(".recharts-wrapper svg");
+    if (!chartElement) return;
+
+    const svgData = new XMLSerializer().serializeToString(chartElement);
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+    const img = new Image();
+
+    canvas.width = chartElement.width.baseVal.value;
+    canvas.height = chartElement.height.baseVal.value;
+
+    img.onload = () => {
+      ctx.fillStyle = "white";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(img, 0, 0);
+
+      const link = document.createElement("a");
+      link.download = `training-results-${selectedMetric}-${
+        sessionId || "chart"
+      }.png`;
+      link.href = canvas.toDataURL("image/png");
+      link.click();
+    };
+
+    img.src = "data:image/svg+xml;base64," + btoa(svgData);
+  };
+
+  // Download table as CSV
+  const downloadTableAsCSV = () => {
+    if (!selectedMetric || Object.keys(results.server_results).length === 0)
+      return;
+
+    const csvData = [];
+    const headers = [
+      "Round",
+      `Server ${selectedMetric.replace(/_/g, " ")}`,
+      `Your ${selectedMetric.replace(/_/g, " ")}`,
+    ];
+    csvData.push(headers.join(","));
+
+    Object.keys(results.server_results[selectedMetric] || {}).forEach(
+      (round) => {
+        const roundNumber = round.split("_")[1];
+        const serverValue = formatMetricValue(
+          results.server_results[selectedMetric][round]
+        );
+        const clientValue = results.client_results[selectedMetric]?.[round]
+          ? formatMetricValue(results.client_results[selectedMetric][round])
+          : "-";
+
+        csvData.push(
+          [`Round ${roundNumber}`, serverValue, clientValue].join(",")
+        );
+      }
+    );
+
+    const csvContent = csvData.join("\n");
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+
+    if (link.download !== undefined) {
+      const url = URL.createObjectURL(blob);
+      link.setAttribute("href", url);
+      link.setAttribute(
+        "download",
+        `training-results-${selectedMetric}-${sessionId || "table"}.csv`
+      );
+      link.style.visibility = "hidden";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  };
+
   // Prepare data for charts for the selected metric
   const prepareChartData = () => {
     if (!selectedMetric || !results.server_results[selectedMetric]) return [];
@@ -130,6 +207,27 @@ const Result = ({ sessionId }) => {
             >
               Table View
             </button>
+
+            {/* Download button */}
+            {selectedMetric &&
+              Object.keys(results.server_results).length > 0 &&
+              !loading &&
+              !error && (
+                <button
+                  onClick={
+                    activeTab === "chart"
+                      ? downloadChartAsPNG
+                      : downloadTableAsCSV
+                  }
+                  className="flex items-center px-3 py-1 text-sm rounded-md bg-green-100 text-green-700 hover:bg-green-200 transition-colors"
+                  title={`Download ${
+                    activeTab === "chart" ? "chart as PNG" : "table as CSV"
+                  }`}
+                >
+                  <ArrowDownTrayIcon className="h-4 w-4 mr-1" />
+                  Download {activeTab === "chart" ? "PNG" : "CSV"}
+                </button>
+              )}
           </div>
         </div>
 
