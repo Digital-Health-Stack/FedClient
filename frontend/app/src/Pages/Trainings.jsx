@@ -38,6 +38,8 @@ export default function Trainings() {
     navigate(`/trainings/${sessionId}`);
   };
   const openNewTraining = () => {
+    localStorage.removeItem("fedclient_request_form_data");
+    localStorage.removeItem("fedclient_request_current_step");
     navigate(`/Request`);
   };
 
@@ -142,7 +144,8 @@ export default function Trainings() {
   };
   const formatTimestamp = (timestamp) => {
     try {
-      const date = new Date(timestamp);
+      const utcTimestamp = timestamp + "Z";
+      const date = new Date(utcTimestamp);
       return date.toLocaleString("en-IN", {
         dateStyle: "medium",
         timeStyle: "short",
