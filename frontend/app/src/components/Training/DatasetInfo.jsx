@@ -29,20 +29,17 @@ const DatasetInfo = ({ data }) => {
             </h4>
           </div>
           <div className="space-y-3">
-            {/* <div className="grid grid-cols-3 gap-4 items-center">
-              <span className="text-sm font-medium text-gray-500">
-                Client Filename
-              </span>
-              <span className="col-span-2 text-sm text-gray-800 bg-gray-100 px-3 py-2 rounded">
-                {datasetInfo.client_filename}
-              </span>
-            </div> */}
             <div className="grid grid-cols-3 gap-4 items-center">
               <span className="text-sm font-medium text-gray-500">
                 Server Filename
               </span>
-              <span className="col-span-2 text-sm text-gray-800 bg-gray-100 px-3 py-2 rounded flex items-center justify-between">
-                {data?.server_filename}
+              <span
+                title={data?.server_filename}
+                className="col-span-2 text-sm text-gray-800 bg-gray-100 px-3 py-2 rounded flex items-center justify-between"
+              >
+                {data?.server_filename.length > 40
+                  ? `${data?.server_filename.substring(0, 40)}...`
+                  : data?.server_filename}
                 <ArrowTopRightOnSquareIcon
                   className="h-5 w-5 text-gray-600 cursor-pointer"
                   title="View Dataset Overview"

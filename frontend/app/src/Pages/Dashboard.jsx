@@ -54,19 +54,44 @@ export default function Dashboard() {
   // Update fetchSessions
   const fetchSessions = async () => {
     try {
-      const res = await getAllSessions(api);
-      const data = Array.isArray(res.data) ? res.data : [];
+      const res = await getAllSessions(api, 1, 5);
+      const data = Array.isArray(res.data.data) ? res.data.data : [];
       setSessions(data.slice(0, 5));
     } catch (error) {
       setSessions([]);
       console.error("Error fetching sessions:", error);
     }
   };
-  const statusMap = {
-    1: { text: "Pre-Training", color: "bg-blue-100 text-blue-800" },
-    4: { text: "Training", color: "bg-yellow-100 text-yellow-800" },
-    5: { text: "Completed", color: "bg-green-100 text-green-800" },
-    "-1": { text: "Failed", color: "bg-red-100 text-red-800" },
+  const getStatusColor = (status) => {
+    switch (status) {
+      case "CREATED":
+        return "bg-gray-100 text-gray-800"; // Session Created
+      case "PRICE_NEGOTIATION":
+        return "bg-yellow-100 text-yellow-800"; // Price Negotiation
+      case "ACCEPTING_CLIENTS":
+        return "bg-blue-100 text-blue-800"; // Client Recruitment
+      case "MODEL_INITIALIZATION":
+        return "bg-indigo-100 text-indigo-800"; // Model Initialization
+      case "STARTED":
+        return "bg-purple-100 text-purple-800"; // Training Active
+      case "COMPLETED":
+        return "bg-green-100 text-green-800"; // Completed
+      case "FAILED":
+        return "bg-red-100 text-red-800"; // Failed
+      case "CANCELLED":
+        return "bg-red-800 text-red-100"; // Cancelled
+      default:
+        return "bg-gray-100 text-gray-800"; // Unknown
+    }
+  };
+
+  const TrainingStatuses = {
+    PRICE_NEGOTIATION: "Price Negotiation",
+    ACCEPTING_CLIENTS: "Client Recruitment",
+    STARTED: "Training Active",
+    COMPLETED: "Completed",
+    CANCELLED: "Cancelled",
+    FAILED: "Failed",
   };
 
   useEffect(() => {
@@ -267,16 +292,15 @@ export default function Dashboard() {
                 </div>
                 <div className="bg-blue-100 p-3 rounded-lg">
                   <svg
-                    className="w-6 h-6 text-blue-600"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-6 w-6 text-blue-600"
+                    viewBox="0 0 15 15"
                   >
                     <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+                      fill="currentColor"
+                      fill-rule="evenodd"
+                      d="M7.07.65a.85.85 0 0 0-.828.662l-.238 1.05c-.38.11-.74.262-1.08.448l-.91-.574a.85.85 0 0 0-1.055.118l-.606.606a.85.85 0 0 0-.118 1.054l.574.912c-.186.338-.337.7-.447 1.079l-1.05.238a.85.85 0 0 0-.662.829v.857a.85.85 0 0 0 .662.829l1.05.238c.11.379.261.74.448 1.08l-.575.91a.85.85 0 0 0 .118 1.055l.607.606a.85.85 0 0 0 1.054.118l.911-.574c.339.186.7.337 1.079.447l.238 1.05a.85.85 0 0 0 .829.662h.857a.85.85 0 0 0 .829-.662l.238-1.05c.38-.11.74-.26 1.08-.447l.911.574a.85.85 0 0 0 1.054-.118l.606-.606a.85.85 0 0 0 .118-1.054l-.574-.911c.187-.34.338-.7.448-1.08l1.05-.238a.85.85 0 0 0 .662-.829v-.857a.85.85 0 0 0-.662-.83l-1.05-.237c-.11-.38-.26-.74-.447-1.08l.574-.91a.85.85 0 0 0-.118-1.055l-.606-.606a.85.85 0 0 0-1.055-.118l-.91.574a5.323 5.323 0 0 0-1.08-.448l-.239-1.05A.85.85 0 0 0 7.928.65h-.857ZM4.92 3.813a4.476 4.476 0 0 1 1.795-.745L7.071 1.5h.857l.356 1.568a4.48 4.48 0 0 1 1.795.744l1.36-.857l.607.606l-.858 1.36c.37.527.628 1.136.744 1.795l1.568.356v.857l-1.568.355a4.475 4.475 0 0 1-.744 1.796l.857 1.36l-.606.606l-1.36-.857a4.476 4.476 0 0 1-1.795.743L7.928 13.5h-.857l-.356-1.568a4.475 4.475 0 0 1-1.794-.744l-1.36.858l-.607-.606l.858-1.36a4.476 4.476 0 0 1-.744-1.796L1.5 7.93v-.857l1.568-.356a4.476 4.476 0 0 1 .744-1.794L2.954 3.56l.606-.606l1.36.858ZM9.026 7.5a1.525 1.525 0 1 1-3.05 0a1.525 1.525 0 0 1 3.05 0Zm.9 0a2.425 2.425 0 1 1-4.85 0a2.425 2.425 0 0 1 4.85 0Z"
+                      clip-rule="evenodd"
                     />
                   </svg>
                 </div>
@@ -332,16 +356,15 @@ export default function Dashboard() {
                 </div>
                 <div className="bg-purple-100 p-3 rounded-lg">
                   <svg
-                    className="w-6 h-6 text-purple-600"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-6 w-6 text-purple-600"
+                    viewBox="0 0 16 16"
                   >
                     <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"
+                      strokeWidth="2"
+                      fill="currentColor"
+                      // fillRule="evenodd"
+                      d="M14 4.5V14a2 2 0 0 1-2 2v-1a1 1 0 0 0 1-1V4.5h-2A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v9H2V2a2 2 0 0 1 2-2h5.5L14 4.5ZM1.597 11.85H0v3.999h.782v-1.491h.71l.7 1.491h1.651l.313-1.028h1.336l.314 1.028h.84L5.31 11.85h-.925l-1.329 3.96l-.783-1.572A1.18 1.18 0 0 0 3 13.116c0-.256-.056-.479-.167-.668a1.098 1.098 0 0 0-.478-.44a1.669 1.669 0 0 0-.758-.158Zm-.815 1.913v-1.292h.7a.74.74 0 0 1 .507.17c.13.113.194.276.194.49c0 .21-.065.368-.194.474c-.127.105-.3.158-.518.158H.782Zm4.063-1.148l.489 1.617H4.32l.49-1.617h.035Zm4.006.445l-.74 2.789h-.73L6.326 11.85h.855l.601 2.903h.038l.706-2.903h.683l.706 2.903h.04l.596-2.903h.858l-1.055 3.999h-.73l-.74-2.789H8.85Z"
                     />
                   </svg>
                 </div>
@@ -398,16 +421,17 @@ export default function Dashboard() {
                 </div>
                 <div className="bg-green-100 p-3 rounded-lg">
                   <svg
-                    className="w-6 h-6 text-green-600"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-6 w-6 text-green-600"
+                    viewBox="0 0 16 16"
                   >
                     <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                      fill="currentColor"
+                      d="M12 0H5v6h.7l.2.7l.1.1V1h5v4h4v9H9l.3.5l-.5.5H16V4l-4-4zm0 4V1l3 3h-3zm-6.5 7.5a1 1 0 1 1-2 0a1 1 0 0 1 2 0z"
+                    />
+                    <path
+                      fill="currentColor"
+                      d="M7.9 12.4L9 12v-1l-1.1-.4c-.1-.3-.2-.6-.4-.9l.5-1l-.7-.7l-1 .5c-.3-.2-.6-.3-.9-.4L5 7H4l-.4 1.1c-.3.1-.6.2-.9.4l-1-.5l-.7.7l.5 1.1c-.2.3-.3.6-.4.9L0 11v1l1.1.4c.1.3.2.6.4.9l-.5 1l.7.7l1.1-.5c.3.2.6.3.9.4L4 16h1l.4-1.1c.3-.1.6-.2.9-.4l1 .5l.7-.7l-.5-1.1c.2-.2.3-.5.4-.8zm-3.4 1.1c-1.1 0-2-.9-2-2s.9-2 2-2s2 .9 2 2s-.9 2-2 2z"
                     />
                   </svg>
                 </div>
@@ -479,12 +503,11 @@ export default function Dashboard() {
                         </td>
                         <td className="px-6 py-4">
                           <span
-                            className={`inline-flex items-center px-3 py-0.5 rounded-full text-sm font-medium ${
-                              statusMap[session.training_status]?.color ||
-                              "bg-gray-100 text-gray-800"
-                            }`}
+                            className={`inline-flex items-center px-3 py-0.5 rounded-full text-sm font-medium ${getStatusColor(
+                              session.training_status
+                            )}`}
                           >
-                            {statusMap[session.training_status]?.text ||
+                            {TrainingStatuses[session.training_status] ||
                               "Unknown"}
                           </span>
                         </td>
@@ -524,15 +547,50 @@ export default function Dashboard() {
                 </Link>
               </div>
               <div className="space-y-4">
-                {datasets.uploads.map((dataset) => (
-                  <div
-                    key={dataset.filename}
-                    className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg"
-                  >
-                    <div className="flex items-center space-x-3">
-                      <div className="bg-blue-100 p-2 rounded-lg">
+                {console.log("datasets.uploads", datasets.uploads)}
+                {datasets.uploads
+                  .sort(
+                    (a, b) => new Date(b.dataset_id) - new Date(a.dataset_id)
+                  )
+                  .slice(0, 2)
+                  .map((dataset) => (
+                    <div
+                      key={dataset.dataset_id}
+                      className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg"
+                    >
+                      <div className="flex items-center space-x-3">
+                        <div className="bg-blue-100 p-2 rounded-lg">
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="w-5 h-5 text-blue-600"
+                            viewBox="0 0 16 16"
+                            fill="#000000"
+                          >
+                            <path
+                              fill="#000000"
+                              fill-rule="evenodd"
+                              d="M14 4.5V14a2 2 0 0 1-2 2v-1a1 1 0 0 0 1-1V4.5h-2A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v9H2V2a2 2 0 0 1 2-2h5.5L14 4.5ZM1.597 11.85H0v3.999h.782v-1.491h.71l.7 1.491h1.651l.313-1.028h1.336l.314 1.028h.84L5.31 11.85h-.925l-1.329 3.96l-.783-1.572A1.18 1.18 0 0 0 3 13.116c0-.256-.056-.479-.167-.668a1.098 1.098 0 0 0-.478-.44a1.669 1.669 0 0 0-.758-.158Zm-.815 1.913v-1.292h.7a.74.74 0 0 1 .507.17c.13.113.194.276.194.49c0 .21-.065.368-.194.474c-.127.105-.3.158-.518.158H.782Zm4.063-1.148l.489 1.617H4.32l.49-1.617h.035Zm4.006.445l-.74 2.789h-.73L6.326 11.85h.855l.601 2.903h.038l.706-2.903h.683l.706 2.903h.04l.596-2.903h.858l-1.055 3.999h-.73l-.74-2.789H8.85Z"
+                            />
+                          </svg>
+                        </div>
+                        <span
+                          title={dataset.filename}
+                          className="text-sm font-medium text-gray-900"
+                        >
+                          {dataset.filename.length > 40
+                            ? `${dataset.filename.substring(0, 40)}...`
+                            : dataset.filename}
+                        </span>
+                        <span className="px-2 py-1 text-xs font-medium text-blue-800 bg-blue-100 rounded-full">
+                          Raw
+                        </span>
+                      </div>
+                      <Link
+                        to={`/raw-dataset-overview/${dataset.filename}`}
+                        className="text-gray-400 hover:text-gray-600"
+                      >
                         <svg
-                          className="w-5 h-5 text-blue-600"
+                          className="w-5 h-5"
                           fill="none"
                           stroke="currentColor"
                           viewBox="0 0 24 24"
@@ -541,52 +599,63 @@ export default function Dashboard() {
                             strokeLinecap="round"
                             strokeLinejoin="round"
                             strokeWidth={2}
-                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                          />
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
                           />
                         </svg>
-                      </div>
-                      <span className="text-sm font-medium text-gray-900">
-                        {dataset.filename}
-                      </span>
-                      <span className="px-2 py-1 text-xs font-medium text-blue-800 bg-blue-100 rounded-full">
-                        Raw
-                      </span>
+                      </Link>
                     </div>
-                    <Link
-                      to={`/raw-dataset-overview/${dataset.filename}`}
-                      className="text-gray-400 hover:text-gray-600"
+                  ))}
+                {datasets.processed
+                  .sort(
+                    (a, b) => new Date(b.dataset_id) - new Date(a.dataset_id)
+                  )
+                  .slice(0, 3)
+                  .map((dataset) => (
+                    <div
+                      key={dataset.dataset_id}
+                      className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg"
                     >
-                      <svg
-                        className="w-5 h-5"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
+                      <div className="flex items-center space-x-3">
+                        <div className="bg-green-100 p-2 rounded-lg">
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-5 w-5"
+                            viewBox="0 0 16 16"
+                          >
+                            <path
+                              fill="#000000"
+                              d="M12 0H5v6h.7l.2.7l.1.1V1h5v4h4v9H9l.3.5l-.5.5H16V4l-4-4zm0 4V1l3 3h-3zm-6.5 7.5a1 1 0 1 1-2 0a1 1 0 0 1 2 0z"
+                            />
+                            <path
+                              fill="#000000"
+                              d="M7.9 12.4L9 12v-1l-1.1-.4c-.1-.3-.2-.6-.4-.9l.5-1l-.7-.7l-1 .5c-.3-.2-.6-.3-.9-.4L5 7H4l-.4 1.1c-.3.1-.6.2-.9.4l-1-.5l-.7.7l.5 1.1c-.2.3-.3.6-.4.9L0 11v1l1.1.4c.1.3.2.6.4.9l-.5 1l.7.7l1.1-.5c.3.2.6.3.9.4L4 16h1l.4-1.1c.3-.1.6-.2.9-.4l1 .5l.7-.7l-.5-1.1c.2-.2.3-.5.4-.8zm-3.4 1.1c-1.1 0-2-.9-2-2s.9-2 2-2s2 .9 2 2s-.9 2-2 2z"
+                            />
+                          </svg>
+                        </div>
+                        <span
+                          title={dataset.filename}
+                          className="text-sm font-medium text-gray-900"
+                        >
+                          {dataset.filename.length > 40
+                            ? `${dataset.filename.substring(0, 40)}...`
+                            : dataset.filename}
+                        </span>
+                        <span className="px-2 py-1 text-xs font-medium text-green-800 bg-green-100 rounded-full">
+                          Processed
+                        </span>
+                      </div>
+                      <Link
+                        to={`/processed-dataset-overview/${dataset.filename}`}
+                        className="text-gray-400 hover:text-gray-600"
                       >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                        />
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                        />
-                      </svg>
-                    </Link>
-                  </div>
-                ))}
-                {datasets.processed.map((dataset) => (
-                  <div
-                    key={dataset.filename}
-                    className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg"
-                  >
-                    <div className="flex items-center space-x-3">
-                      <div className="bg-green-100 p-2 rounded-lg">
                         <svg
-                          className="w-5 h-5 text-green-600"
+                          className="w-5 h-5"
                           fill="none"
                           stroke="currentColor"
                           viewBox="0 0 24 24"
@@ -595,43 +664,18 @@ export default function Dashboard() {
                             strokeLinecap="round"
                             strokeLinejoin="round"
                             strokeWidth={2}
-                            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                          />
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
                           />
                         </svg>
-                      </div>
-                      <span className="text-sm font-medium text-gray-900">
-                        {dataset.filename}
-                      </span>
-                      <span className="px-2 py-1 text-xs font-medium text-green-800 bg-green-100 rounded-full">
-                        Processed
-                      </span>
+                      </Link>
                     </div>
-                    <Link
-                      to={`/processed-dataset-overview/${dataset.filename}`}
-                      className="text-gray-400 hover:text-gray-600"
-                    >
-                      <svg
-                        className="w-5 h-5"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                        />
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                        />
-                      </svg>
-                    </Link>
-                  </div>
-                ))}
+                  ))}
                 {!datasets.uploads.length && !datasets.processed.length && (
                   <div className="text-center py-4 text-gray-500">
                     No datasets found
@@ -653,42 +697,274 @@ export default function Dashboard() {
                   View All →
                 </Link>
               </div>
-              <div className="flow-root">
-                <ul className="divide-y divide-gray-200">
-                  {sessions.map((session) => (
-                    <li key={session.id} className="py-3">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-3">
-                          <span
-                            className={`inline-block w-2.5 h-2.5 rounded-full ${
-                              statusMap[session.training_status]?.color ||
-                              "bg-gray-300"
-                            }`}
-                          />
-                          <div>
-                            <p className="text-sm font-medium text-gray-900">
-                              {session.name || "Untitled Session"}
-                            </p>
-                            <p className="text-sm text-gray-500">
-                              ID: {session.id}
-                            </p>
-                          </div>
-                        </div>
-                        <Link
-                          to={`/trainings/${session.id}`}
-                          className="text-blue-600 hover:text-blue-900 text-sm font-medium"
+              <div className="space-y-4">
+                {sessions.map((session) => {
+                  const getStatusIcon = (status) => {
+                    switch (status) {
+                      case "CREATED":
+                        return (
+                          <svg
+                            className="w-5 h-5 text-gray-600"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                            />
+                          </svg>
+                        );
+                      case "PRICE_NEGOTIATION":
+                        return (
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="w-5 h-5"
+                            viewBox="0 0 72 72"
+                          >
+                            <ellipse
+                              cx="34.153"
+                              cy="34.635"
+                              fill="#fcea2b"
+                              rx="29.033"
+                              ry="22.118"
+                              transform="rotate(-51.131 34.153 34.635)"
+                            />
+                            <path
+                              fill="#fff"
+                              d="M52.139 12.03a18.698 18.698 0 0 0-13.3-3.86a17.98 17.98 0 0 1 10.077 3.86c9.51 7.666 9.064 24-.998 36.484c-6.14 7.618-14.44 12.034-22.14 12.584c8.53.639 18.353-3.889 25.362-12.584c10.062-12.484 10.51-28.819.999-36.484Z"
+                            />
+                            <path
+                              fill="#f1b31c"
+                              d="M55.349 13.082a20.374 20.374 0 0 0-1.558-1.138a.928.928 0 0 0-.11-.045a1.03 1.03 0 0 0-.556-.102a.923.923 0 0 0-.527.235a.943.943 0 0 0-.094.069c-.019.02-.025.047-.042.068s-.041.034-.057.057a.945.945 0 0 0-.044.11a1.027 1.027 0 0 0-.102.562a.978.978 0 0 0 .043.183a.834.834 0 0 0 .19.336a.941.941 0 0 0 .07.097c8.278 7.636 7.415 22.736-1.965 34.375c-9.702 12.035-24.97 15.88-34.034 8.573a.96.96 0 0 0-.187-.097l-.055-.029a.97.97 0 0 0-.3-.074c-.027-.002-.053-.006-.08-.007a.916.916 0 0 0-.59.196a.94.94 0 0 0-.098.058c-.02.017-.027.041-.044.06c-.016.017-.038.025-.053.043a.935.935 0 0 0-.047.091a.96.96 0 0 0-.117.226a.934.934 0 0 0-.024.097a.972.972 0 0 0-.026.297c.002.02.006.038.009.058a.965.965 0 0 0 .096.312c.008.016.018.03.027.045a.953.953 0 0 0 .109.183a20.069 20.069 0 0 0 2.286 2.158a21.13 21.13 0 0 0 13.441 4.555c8.59 0 17.89-4.48 24.528-12.715c10.444-12.957 10.403-30.38-.09-38.837Z"
+                            />
+                            <path
+                              fill="#f1b31c"
+                              d="M20.652 44.72c.073-.232.61-2.214.681-2.446c5.918.106 6.21-.091 7.089-3.008c1.66-5.508 2.144-6.494 3.805-12.002c.583-1.932.48-2.354-2.29-2.882l-1.687-.311c.063-.204.441-2.075.504-2.278a94.249 94.249 0 0 0 12.214-.789l-5.499 19c-.858 2.966-.752 3.204 4.93 4.302c-.066.234-.6 2.218-.665 2.453Z"
+                            />
+                            <g fill="none" stroke="#000" stroke-width="2">
+                              <path
+                                stroke-miterlimit="10"
+                                d="M53.237 12.777q.762.501 1.483 1.082c10.08 8.124 10.052 24.883-.061 37.43S28.175 67.424 18.095 59.3a19.09 19.09 0 0 1-2.172-2.05"
+                              />
+                              <ellipse
+                                cx="34.153"
+                                cy="34.635"
+                                stroke-miterlimit="10"
+                                rx="29.033"
+                                ry="22.118"
+                                transform="rotate(-51.131 34.153 34.635)"
+                              />
+                              <path
+                                stroke-miterlimit="10"
+                                d="m51.373 48.515l3.286 2.775m-6.743.97l2.896 3.113m-6.555-.069l2.378 3.322m-6.392-.644l1.872 3.344m11.921-16.551l3.489 2.414"
+                              />
+                              <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                d="M20.652 44.72c.073-.232.61-2.214.681-2.446c5.918.106 6.21-.091 7.089-3.008c1.66-5.508 2.144-6.494 3.805-12.002c.583-1.932.48-2.354-2.29-2.882l-1.687-.311c.063-.204.441-2.075.504-2.278a94.249 94.249 0 0 0 12.214-.789l-5.499 19c-.858 2.966-.752 3.204 4.93 4.302c-.066.234-.6 2.218-.665 2.453Z"
+                              />
+                            </g>
+                          </svg>
+                        );
+                      case "ACCEPTING_CLIENTS":
+                        return (
+                          <svg
+                            className="w-5 h-5 text-blue-600"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+                            />
+                          </svg>
+                        );
+                      case "MODEL_INITIALIZATION":
+                        return (
+                          <svg
+                            className="w-5 h-5 text-indigo-600"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
+                            />
+                          </svg>
+                        );
+                      case "STARTED":
+                        return (
+                          <svg
+                            className="w-5 h-5 text-purple-600"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M13 10V3L4 14h7v7l9-11h-7z"
+                            />
+                          </svg>
+                        );
+                      case "COMPLETED":
+                        return (
+                          <svg
+                            className="w-5 h-5 text-green-600"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                            />
+                          </svg>
+                        );
+                      case "FAILED":
+                        return (
+                          <svg
+                            className="w-5 h-5 text-red-600"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.464 0L4.34 16.5c-.77.833.192 2.5 1.732 2.5z"
+                            />
+                          </svg>
+                        );
+                      case "CANCELLED":
+                        return (
+                          <svg
+                            className="w-5 h-5 text-red-600"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
+                            />
+                          </svg>
+                        );
+                      default:
+                        return (
+                          <svg
+                            className="w-5 h-5 text-gray-600"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                            />
+                          </svg>
+                        );
+                    }
+                  };
+
+                  return (
+                    <div
+                      key={session.id}
+                      className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg"
+                    >
+                      <div className="flex items-center space-x-3">
+                        <div
+                          className={`p-2 rounded-lg ${(() => {
+                            switch (session.training_status) {
+                              case "CREATED":
+                                return "bg-gray-100";
+                              case "PRICE_NEGOTIATION":
+                                return "bg-yellow-100";
+                              case "ACCEPTING_CLIENTS":
+                                return "bg-blue-100";
+                              case "MODEL_INITIALIZATION":
+                                return "bg-indigo-100";
+                              case "STARTED":
+                                return "bg-purple-100";
+                              case "COMPLETED":
+                                return "bg-green-100";
+                              case "FAILED":
+                                return "bg-red-100";
+                              case "CANCELLED":
+                                return "bg-red-100";
+                              default:
+                                return "bg-gray-100";
+                            }
+                          })()}`}
                         >
-                          View →
-                        </Link>
+                          {getStatusIcon(session.training_status)}
+                        </div>
+                        <span
+                          title={session.name}
+                          className="text-sm font-medium text-gray-900"
+                        >
+                          {session.name && session.name.length > 40
+                            ? `${session.name.substring(0, 40)}...`
+                            : session.name || "Untitled Session"}
+                        </span>
+                        <span
+                          className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(
+                            session.training_status
+                          )}`}
+                        >
+                          {TrainingStatuses[session.training_status] ||
+                            "Unknown"}
+                        </span>
                       </div>
-                    </li>
-                  ))}
-                  {!sessions.length && (
-                    <li className="py-4 text-center text-gray-500">
-                      No recent sessions
-                    </li>
-                  )}
-                </ul>
+                      <Link
+                        to={`/trainings/${session.id}`}
+                        className="text-gray-400 hover:text-gray-600"
+                      >
+                        <svg
+                          className="w-5 h-5"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                          />
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                          />
+                        </svg>
+                      </Link>
+                    </div>
+                  );
+                })}
+                {!sessions.length && (
+                  <div className="text-center py-4 text-gray-500">
+                    No recent sessions
+                  </div>
+                )}
               </div>
             </div>
           </div>

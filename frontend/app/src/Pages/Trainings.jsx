@@ -308,8 +308,13 @@ export default function Trainings() {
               >
                 <div className="p-5">
                   <div className="flex items-center justify-between mb-3">
-                    <h3 className="text-lg font-medium text-gray-900 truncate">
-                      {session.name || "Untitled Session"}
+                    <h3
+                      title={session.name}
+                      className="text-lg font-medium text-gray-900 truncate"
+                    >
+                      {session.name.length > 22
+                        ? `${session.name.substring(0, 22)}...`
+                        : session.name || "Untitled Session"}
                     </h3>
                     <span
                       className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(
