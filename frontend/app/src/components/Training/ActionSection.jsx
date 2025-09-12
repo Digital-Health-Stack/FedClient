@@ -431,7 +431,10 @@ const ActionSection = ({ data, sessionId, onRefreshData }) => {
         </h3>
       </div>
       <div className="mt-3">
-        <p className="text-sm text-green-700 mb-3">The training is complete.</p>
+        <p className="text-sm text-green-700 mb-3">
+          The training is complete. You can download the model parameters as a
+          json file.
+        </p>
         <button
           onClick={handleDownload}
           disabled={isDownloading}
