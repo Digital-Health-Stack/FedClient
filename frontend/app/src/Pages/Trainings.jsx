@@ -38,6 +38,8 @@ export default function Trainings() {
     navigate(`/trainings/${sessionId}`);
   };
   const openNewTraining = () => {
+    localStorage.removeItem("fedclient_request_form_data");
+    localStorage.removeItem("fedclient_request_current_step");
     navigate(`/Request`);
   };
 
