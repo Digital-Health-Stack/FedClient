@@ -14,6 +14,7 @@ import {
   DocumentPlusIcon,
   Cog6ToothIcon,
   CheckBadgeIcon,
+  ChartBarIcon,
 } from "@heroicons/react/24/outline";
 import React, { useEffect } from "react";
 import { ProgressBar, Step } from "react-step-progress-bar";
@@ -228,7 +229,24 @@ const SessionInfo = ({ data }) => {
           <InfoItem
             label={"Expected Variation in " + data?.federated_info?.metric}
             value={data?.federated_info?.expected_std_deviation}
-            icon={<ArrowPathIcon className="h-5 w-5 text-gray-400" />}
+            icon={
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5 text-gray-400"
+                viewBox="0 0 14 14"
+                fill="#000000"
+              >
+                <g
+                  fill="none"
+                  stroke="#000000"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M9.5 3.5h4v4" />
+                  <path d="M13.5 3.5L7.85 9.15a.5.5 0 0 1-.7 0l-2.3-2.3a.5.5 0 0 0-.7 0L.5 10.5" />
+                </g>
+              </svg>
+            }
           />
           <StatusItem
             label="Training Status"
@@ -266,11 +284,10 @@ const StatusItem = ({ label, statusConfig }) => {
     info: "bg-cyan-50 text-cyan-800",
     neutral: "bg-gray-50 text-gray-800",
   };
-  console.log(statusConfig);
   return (
     <div className="flex items-start space-x-3">
       <div className="flex-shrink-0 mt-0.5">
-        {React.cloneElement(statusConfig.icon, {
+        {React.cloneElement(<InformationCircleIcon />, {
           className: `h-5 w-5 ${
             variantClasses[statusConfig.variant]
               .replace("bg-", "text-")
