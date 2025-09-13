@@ -90,7 +90,7 @@ export default function Request() {
   const lockedStepIds = retryState.lockedStepIds || [];
 
   const [currentStep, setCurrentStep] = useState(() =>
-    isRetry ? 2 : getSavedCurrentStep()
+    isRetry ? 0 : getSavedCurrentStep()
   );
 
   // Get saved form data or use retry prefill/defaults
@@ -160,10 +160,28 @@ export default function Request() {
 
   const handleNext = async () => {
     const isValid = await methods.trigger();
-    if (isValid) setCurrentStep((prev) => Math.min(prev + 1, steps.length - 1));
+    if (isValid) {
+      setCurrentStep((prev) => {
+        let nextStep = prev + 1;
+        // Skip locked steps during navigation
+        while (nextStep < steps.length && lockedStepIds.includes(nextStep)) {
+          nextStep++;
+        }
+        return Math.min(nextStep, steps.length - 1);
+      });
+    }
   };
 
-  const handlePrev = () => setCurrentStep((prev) => Math.max(prev - 1, 0));
+  const handlePrev = () => {
+    setCurrentStep((prev) => {
+      let prevStep = prev - 1;
+      // Skip locked steps during navigation
+      while (prevStep >= 0 && lockedStepIds.includes(prevStep)) {
+        prevStep--;
+      }
+      return Math.max(prevStep, 0);
+    });
+  };
 
   const onSubmit = async (data) => {
     console.log("data", data);

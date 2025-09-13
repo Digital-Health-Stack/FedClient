@@ -74,7 +74,7 @@ const NumericColumn = ({ column }) => {
             <h3 className="text-lg font-semibold text-slate-800">
               Value Distribution
             </h3>
-            <InformationCircleIcon className="w-5 h-5 text-blue-500" />
+            {/* <InformationCircleIcon className="w-5 h-5 text-blue-500" /> */}
           </div>
           <QuartilePlot
             quartiles={{

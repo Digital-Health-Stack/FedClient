@@ -210,7 +210,7 @@ export default function TrainingDetails() {
         retry: true,
         fromSessionId: sessionId,
         prefill,
-        lockedStepIds: [0, 1],
+        lockedStepIds: [1],
       },
     });
   };
@@ -362,7 +362,9 @@ export default function TrainingDetails() {
               </button>
               <p className="mt-3 text-sm text-gray-500">
                 You will be redirected to the new training page with the same
-                details. Model configuration and later steps will be reset.
+                details. You can edit the training name, while dataset
+                information will be preserved. Model configuration and later
+                steps will be reset.
               </p>
             </div>
           )}
