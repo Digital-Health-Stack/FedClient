@@ -20,7 +20,7 @@ import React, { useEffect } from "react";
 import { ProgressBar, Step } from "react-step-progress-bar";
 import "react-step-progress-bar/styles.css";
 
-const SessionInfo = ({ data }) => {
+const SessionInfo = ({ data, setCurrentSection }) => {
   // Training Status Configuration
   const TRAINING_STATUS = {
     STARTED: {
@@ -251,6 +251,7 @@ const SessionInfo = ({ data }) => {
           <StatusItem
             label="Training Status"
             statusConfig={TRAINING_STATUS[data?.training_status || "FAILED"]}
+            setCurrentSection={setCurrentSection}
           />
           {/* <StatusItem
             label="Client Status"
@@ -275,7 +276,7 @@ const InfoItem = ({ label, value, icon }) => (
   </div>
 );
 
-const StatusItem = ({ label, statusConfig }) => {
+const StatusItem = ({ label, statusConfig, setCurrentSection }) => {
   const variantClasses = {
     primary: "bg-blue-50 text-blue-800",
     success: "bg-green-50 text-green-800",
@@ -298,7 +299,8 @@ const StatusItem = ({ label, statusConfig }) => {
       <div>
         <p className="text-sm font-medium text-gray-500">{label}</p>
         <span
-          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+          onClick={() => setCurrentSection("actions")}
+          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium cursor-pointer ${
             variantClasses[statusConfig.variant]
           }`}
         >

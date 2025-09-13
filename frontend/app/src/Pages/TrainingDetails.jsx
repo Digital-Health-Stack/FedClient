@@ -143,7 +143,8 @@ export default function TrainingDetails() {
 
     return (
       <div
-        className={`inline-flex items-center px-3 py-1  rounded-full text-sm font-medium ${config.color}`}
+        onClick={() => setCurrentSection("actions")}
+        className={`inline-flex items-center px-3 py-1  rounded-full text-sm font-medium ${config.color} cursor-pointer`}
       >
         {config.icon}
         <span className="ml-2">{config.text}</span>
@@ -326,7 +327,10 @@ export default function TrainingDetails() {
             </div>
           </div>
           {currentSection === "session-info" && (
-            <SessionInfo data={federatedSessionData} />
+            <SessionInfo
+              data={federatedSessionData}
+              setCurrentSection={setCurrentSection}
+            />
           )}
           {currentSection === "session-logs" && (
             <FederatedSessionLogs sessionId={sessionId} />
