@@ -65,7 +65,7 @@ const SortableOperationItem = ({ config, index, onRemove }) => {
         </button>
         <span className="text-gray-700">
           <span className="font-medium">{config.column}</span> -{" "}
-          <span className="text-indigo-600">{config.operation}</span>
+          <span className="text-blue-600">{config.operation}</span>
         </span>
       </div>
       <button
@@ -302,7 +302,7 @@ const PreprocessingDetails = ({ columns, filename, directory }) => {
           <select
             value={selectedColumn}
             onChange={(e) => setSelectedColumn(e.target.value)}
-            className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+            className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           >
             <option value="">All Columns</option>
             {Object.keys(columns).map((col) => (
@@ -321,7 +321,7 @@ const PreprocessingDetails = ({ columns, filename, directory }) => {
           <select
             value={selectedMainOperation}
             onChange={(e) => handleMainOperationChange(e.target.value)}
-            className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+            className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           >
             <option value="">Select Operation</option>
             {getCurrentOptions().map((option) => (
@@ -347,7 +347,7 @@ const PreprocessingDetails = ({ columns, filename, directory }) => {
             <select
               value={selectedSubOperation}
               onChange={(e) => handleSubOperationChange(e.target.value)}
-              className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             >
               <option value="">Select Sub-Category</option>
               {getSubOptions().map((subOption) => (
@@ -392,7 +392,7 @@ const PreprocessingDetails = ({ columns, filename, directory }) => {
             <button
               onClick={handleSubmit}
               disabled={isSubmitted || operations.length === 0}
-              className="bg-indigo-500 text-white px-5 py-2.5 rounded-lg hover:bg-indigo-600 disabled:opacity-70 disabled:cursor-not-allowed transition-all flex items-center gap-2"
+              className="bg-blue-600 text-white px-5 py-2.5 rounded-lg hover:bg-blue-600 disabled:opacity-70 disabled:cursor-not-allowed transition-all flex items-center gap-2"
             >
               <CloudArrowUpIcon className="h-5 w-5" />
               {isSubmitted ? "Processing..." : "Start Preprocessing"}

@@ -110,14 +110,7 @@ const NavBar = () => {
                   <CircleStackIcon className="w-5 h-5" /> Testing Datasets
                 </NavLink>
               </li> */}
-              <li>
-                <NavLink
-                  className="navbar-trainings flex items-center gap-2 py-2 px-4 hover:text-gray-400"
-                  to="/trainings"
-                >
-                  <ChartBarSquareIcon className="w-5 h-5" /> Trainings
-                </NavLink>
-              </li>
+
               <li>
                 <NavLink
                   className="navbar-manage-data flex items-center gap-2 py-2 px-4 hover:text-gray-400"
@@ -125,6 +118,14 @@ const NavBar = () => {
                   to="/view-all-datasets"
                 >
                   <ServerStackIcon className="w-5 h-5" /> Manage Data
+                </NavLink>
+              </li>
+              <li>
+                <NavLink
+                  className="navbar-trainings flex items-center gap-2 py-2 px-4 hover:text-gray-400"
+                  to="/trainings"
+                >
+                  <ChartBarSquareIcon className="w-5 h-5" /> Trainings
                 </NavLink>
               </li>
               {user && (
