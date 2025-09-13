@@ -22,6 +22,7 @@ export default function Register({ clientToken, setClientToken, setSocket }) {
   const handleRegister = async (formData) => {
     try {
       const clientData = {
+        name: formData.name,
         username: formData.clientName,
         data_url: "",
         password: formData.password,
@@ -79,10 +80,25 @@ export default function Register({ clientToken, setClientToken, setSocket }) {
               <input
                 type="text"
                 className={`w-full p-2 border rounded ${
+                  errors.name ? "border-red-500" : "border-gray-300"
+                }`}
+                {...register("name", {
+                  required: "Client Name is required",
+                })}
+              />
+              {errors.name && (
+                <p className="text-red-500 text-xs">{errors.name.message}</p>
+              )}
+            </div>
+            <div>
+              <label className="block text-sm font-medium">Client Name:</label>
+              <input
+                type="text"
+                className={`w-full p-2 border rounded ${
                   errors.clientName ? "border-red-500" : "border-gray-300"
                 }`}
                 {...register("clientName", {
-                  required: "Client Name is required",
+                  required: "Username is required",
                 })}
               />
               {errors.clientName && (
