@@ -73,7 +73,6 @@ export const updateColumnDescriptionRaw = (
   filename: string,
   descriptions: any
 ) => {
-  console.log("filename", filename);
   return PrivateHTTPService.put(
     `/update-column-description-raw/${filename}`,
     descriptions
@@ -102,4 +101,3 @@ export const acceptClientFilenameTraining = ({
     client_filename,
   });
 };
-

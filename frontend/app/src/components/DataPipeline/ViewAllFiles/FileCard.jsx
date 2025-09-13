@@ -35,12 +35,6 @@ const FileCard = ({ dataset, isRaw, onDelete, onClick, onEditSuccess }) => {
         description: newDescription,
       });
 
-      console.log({
-        dataset_id: dataset.dataset_id,
-        filename: newFilename,
-        description: newDescription,
-      });
-
       onEditSuccess();
     } catch (error) {
       console.error("Error updating dataset:", error);

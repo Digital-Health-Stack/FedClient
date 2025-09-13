@@ -184,7 +184,6 @@ export default function Request() {
   };
 
   const onSubmit = async (data) => {
-    console.log("data", data);
     if (data.organisation_name === "") {
       toast.error("Please enter your organization name.");
       return setCurrentStep(0);
@@ -209,7 +208,6 @@ export default function Request() {
       toast.error("Please provide expected results.");
       return setCurrentStep(3);
     }
-    console.log("Request JSON: ", data);
     if (!data.wait_time || !data.no_of_rounds) {
       toast.error("Please provide hyperparameters.");
       return setCurrentStep(4);

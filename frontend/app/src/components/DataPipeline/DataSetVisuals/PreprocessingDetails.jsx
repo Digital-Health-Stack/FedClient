@@ -234,7 +234,6 @@ const PreprocessingDetails = ({ columns, filename, directory }) => {
     try {
       setIsSubmitted(true);
       preprocessDataset(payload);
-      console.log("Data submitted for preprocessing:", payload);
       if (location.pathname.includes("raw")) {
         navigate("/view-all-datasets#raw");
       } else {

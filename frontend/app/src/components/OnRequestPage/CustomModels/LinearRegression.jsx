@@ -42,7 +42,6 @@ const LinearRegression = () => {
     }
   }, [setValue, watch]);
 
-  console.log(getValues());
   return (
     <div className="p-4 bg-white rounded-lg shadow-md">
       <p className="text-lg font-semibold mb-4">

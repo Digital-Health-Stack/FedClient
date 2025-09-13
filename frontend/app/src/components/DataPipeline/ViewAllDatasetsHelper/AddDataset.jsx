@@ -43,7 +43,6 @@ const AddDataset = () => {
       delete: `${process.env.REACT_APP_PRIVATE_SERVER_BASE_URL}/file-upload/delete`,
     },
   };
-  console.log("fetching files", fetchingFiles);
 
   // Fetch uploaded files from HDFS
   const fetchUploadedFiles = async () => {

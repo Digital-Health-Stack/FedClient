@@ -22,7 +22,6 @@ const ViewRecentUploads = () => {
         const response = await listRecentUploads();
         const key = Object.keys(response.data.contents)[0];
         setContents(response.data.contents[key] || []);
-        console.log("Files fetched successfully");
       } catch (err) {
         setError("Error fetching files. Please try again later.");
         console.error("Error fetching files: ", err);
@@ -39,7 +38,7 @@ const ViewRecentUploads = () => {
 
   const handleDataMove = async (file) => {
     const confirmMove = window.confirm(
-      `Are you sure you want to start processing '${file}'?`,
+      `Are you sure you want to start processing '${file}'?`
     );
     if (!confirmMove) return;
 
@@ -48,11 +47,10 @@ const ViewRecentUploads = () => {
         fileName: file,
       });
       setContents((prevContents) =>
-        prevContents.filter((f) => f.filename !== file),
+        prevContents.filter((f) => f.filename !== file)
       );
       //   refresh the page after 1 sec
       setTimeout(() => window.location.reload(), 1000);
-      console.log(`Dataset creation started for ${file}`);
     } catch (err) {
       setError("Error processing the file. Please try again later.");
       console.error("Error in processing the file: ", err);
@@ -61,7 +59,7 @@ const ViewRecentUploads = () => {
 
   const handleDelete = async (dir, file) => {
     const confirmDelete = window.confirm(
-      `Are you sure you want to delete '${file}'? This action cannot be undone.`,
+      `Are you sure you want to delete '${file}'? This action cannot be undone.`
     );
     if (!confirmDelete) return;
 
@@ -71,7 +69,7 @@ const ViewRecentUploads = () => {
       //   params: { directory: dir, fileName: file },
       // });
       setContents((prevContents) =>
-        prevContents.filter((f) => f.filename !== file),
+        prevContents.filter((f) => f.filename !== file)
       );
       //   refresh the page
       window.location.reload();
@@ -129,7 +127,12 @@ const ViewRecentUploads = () => {
                   {isProcessingOrCopying(filename) || (
                     <TrashIcon
                       className="h-6 w-6 text-red-500 cursor-pointer hover:text-red-700"
-                      onClick={() => handleDelete(process.env.RECENTLY_UPLOADED_DATASETS_DIR, filename)}
+                      onClick={() =>
+                        handleDelete(
+                          process.env.RECENTLY_UPLOADED_DATASETS_DIR,
+                          filename
+                        )
+                      }
                     />
                   )}
                 </div>

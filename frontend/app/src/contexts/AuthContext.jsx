@@ -66,7 +66,6 @@ export const AuthProvider = ({ children }) => {
         while (true) {
           const { value, done } = await reader.read();
           if (done) {
-            console.log("Stream closed.");
             break;
           }
 
@@ -83,10 +82,7 @@ export const AuthProvider = ({ children }) => {
                 for (let notification of notifications) {
                   handleNotification(notification);
                 }
-                console.log("Received data:", notifications);
-              } catch (exception) {
-                console.log("Received data:", exception, jsonData);
-              }
+              } catch (exception) {}
             }
           }
 
@@ -159,7 +155,6 @@ export const AuthProvider = ({ children }) => {
   };
 
   const handleNotification = ({ type, message, data, session_id }) => {
-    console.log(type);
     if (type == "new-session") {
       // if (location.pathname === '/TrainingStatus') {
       //     // window.location.reload();
@@ -172,12 +167,8 @@ export const AuthProvider = ({ children }) => {
         },
       });
     } else if (type == "get_model_parameters_start_background_process") {
-      // console.log("Config before initialising: ", data, session_id);
-      console.log("Building model on client side...");
       setUpModel(user, session_id, api); // Function to initialize training
     } else if (type == "start_training") {
-      console.log("start training on client side...");
-      console.log("Checkpoint 1: ", session_id);
       trainModel(user, session_id);
     }
   };

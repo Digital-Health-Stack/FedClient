@@ -11,7 +11,7 @@ import {
   ServerStackIcon,
   QuestionMarkCircleIcon,
   ArrowRightEndOnRectangleIcon,
-  CircleStackIcon
+  CircleStackIcon,
 } from "@heroicons/react/24/solid";
 import { closeWebSocket, connectWebSocket } from "../../services/redisSocket";
 import { BellIcon } from "@heroicons/react/24/outline";
@@ -88,8 +88,9 @@ const NavBar = () => {
 
         {/* Navigation Links */}
         <div
-          className={`absolute md:static top-10 right-0 w-full md:w-auto bg-gray-900 md:bg-transparent md:flex md:items-center p-4 md:p-0 transition-all duration-300 ${isNavbarOpen ? "block" : "hidden"
-            } md:ml-auto`}
+          className={`absolute md:static top-10 right-0 w-full md:w-auto bg-gray-900 md:bg-transparent md:flex md:items-center p-4 md:p-0 transition-all duration-300 ${
+            isNavbarOpen ? "block" : "hidden"
+          } md:ml-auto`}
         >
           {user && (
             <ul className="md:flex justify-end items-center space-y-4 md:space-y-0 md:space-x-6 w-full">
@@ -207,7 +208,9 @@ const NavBar = () => {
               )}
               {user && (
                 <li className="flex items-center gap-3">
-                  <span className="text-white">{user.username}</span>
+                  <span className="text-white">
+                    {user.name || user.username}
+                  </span>
                   <button onClick={logout}>
                     <ArrowRightEndOnRectangleIcon
                       title="Logout"

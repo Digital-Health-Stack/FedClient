@@ -51,7 +51,6 @@ const DataSetOverview = () => {
     const loadData = async () => {
       const overview = await getDatasetDetails(filename);
       setData(overview.data.datastats);
-      console.log("file overview data received:", overview.data.datastats);
     };
 
     loadData();

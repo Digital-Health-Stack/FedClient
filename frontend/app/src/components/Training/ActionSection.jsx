@@ -29,7 +29,6 @@ import { useAuth } from "../../contexts/AuthContext";
 
 const ActionSection = ({ data, sessionId, onRefreshData }) => {
   const { register, handleSubmit } = useForm();
-  console.log("data", data);
   const {
     training_status: trainingStatus,
     client_status: clientStatus,
@@ -117,7 +116,6 @@ const ActionSection = ({ data, sessionId, onRefreshData }) => {
           client_token: JSON.parse(localStorage.getItem("user")).access_token,
         };
 
-        console.log("QPD Data Request:", qpdDataRequest);
         await createQPDataset(qpdDataRequest);
         toast.success("QPD dataset creation completed!", {
           position: "bottom-center",
@@ -508,8 +506,6 @@ const ActionSection = ({ data, sessionId, onRefreshData }) => {
       </div>
     );
   };
-  console.log("data", data);
-  console.log(trainingStatus);
   switch (trainingStatus) {
     case "PRICE_NEGOTIATION":
       return renderPriceAcceptanceForm();
