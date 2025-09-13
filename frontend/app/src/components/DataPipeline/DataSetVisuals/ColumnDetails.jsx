@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   ChevronLeftIcon,
   ChevronRightIcon,
@@ -24,6 +24,8 @@ const ColumnDetails = ({ columnStats, selectedColumnIndex, sendToBackend }) => {
   const [isExpanded, setIsExpanded] = useState(true);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [editedDescriptions, setEditedDescriptions] = useState({});
+  const [clickedColumnIndex, setClickedColumnIndex] = useState(null);
+  const inputRefs = useRef({});
 
   useEffect(() => {
     if (
@@ -34,6 +36,28 @@ const ColumnDetails = ({ columnStats, selectedColumnIndex, sendToBackend }) => {
       setCurrentIndex(selectedColumnIndex);
     }
   }, [selectedColumnIndex, columnStats.length]);
+
+  // Effect to scroll to and focus the clicked column when dialog opens
+  useEffect(() => {
+    if (
+      isEditDialogOpen &&
+      clickedColumnIndex !== null &&
+      columnStats[clickedColumnIndex]
+    ) {
+      const columnName = columnStats[clickedColumnIndex].name;
+      // Use setTimeout to ensure the dialog has fully rendered
+      setTimeout(() => {
+        const inputElement = inputRefs.current[columnName];
+        if (inputElement) {
+          inputElement.scrollIntoView({
+            behavior: "smooth",
+            block: "center",
+          });
+          inputElement.focus();
+        }
+      }, 100);
+    }
+  }, [isEditDialogOpen, clickedColumnIndex, columnStats]);
 
   const handleNavigation = (direction) => {
     setCurrentIndex(
@@ -59,6 +83,7 @@ const ColumnDetails = ({ columnStats, selectedColumnIndex, sendToBackend }) => {
       initialDescriptions[col.name] = col.description || "";
     });
     setEditedDescriptions(initialDescriptions);
+    setClickedColumnIndex(currentIndex); // Track which column's pencil was clicked
     setIsEditDialogOpen(true);
   };
 
@@ -72,11 +97,13 @@ const ColumnDetails = ({ columnStats, selectedColumnIndex, sendToBackend }) => {
       }
     });
     setIsEditDialogOpen(false);
+    setClickedColumnIndex(null);
   };
 
   const handleCancelEdit = () => {
     setIsEditDialogOpen(false);
     setEditedDescriptions({});
+    setClickedColumnIndex(null);
   };
 
   if (columnStats.length === 0) return null;
@@ -264,6 +291,7 @@ const ColumnDetails = ({ columnStats, selectedColumnIndex, sendToBackend }) => {
                       {col.name}
                     </label>
                     <textarea
+                      ref={(el) => (inputRefs.current[col.name] = el)}
                       value={editedDescriptions[col.name] || ""}
                       onChange={(e) =>
                         setEditedDescriptions((prev) => ({

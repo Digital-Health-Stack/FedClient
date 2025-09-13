@@ -10,7 +10,7 @@ import {
   TrashIcon,
   EyeIcon,
 } from "@heroicons/react/24/solid";
-import { FilePlus } from "lucide-react";
+import { FilePlus, FileTextIcon, RefreshCwIcon } from "lucide-react";
 
 const AddDataset = () => {
   // Environment variables and navigation setup
@@ -388,7 +388,7 @@ const AddDataset = () => {
           <div className="bg-white p-6 rounded-xl shadow-sm border">
             <div className="flex items-center justify-between mb-6">
               <h2 className="add-dataset-summarizing-section text-xl font-semibold flex items-center gap-2">
-                <FolderIcon className="h-6 w-6 text-blue-500" />
+                <FileTextIcon className="h-8 w-8" />
                 Summarizing Datasets
               </h2>
               <button
@@ -403,7 +403,7 @@ const AddDataset = () => {
                   </>
                 ) : (
                   <>
-                    <EyeIcon className="h-4 w-4" />
+                    <RefreshCwIcon className="h-4 w-4" />
                     Refresh
                   </>
                 )}

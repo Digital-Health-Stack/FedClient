@@ -473,20 +473,25 @@ const ViewAllDatasets = () => {
               ) : (
                 <>
                   <div className="manage-data-dataset-grid grid grid-cols-2 md:grid-cols-3 gap-4">
-                    {datasets.map((dataset) => (
-                      <FileCard
-                        key={dataset.dataset_id}
-                        dataset={dataset}
-                        isRaw={selectedFolder === "raw"}
-                        onDelete={handleDelete}
-                        onClick={() =>
-                          navigate(
-                            `${endpoints[selectedFolder].overview}/${dataset.filename}`
-                          )
-                        }
-                        onEditSuccess={fetchData}
-                      />
-                    ))}
+                    {datasets
+                      .sort(
+                        (a, b) =>
+                          new Date(b.dataset_id) - new Date(a.dataset_id)
+                      )
+                      .map((dataset) => (
+                        <FileCard
+                          key={dataset.dataset_id}
+                          dataset={dataset}
+                          isRaw={selectedFolder === "raw"}
+                          onDelete={handleDelete}
+                          onClick={() =>
+                            navigate(
+                              `${endpoints[selectedFolder].overview}/${dataset.filename}`
+                            )
+                          }
+                          onEditSuccess={fetchData}
+                        />
+                      ))}
                   </div>
 
                   <Pagination
