@@ -7,11 +7,77 @@ import {
   PlusIcon,
   CloudArrowUpIcon,
   Cog6ToothIcon,
+  Bars3Icon,
 } from "@heroicons/react/24/solid";
 import PreprocessingOptions from "./ProcessingComponents/PreprocessingOptions.jsx";
 import { preprocessDataset } from "../../../services/privateService";
 import { WrenchIcon } from "@heroicons/react/24/outline";
 import { useLocation, useNavigate } from "react-router-dom";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+
+// Sortable Item Component
+const SortableOperationItem = ({ config, index, onRemove }) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: `operation-${index}` });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
+  return (
+    <li
+      ref={setNodeRef}
+      style={style}
+      className={`flex items-center justify-between bg-white p-4 rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow ${
+        isDragging ? "opacity-50 z-50" : ""
+      }`}
+    >
+      <div className="flex items-center gap-3 flex-1">
+        <button
+          {...attributes}
+          {...listeners}
+          className="p-1 hover:bg-gray-100 rounded-md transition-colors cursor-grab active:cursor-grabbing"
+          title="Drag to reorder"
+        >
+          <Bars3Icon className="h-5 w-5 text-gray-400" />
+        </button>
+        <span className="text-gray-700">
+          <span className="font-medium">{config.column}</span> -{" "}
+          <span className="text-indigo-600">{config.operation}</span>
+        </span>
+      </div>
+      <button
+        onClick={() => onRemove(index)}
+        className="p-1 hover:bg-red-50 rounded-full transition-colors"
+      >
+        <TrashIcon className="h-5 w-5 text-red-400 hover:text-red-600" />
+      </button>
+    </li>
+  );
+};
+
 const PreprocessingDetails = ({ columns, filename, directory }) => {
   const [selectedColumn, setSelectedColumn] = useState("");
   const [selectedMainOperation, setSelectedMainOperation] = useState("");
@@ -21,6 +87,14 @@ const PreprocessingDetails = ({ columns, filename, directory }) => {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+
+  // Drag and drop sensors
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
 
   // Preprocessing options data structure
   const preprocessingOptions = {
@@ -132,6 +206,24 @@ const PreprocessingDetails = ({ columns, filename, directory }) => {
     setOperations(updatedOperations);
   };
 
+  // Handle drag end for reordering operations
+  const handleDragEnd = (event) => {
+    const { active, over } = event;
+
+    if (active.id !== over?.id) {
+      setOperations((items) => {
+        const oldIndex = items.findIndex(
+          (_, index) => `operation-${index}` === active.id
+        );
+        const newIndex = items.findIndex(
+          (_, index) => `operation-${index}` === over.id
+        );
+
+        return arrayMove(items, oldIndex, newIndex);
+      });
+    }
+  };
+
   const handleSubmit = async () => {
     const payload = {
       filename: filename,
@@ -167,28 +259,33 @@ const PreprocessingDetails = ({ columns, filename, directory }) => {
       {/* Selected Operations */}
       {operations.length > 0 && (
         <div className="space-y-4">
-          <h2 className="text-lg font-semibold text-gray-700">
+          <h2 className="text-lg font-semibold text-gray-700 mt-4">
             Selected Operations:
+            <span className="text-sm font-normal text-gray-500 ml-2">
+              (Drag to reorder)
+            </span>
           </h2>
-          <ul className="space-y-3">
-            {operations.map((config, index) => (
-              <li
-                key={index}
-                className="flex items-center justify-between bg-white p-4 rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow"
-              >
-                <span className="text-gray-700">
-                  <span className="font-medium">{config.column}</span> -{" "}
-                  <span className="text-indigo-600">{config.operation}</span>
-                </span>
-                <button
-                  onClick={() => handleRemoveSelection(index)}
-                  className="p-1 hover:bg-red-50 rounded-full transition-colors"
-                >
-                  <TrashIcon className="h-5 w-5 text-red-400 hover:text-red-600" />
-                </button>
-              </li>
-            ))}
-          </ul>
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
+          >
+            <SortableContext
+              items={operations.map((_, index) => `operation-${index}`)}
+              strategy={verticalListSortingStrategy}
+            >
+              <ul className="space-y-3">
+                {operations.map((config, index) => (
+                  <SortableOperationItem
+                    key={`operation-${index}`}
+                    config={config}
+                    index={index}
+                    onRemove={handleRemoveSelection}
+                  />
+                ))}
+              </ul>
+            </SortableContext>
+          </DndContext>
         </div>
       )}
 
