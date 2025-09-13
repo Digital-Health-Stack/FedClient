@@ -10,10 +10,37 @@ export const createSession = async (
   return api.post("/v2/create-federated-session/", session_data.fed_info);
 };
 
-export const getAllSessions = async (api, page = 1, perPage = 6) => {
-  return api.get(
-    `/get-all-federated-sessions?page=${page}&per_page=${perPage}`
-  );
+export const getAllSessions = async (
+  api, 
+  page = 1, 
+  perPage = 6,
+  filters = {} as {
+    sortOrder?: string;
+    trainingStatus?: string;
+    searchName?: string;
+    searchServerFilename?: string;
+  }
+) => {
+  const params = new URLSearchParams({
+    page: page.toString(),
+    per_page: perPage.toString(),
+  });
+
+  // Add filter parameters if they exist
+  if (filters.sortOrder) {
+    params.append('sort_order', filters.sortOrder);
+  }
+  if (filters.trainingStatus) {
+    params.append('training_status', filters.trainingStatus);
+  }
+  if (filters.searchName) {
+    params.append('search_name', filters.searchName);
+  }
+  if (filters.searchServerFilename) {
+    params.append('search_server_filename', filters.searchServerFilename);
+  }
+
+  return api.get(`/get-all-federated-sessions?${params.toString()}`);
 };
 
 export const getFederatedSession = (api: AxiosInstance, session_id) => {
