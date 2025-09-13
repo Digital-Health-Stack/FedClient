@@ -19,6 +19,32 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
+// Custom Cross Shape Component (rotated 45 degrees to make an X)
+const CrossDot = (props) => {
+  const { cx, cy, fill } = props;
+  const size = 6;
+  return (
+    <g>
+      <line
+        x1={cx - size}
+        y1={cy - size}
+        x2={cx + size}
+        y2={cy + size}
+        stroke={fill}
+        strokeWidth="2"
+      />
+      <line
+        x1={cx - size}
+        y1={cy + size}
+        x2={cx + size}
+        y2={cy - size}
+        stroke={fill}
+        strokeWidth="2"
+      />
+    </g>
+  );
+};
+
 const Result = ({ sessionId }) => {
   const [results, setResults] = useState({
     server_results: {},
@@ -75,6 +101,42 @@ const Result = ({ sessionId }) => {
 
   // Download chart as PNG
   const downloadChartAsPNG = () => {
+    const chartContainer = document.querySelector(".h-96.relative");
+    if (!chartContainer) return;
+
+    // Use html2canvas to capture the entire chart container including the legend
+    import("html2canvas")
+      .then((html2canvas) => {
+        html2canvas
+          .default(chartContainer, {
+            backgroundColor: "white",
+            scale: 2, // Higher resolution
+            useCORS: true,
+            allowTaint: true,
+          })
+          .then((canvas) => {
+            const link = document.createElement("a");
+            link.download = `training-results-${selectedMetric}-${
+              sessionId || "chart"
+            }.png`;
+            link.href = canvas.toDataURL("image/png");
+            link.click();
+          })
+          .catch((error) => {
+            console.error("Error generating PNG:", error);
+            // Fallback to original method
+            downloadChartAsPNGFallback();
+          });
+      })
+      .catch((error) => {
+        console.error("html2canvas not available:", error);
+        // Fallback to original method
+        downloadChartAsPNGFallback();
+      });
+  };
+
+  // Fallback method (original implementation)
+  const downloadChartAsPNGFallback = () => {
     const chartElement = document.querySelector(".recharts-wrapper svg");
     if (!chartElement) return;
 
@@ -158,7 +220,7 @@ const Result = ({ sessionId }) => {
     rounds.forEach((round) => {
       const roundNumber = parseInt(round.split("_")[1]);
       const roundData = {
-        round: `Round ${roundNumber}`,
+        round: roundNumber,
         [`server_${selectedMetric}`]:
           results.server_results[selectedMetric][round],
         [`client_${selectedMetric}`]:
@@ -365,23 +427,109 @@ const Result = ({ sessionId }) => {
                     : "Select a session to view charts"}
                 </div>
               ) : (
-                <div className="h-80">
+                <div className="h-96 relative">
                   <h4 className="text-md font-medium text-gray-700 mb-2">
                     {selectedMetric.toUpperCase().replace(/_/g, " ")}{" "}
                     Progression
                   </h4>
-                  <ResponsiveContainer width="100%" height="100%">
+
+                  {/* Custom Legend */}
+                  <div className="absolute top-24 right-12 z-10 bg-white bg-opacity-10 border border-gray-200 rounded p-2 shadow-sm">
+                    <div className="space-y-1 text-xs">
+                      <div className="flex items-center space-x-2">
+                        <svg width="20" height="12">
+                          <line
+                            x1="0"
+                            y1="6"
+                            x2="16"
+                            y2="6"
+                            stroke="#3b82f6"
+                            strokeWidth="2"
+                          />
+                          <circle
+                            cx="8"
+                            cy="6"
+                            r="2"
+                            fill="#3b82f6"
+                            stroke="#3b82f6"
+                            strokeWidth="1"
+                          />
+                        </svg>
+                        <span className="text-gray-700">
+                          Server {selectedMetric.replace(/_/g, " ")}
+                        </span>
+                      </div>
+                      {results.client_results[selectedMetric] && (
+                        <div className="flex items-center space-x-2">
+                          <svg width="20" height="12">
+                            <line
+                              x1="0"
+                              y1="6"
+                              x2="16"
+                              y2="6"
+                              stroke="#10b981"
+                              strokeWidth="2"
+                              strokeDasharray="3 3"
+                            />
+                            <g>
+                              <line
+                                x1="2"
+                                y1="2"
+                                x2="14"
+                                y2="10"
+                                stroke="#10b981"
+                                strokeWidth="2"
+                              />
+                              <line
+                                x1="2"
+                                y1="10"
+                                x2="14"
+                                y2="2"
+                                stroke="#10b981"
+                                strokeWidth="2"
+                              />
+                            </g>
+                          </svg>
+                          <span className="text-gray-700">
+                            Your {selectedMetric.replace(/_/g, " ")}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <ResponsiveContainer
+                    className="float-right"
+                    width="100%"
+                    height="100%"
+                  >
                     <LineChart
                       data={chartData}
-                      margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                      margin={{ top: 25, right: 30, left: 35, bottom: 30 }}
                     >
                       <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="round" />
-                      <YAxis />
+                      <XAxis
+                        dataKey="round"
+                        type="category"
+                        label={{
+                          value: "Rounds",
+                          position: "insideBottom",
+                          offset: -2,
+                        }}
+                      />
+                      <YAxis
+                        label={{
+                          value: selectedMetric
+                            .toUpperCase()
+                            .replace(/_/g, " "),
+                          angle: -90,
+                          offset: -20,
+                          position: "insideLeft",
+                        }}
+                      />
                       <Tooltip
                         formatter={(value) => [formatMetricValue(value)]}
                       />
-                      <Legend />
                       <Line
                         name={`Server ${capitalize(selectedMetric).replace(
                           /_/g,
@@ -390,7 +538,13 @@ const Result = ({ sessionId }) => {
                         type="monotone"
                         dataKey={`server_${selectedMetric}`}
                         stroke="#3b82f6"
-                        activeDot={{ r: 8 }}
+                        activeDot={{ r: 6, fill: "#3b82f6" }}
+                        dot={{
+                          r: 2,
+                          fill: "#3b82f6",
+                          stroke: "#3b82f6",
+                          strokeWidth: 1,
+                        }}
                       />
                       {results.client_results[selectedMetric] && (
                         <Line
@@ -401,7 +555,8 @@ const Result = ({ sessionId }) => {
                           type="monotone"
                           dataKey={`client_${selectedMetric}`}
                           stroke="#10b981"
-                          activeDot={{ r: 8 }}
+                          activeDot={{ r: 6, fill: "#10b981" }}
+                          dot={<CrossDot fill="#10b981" />}
                           strokeDasharray="5 5"
                         />
                       )}
