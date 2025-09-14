@@ -17,8 +17,7 @@ export const getAllSessions = async (
   filters = {} as {
     sortOrder?: string;
     trainingStatus?: string;
-    searchName?: string;
-    searchServerFilename?: string;
+    search?: string;
   }
 ) => {
   const params = new URLSearchParams({
@@ -33,11 +32,8 @@ export const getAllSessions = async (
   if (filters.trainingStatus) {
     params.append('training_status', filters.trainingStatus);
   }
-  if (filters.searchName) {
-    params.append('search_name', filters.searchName);
-  }
-  if (filters.searchServerFilename) {
-    params.append('search_server_filename', filters.searchServerFilename);
+  if (filters.search) {
+    params.append('search', filters.search);
   }
 
   return api.get(`/get-all-federated-sessions?${params.toString()}`);

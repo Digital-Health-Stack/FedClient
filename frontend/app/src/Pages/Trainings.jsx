@@ -39,14 +39,12 @@ export default function Trainings() {
   const [filters, setFilters] = useState({
     sortOrder: 'desc',
     trainingStatus: '',
-    searchName: '',
-    searchServerFilename: ''
+    search: ''
   });
   const [tempFilters, setTempFilters] = useState({
     sortOrder: 'desc',
     trainingStatus: '',
-    searchName: '',
-    searchServerFilename: ''
+    search: ''
   });
   const [showFilters, setShowFilters] = useState(false);
 
@@ -165,11 +163,28 @@ export default function Trainings() {
     const clearedFilters = {
       sortOrder: 'desc',
       trainingStatus: '',
-      searchName: '',
-      searchServerFilename: ''
+      search: ''
     };
     setTempFilters(clearedFilters);
     setFilters(clearedFilters);
+  };
+
+  // Function to highlight search terms in text
+  const highlightSearchTerm = (text, searchTerm) => {
+    if (!searchTerm || !text) return text;
+
+    const regex = new RegExp(`(${searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+    const parts = text.split(regex);
+
+    return parts.map((part, index) =>
+      regex.test(part) ? (
+        <mark key={index} className="bg-blue-200 px-1 rounded">
+          {part}
+        </mark>
+      ) : (
+        part
+      )
+    );
   };
 
   useEffect(() => {
@@ -322,50 +337,25 @@ export default function Trainings() {
       {/* Filters Panel */}
       {showFilters && (
         <div className="bg-white border border-gray-200 rounded-lg p-4 mb-6 shadow-sm">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
 
-            {/* Search by Name */}
+            {/* Unified Search */}
             <div className="col-span-1 md:col-span-1 lg:col-span-2">
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Search by Name
+                Search
               </label>
               <div className="relative">
                 <MagnifyingGlassIcon className="h-4 w-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                 <input
                   type="text"
-                  value={tempFilters.searchName}
-                  onChange={(e) => setTempFilters(prev => ({ ...prev, searchName: e.target.value }))}
-                  placeholder="Search organization name..."
+                  value={tempFilters.search}
+                  onChange={(e) => setTempFilters(prev => ({ ...prev, search: e.target.value }))}
+                  placeholder="Search by training name or server file..."
                   className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 />
-                {tempFilters.searchName && (
+                {tempFilters.search && (
                   <button
-                    onClick={() => setTempFilters(prev => ({ ...prev, searchName: '' }))}
-                    className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                  >
-                    <XMarkIcon className="h-4 w-4" />
-                  </button>
-                )}
-              </div>
-            </div>
-
-            {/* Search by Server Filename */}
-            <div className="col-span-1 md:col-span-1 lg:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Search by Server File
-              </label>
-              <div className="relative">
-                <MagnifyingGlassIcon className="h-4 w-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                <input
-                  type="text"
-                  value={tempFilters.searchServerFilename}
-                  onChange={(e) => setTempFilters(prev => ({ ...prev, searchServerFilename: e.target.value }))}
-                  placeholder="Search server filename..."
-                  className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                />
-                {tempFilters.searchServerFilename && (
-                  <button
-                    onClick={() => setTempFilters(prev => ({ ...prev, searchServerFilename: '' }))}
+                    onClick={() => setTempFilters(prev => ({ ...prev, search: '' }))}
                     className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
                   >
                     <XMarkIcon className="h-4 w-4" />
@@ -503,8 +493,8 @@ export default function Trainings() {
                       className="text-lg font-medium text-gray-900 truncate"
                     >
                       {session.name.length > 22
-                        ? `${session.name.substring(0, 22)}...`
-                        : session.name || "Untitled Session"}
+                        ? highlightSearchTerm(`${session.name.substring(0, 22)}...`, filters.search)
+                        : highlightSearchTerm(session.name || "Untitled Session", filters.search)}
                     </h3>
                     <span
                       className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(
@@ -533,7 +523,7 @@ export default function Trainings() {
                           d="M1152 640H512V512h640v128zM256 1664h681l-64 128H128V128h1408v640h-128V256H256v1408zm256-384h617l-64 128H512v-128zm512-384v128H512V896h512zm939 967q14 28 14 57q0 26-10 49t-27 41t-41 28t-50 10h-754q-26 0-49-10t-41-27t-28-41t-10-50q0-29 14-57l299-598v-241h-128V896h640v128h-128v241l299 598zm-242-199l-185-369v-271h-128v271l-185 369h498z"
                         />
                       </svg>
-                      <span className="truncate">{session.server_filename}</span>
+                      <span className="truncate">{highlightSearchTerm(session.server_filename, filters.search)}</span>
                     </div>
                   )}
 
