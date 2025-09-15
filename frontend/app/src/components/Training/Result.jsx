@@ -428,7 +428,7 @@ const Result = ({ sessionId }) => {
                 </div>
               ) : (
                 <div className="h-96 relative">
-                  <h4 className="text-md font-medium text-gray-700 mb-2">
+                  <h4 className="text-md font-medium text-center text-gray-700 mb-2">
                     {selectedMetric.toUpperCase().replace(/_/g, " ")}{" "}
                     Progression
                   </h4>
@@ -501,7 +501,7 @@ const Result = ({ sessionId }) => {
                   <ResponsiveContainer
                     className="float-right"
                     width="100%"
-                    height="100%"
+                    height="90%"
                   >
                     <LineChart
                       data={chartData}
