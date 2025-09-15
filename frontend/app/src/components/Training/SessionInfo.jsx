@@ -15,10 +15,12 @@ import {
   Cog6ToothIcon,
   CheckBadgeIcon,
   ChartBarIcon,
+  CurrencyRupeeIcon,
 } from "@heroicons/react/24/outline";
 import React, { useEffect } from "react";
 import { ProgressBar, Step } from "react-step-progress-bar";
 import "react-step-progress-bar/styles.css";
+import { Link } from "react-router-dom";
 
 const SessionInfo = ({ data, setCurrentSection }) => {
   // Training Status Configuration
@@ -103,7 +105,18 @@ const SessionInfo = ({ data, setCurrentSection }) => {
 
   // Helper to get time left for the current step
   const getStepTimeInfo = (idx) => {
-    if (idx === 0) return "Waiting for your price confirmation. Go to Actions";
+    if (idx === 0)
+      return (
+        <p>
+          Waiting for your price confirmation. Go to{" "}
+          <span
+            className="hover:underline cursor-pointer"
+            onClick={() => setCurrentSection("actions")}
+          >
+            Actions
+          </span>
+        </p>
+      );
     else if (idx === 1) return "Waiting for client recruitment. ";
     else if (idx === 2)
       return (
@@ -238,14 +251,25 @@ const SessionInfo = ({ data, setCurrentSection }) => {
                 <g
                   fill="none"
                   stroke="currentColor"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
                 >
                   <path d="M9.5 3.5h4v4" />
                   <path d="M13.5 3.5L7.85 9.15a.5.5 0 0 1-.7 0l-2.3-2.3a.5.5 0 0 0-.7 0L.5 10.5" />
                 </g>
               </svg>
             }
+          />
+          <InfoItem
+            label="Price"
+            value={data?.session_price + " Data Points"}
+            icon={<CurrencyRupeeIcon className="h-5 w-5 text-gray-400" />}
+          />
+          {console.log(data)}
+          <InfoItem
+            label="No of Clients Accepted"
+            value={data?.no_of_clients}
+            icon={<UserGroupIcon className="h-5 w-5 text-gray-400" />}
           />
           <StatusItem
             label="Training Status"
