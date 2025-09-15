@@ -73,16 +73,16 @@ const Leaderboard = () => {
       // Add benchmark as first row if it exists
       ...(leaderboardData.benchmark
         ? [
-            {
-              rank: 1,
-              client_name: "Benchmark",
-              model_name: "Benchmark",
-              metric_value: leaderboardData.benchmark,
-              meets_benchmark: "Yes",
-              date: formatTimestamp(leaderboardData.created_at),
-              is_benchmark: "Yes",
-            },
-          ]
+          {
+            rank: 1,
+            client_name: "Benchmark",
+            model_name: "Benchmark",
+            metric_value: leaderboardData.benchmark,
+            meets_benchmark: "Yes",
+            date: formatTimestamp(leaderboardData.created_at),
+            is_benchmark: "Yes",
+          },
+        ]
         : []),
       // Add all sessions
       ...leaderboardData.sessions.map((session, index) => {
@@ -304,22 +304,20 @@ const Leaderboard = () => {
               <div className="flex justify-center mt-2 space-x-2">
                 <button
                   onClick={() => setViewMode("table")}
-                  className={`p-2 rounded-md ${
-                    viewMode === "table"
-                      ? "bg-blue-100 text-blue-600"
-                      : "bg-gray-100 text-gray-600"
-                  }`}
+                  className={`p-2 rounded-md ${viewMode === "table"
+                    ? "bg-blue-100 text-blue-600"
+                    : "bg-gray-100 text-gray-600"
+                    }`}
                   title="Table View"
                 >
                   <TableCellsIcon className="h-5 w-5" />
                 </button>
                 <button
                   onClick={() => setViewMode("chart")}
-                  className={`p-2 rounded-md ${
-                    viewMode === "chart"
-                      ? "bg-blue-100 text-blue-600"
-                      : "bg-gray-100 text-gray-600"
-                  }`}
+                  className={`p-2 rounded-md ${viewMode === "chart"
+                    ? "bg-blue-100 text-blue-600"
+                    : "bg-gray-100 text-gray-600"
+                    }`}
                   title="Chart View"
                 >
                   <ChartBarIcon className="h-5 w-5" />
@@ -412,20 +410,20 @@ const Leaderboard = () => {
                         if (entry.isBenchmark) {
                           // Benchmark Row
                           return (
-                            <tr key="benchmark" className="bg-green-50">
-                              <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-[#f59e0b] text-center">
+                            <tr key="benchmark" className="bg-[#fff5fa]">
+                              <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900 text-center">
                                 {index + 1}
                               </td>
-                              <td className="px-4 py-3 whitespace-nowrap text-sm text-[#f59e0b] text-center">
+                              <td className="px-4 py-3 whitespace-nowrap text-sm font-bold text-[#DD2780] text-center">
                                 Benchmark
                               </td>
-                              <td className="px-4 py-3 whitespace-nowrap text-sm text-[#f59e0b] text-center">
+                              <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500 text-center">
                                 —
                               </td>
-                              <td className="px-4 py-3 whitespace-nowrap text-sm font-mono font-medium text-[#f59e0b] text-center">
+                              <td className="px-4 py-3 whitespace-nowrap text-sm font-mono font-bold text-[#DD2780] text-center">
                                 {leaderboardData.benchmark || "N/A"}
                               </td>
-                              <td className="px-4 py-3 whitespace-nowrap text-sm text-[#f59e0b] text-center">
+                              <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500 text-center">
                                 {formatTimestamp(leaderboardData.created_at)}
                               </td>
                             </tr>
@@ -435,31 +433,28 @@ const Leaderboard = () => {
                           const isBetter =
                             leaderboardData.benchmark &&
                             (leaderboardData.metric === "mae" ||
-                            leaderboardData.metric === "mse"
+                              leaderboardData.metric === "mse"
                               ? entry.metric_value <= leaderboardData.benchmark
                               : entry.metric_value >=
-                                leaderboardData.benchmark);
+                              leaderboardData.benchmark);
                           console.log(entry);
                           return (
                             <tr
                               key={entry.session_id}
-                              className={`hover:bg-gray-50 ${
-                                isBetter ? "bg-green-50" : ""
-                              }`}
+                              className={`hover:bg-gray-50`}
                             >
                               <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900 text-center">
                                 {index + 1}
                               </td>
-                              <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500 text-center">
+                              <td className={`px-4 py-3 whitespace-nowrap text-sm font-bold ${isBetter ? "text-[#638FFE]" : "text-[#FFB101]"} text-center`}>
                                 {entry.admin_username}
                               </td>
                               <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500 text-center">
                                 {entry.model_name}
                               </td>
                               <td
-                                className={`px-4 py-3 whitespace-nowrap text-sm font-mono font-medium text-center ${
-                                  isBetter ? "text-green-600" : "text-red-600"
-                                }`}
+                                className={`px-4 py-3 whitespace-nowrap text-sm font-mono font-bold text-center ${isBetter ? "text-[#638FFE]" : "text-[#FFB101]"
+                                  }`}
                               >
                                 {entry.metric_value}
                               </td>
@@ -508,11 +503,11 @@ const Leaderboard = () => {
                     {leaderboardData?.benchmark && (
                       <ReferenceLine
                         y={leaderboardData.benchmark}
-                        stroke="#f59e0b"
+                        stroke="#DD2780"
                         label={{
                           value: "Benchmark",
                           position: "right",
-                          fill: "#f59e0b",
+                          fill: "#DD2780",
                         }}
                         strokeDasharray="5 5"
                       />
@@ -524,10 +519,10 @@ const Leaderboard = () => {
                           key={`cell-${index}`}
                           fill={
                             entry.isBenchmark
-                              ? "#f59e0b" // Gold/amber color for benchmark
+                              ? "#DD2780"
                               : entry.meets_benchmark
-                              ? "#15803d" // Dark green for sessions that beat benchmark
-                              : "#991b1b" // Dark red for sessions that don't beat benchmark
+                                ? "#638FFE"
+                                : "#FFB101"
                           }
                         />
                       ))}
@@ -537,15 +532,15 @@ const Leaderboard = () => {
 
                 <div className="flex justify-center mt-2 space-x-4">
                   <div className="flex items-center">
-                    <div className="w-3 h-3 bg-amber-500 rounded-full mr-1"></div>
+                    <div className="w-3 h-3 bg-[#DD2780] rounded-full mr-1"></div>
                     <span className="text-md">Benchmark</span>
                   </div>
                   <div className="flex items-center">
-                    <div className="w-3 h-3 bg-green-500 rounded-full mr-1"></div>
+                    <div className="w-3 h-3 bg-[#638FFE] rounded-full mr-1"></div>
                     <span className="text-md">Better than benchmark</span>
                   </div>
                   <div className="flex items-center">
-                    <div className="w-3 h-3 bg-red-500 rounded-full mr-1"></div>
+                    <div className="w-3 h-3 bg-[#FFB101] rounded-full mr-1"></div>
                     <span className="text-md">Worse than benchmark</span>
                   </div>
                 </div>
