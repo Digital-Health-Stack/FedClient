@@ -120,7 +120,7 @@ const SessionInfo = ({ data, setCurrentSection }) => {
       {/* Session Information Header */}
       <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
         <h3 className="text-lg font-medium text-gray-900 flex items-center">
-          <InformationCircleIcon className="h-5 w-5 text-indigo-600 mr-2" />
+          <InformationCircleIcon className="h-5 w-5 text-gray-600 mr-2" />
           Session Details
         </h3>
       </div>
@@ -232,13 +232,12 @@ const SessionInfo = ({ data, setCurrentSection }) => {
             icon={
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5 text-gray-400"
+                className="h-5 w-5 text-gray-500"
                 viewBox="0 0 14 14"
-                fill="#000000"
               >
                 <g
                   fill="none"
-                  stroke="#000000"
+                  stroke="currentColor"
                   stroke-linecap="round"
                   stroke-linejoin="round"
                 >
@@ -289,11 +288,7 @@ const StatusItem = ({ label, statusConfig, setCurrentSection }) => {
     <div className="flex items-start space-x-3">
       <div className="flex-shrink-0 mt-0.5">
         {React.cloneElement(<InformationCircleIcon />, {
-          className: `h-5 w-5 ${
-            variantClasses[statusConfig.variant]
-              .replace("bg-", "text-")
-              .split(" ")[1]
-          }`,
+          className: `h-5 w-5 text-gray-500`,
         })}
       </div>
       <div>
