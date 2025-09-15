@@ -103,6 +103,21 @@ const SessionInfo = ({ data, setCurrentSection }) => {
     ? steps.length - 1
     : Math.max(0, Math.min(currentStatus, steps.length - 1));
 
+  // Helper function to format time with proper units
+  const formatTimeLeft = (milliseconds) => {
+    const totalMinutes = milliseconds / 60000;
+    const totalHours = totalMinutes / 60;
+    const totalDays = totalHours / 24;
+
+    if (totalDays >= 1) {
+      return `${totalDays.toFixed(1)} day${totalDays > 1 ? "s" : ""}`;
+    } else if (totalHours >= 1) {
+      return `${totalHours.toFixed(1)} hour${totalHours > 1 ? "s" : ""}`;
+    } else {
+      return `${totalMinutes.toFixed(1)} minute${totalMinutes > 1 ? "s" : ""}`;
+    }
+  };
+
   // Helper to get time left for the current step
   const getStepTimeInfo = (idx) => {
     if (idx === 0)
@@ -117,7 +132,13 @@ const SessionInfo = ({ data, setCurrentSection }) => {
           </span>
         </p>
       );
-    else if (idx === 1) return "Waiting for client recruitment. ";
+    else if (idx === 1)
+      return (
+        <p>
+          Waiting for client recruitment. <br />{" "}
+          {formatTimeLeft(totalWait - elapsed)} left.
+        </p>
+      );
     else if (idx === 2)
       return (
         <p>
@@ -128,6 +149,39 @@ const SessionInfo = ({ data, setCurrentSection }) => {
     return "--";
   };
 
+  const formatTimestamp = (timestamp) => {
+    try {
+      const utcTimestamp = timestamp + "Z";
+      const date = new Date(utcTimestamp);
+      return date;
+    } catch (e) {
+      return timestamp;
+    }
+  };
+  // Instead of number of clients, use elapsed time / wait time for extra bar fill
+  const waitStart = data?.createdAt ? formatTimestamp(data.createdAt) : null; //add 5 hours 30 minutes to the createdAt
+  const now = new Date();
+
+  let elapsed = 0;
+  let totalWait = 1; // avoid division by zero
+  if (waitStart) {
+    elapsed = Math.max(
+      0,
+      Math.min(
+        now.getTime() - waitStart.getTime(),
+        data?.federated_info?.wait_time * 60 * 1000
+      )
+    );
+    totalWait = Math.max(1, data?.federated_info?.wait_time * 60 * 1000);
+  }
+  let extra_bar_filled_clients = (elapsed / totalWait) * 33.33333333333333;
+  if (elapsed === totalWait) {
+    extra_bar_filled_clients = 0;
+  }
+
+  const extra_bar_filled_rounds =
+    ((data?.curr_round - 1) / data?.federated_info?.no_of_rounds) *
+    33.33333333333333;
   return (
     <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
       {/* Session Information Header */}
@@ -139,9 +193,15 @@ const SessionInfo = ({ data, setCurrentSection }) => {
       </div>
       {/* Progress Bar with hoverable tooltip for time left */}
       {/* {alert(progressIndex + " " + steps.length)} */}
+
       <div className="relative p-6 mt-5 m-10">
         <ProgressBar
-          percent={progressIndex * 33.33333333333333 + 1}
+          percent={
+            progressIndex * 33.33333333333333 +
+            1 +
+            extra_bar_filled_rounds +
+            extra_bar_filled_clients
+          }
           filledBackground="#22c55e"
           height={6}
         >

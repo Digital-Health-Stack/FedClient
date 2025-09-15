@@ -298,7 +298,7 @@ const ActionSection = ({ data, sessionId, onRefreshData }) => {
                   : "bg-green-500 hover:bg-green-600 focus:ring-green-500"
               }`}
             >
-              Accept
+              Contribute and Accept
             </LoaderButton>
 
             <LoaderButton
