@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { getAllSessions } from "../services/federatedService";
@@ -37,16 +37,17 @@ export default function Trainings() {
 
   const [showInfo, setShowInfo] = useState(false);
   const [filters, setFilters] = useState({
-    sortOrder: 'desc',
-    trainingStatus: '',
-    search: ''
+    sortOrder: "desc",
+    trainingStatus: "",
+    search: "",
   });
   const [tempFilters, setTempFilters] = useState({
-    sortOrder: 'desc',
-    trainingStatus: '',
-    search: ''
+    sortOrder: "desc",
+    trainingStatus: "",
+    search: "",
   });
   const [showFilters, setShowFilters] = useState(false);
+  const isInitialMount = useRef(true);
 
   const openDetails = (sessionId) => {
     navigate(`/trainings/${sessionId}`);
@@ -86,7 +87,12 @@ export default function Trainings() {
       setIsLoading(true);
       setError(null);
 
-      const response = await getAllSessions(api, page, pagination.perPage, filters);
+      const response = await getAllSessions(
+        api,
+        page,
+        pagination.perPage,
+        filters
+      );
       const newSessions = response.data.data || [];
 
       // setSessions((prev) => [...prev, ...newSessions]);
@@ -132,7 +138,12 @@ export default function Trainings() {
       setIsLoadingOneTime(true);
       setError(null);
 
-      const response = await getAllSessions(api, 1, pagination.perPage, filters);
+      const response = await getAllSessions(
+        api,
+        1,
+        pagination.perPage,
+        filters
+      );
       const newSessions = response.data.data || [];
 
       setSessions(newSessions);
@@ -161,9 +172,9 @@ export default function Trainings() {
 
   const clearAllFilters = () => {
     const clearedFilters = {
-      sortOrder: 'desc',
-      trainingStatus: '',
-      search: ''
+      sortOrder: "desc",
+      trainingStatus: "",
+      search: "",
     };
     setTempFilters(clearedFilters);
     setFilters(clearedFilters);
@@ -173,7 +184,10 @@ export default function Trainings() {
   const highlightSearchTerm = (text, searchTerm) => {
     if (!searchTerm || !text) return text;
 
-    const regex = new RegExp(`(${searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+    const regex = new RegExp(
+      `(${searchTerm.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")})`,
+      "gi"
+    );
     const parts = text.split(regex);
 
     return parts.map((part, index) =>
@@ -188,6 +202,12 @@ export default function Trainings() {
   };
 
   useEffect(() => {
+    // Skip the filters effect on initial mount to prevent double API call
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      return;
+    }
+
     resetAndFetch();
   }, [filters]);
 
@@ -316,10 +336,11 @@ export default function Trainings() {
         <div className="flex items-center gap-2">
           <button
             onClick={() => setShowFilters(!showFilters)}
-            className={`inline-flex items-center px-3 py-1.5 border shadow-sm text-sm font-medium rounded-md ${showFilters
-              ? 'border-blue-300 text-blue-700 bg-blue-50 hover:bg-blue-100'
-              : 'border-gray-300 text-gray-700 bg-white hover:bg-gray-50'
-              }`}
+            className={`inline-flex items-center px-3 py-1.5 border shadow-sm text-sm font-medium rounded-md ${
+              showFilters
+                ? "border-blue-300 text-blue-700 bg-blue-50 hover:bg-blue-100"
+                : "border-gray-300 text-gray-700 bg-white hover:bg-gray-50"
+            }`}
           >
             <FunnelIcon className="h-4 w-4 mr-2" />
             Filters
@@ -338,7 +359,6 @@ export default function Trainings() {
       {showFilters && (
         <div className="bg-white border border-gray-200 rounded-lg p-4 mb-6 shadow-sm">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-
             {/* Unified Search */}
             <div className="col-span-1 md:col-span-1 lg:col-span-2">
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -349,13 +369,20 @@ export default function Trainings() {
                 <input
                   type="text"
                   value={tempFilters.search}
-                  onChange={(e) => setTempFilters(prev => ({ ...prev, search: e.target.value }))}
+                  onChange={(e) =>
+                    setTempFilters((prev) => ({
+                      ...prev,
+                      search: e.target.value,
+                    }))
+                  }
                   placeholder="Search by training name or server file..."
                   className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 />
                 {tempFilters.search && (
                   <button
-                    onClick={() => setTempFilters(prev => ({ ...prev, search: '' }))}
+                    onClick={() =>
+                      setTempFilters((prev) => ({ ...prev, search: "" }))
+                    }
                     className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
                   >
                     <XMarkIcon className="h-4 w-4" />
@@ -371,7 +398,12 @@ export default function Trainings() {
               </label>
               <select
                 value={tempFilters.sortOrder}
-                onChange={(e) => setTempFilters(prev => ({ ...prev, sortOrder: e.target.value }))}
+                onChange={(e) =>
+                  setTempFilters((prev) => ({
+                    ...prev,
+                    sortOrder: e.target.value,
+                  }))
+                }
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               >
                 <option value="desc">Newest First</option>
@@ -386,21 +418,27 @@ export default function Trainings() {
               </label>
               <select
                 value={tempFilters.trainingStatus}
-                onChange={(e) => setTempFilters(prev => ({ ...prev, trainingStatus: e.target.value }))}
+                onChange={(e) =>
+                  setTempFilters((prev) => ({
+                    ...prev,
+                    trainingStatus: e.target.value,
+                  }))
+                }
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               >
                 <option value="">All Statuses</option>
                 {/* <option value="CREATED">Created</option> */}
                 <option value="PRICE_NEGOTIATION">Price Negotiation</option>
                 <option value="ACCEPTING_CLIENTS">Client Recruitment</option>
-                <option value="MODEL_INITIALIZATION">Model Initialization</option>
+                <option value="MODEL_INITIALIZATION">
+                  Model Initialization
+                </option>
                 <option value="STARTED">Training Active</option>
                 <option value="COMPLETED">Completed</option>
                 <option value="FAILED">Failed</option>
                 <option value="CANCELLED">Cancelled</option>
               </select>
             </div>
-
           </div>
 
           {/* Apply and Clear Buttons */}
@@ -493,8 +531,14 @@ export default function Trainings() {
                       className="text-lg font-medium text-gray-900 truncate"
                     >
                       {session.name.length > 22
-                        ? highlightSearchTerm(`${session.name.substring(0, 22)}...`, filters.search)
-                        : highlightSearchTerm(session.name || "Untitled Session", filters.search)}
+                        ? highlightSearchTerm(
+                            `${session.name.substring(0, 22)}...`,
+                            filters.search
+                          )
+                        : highlightSearchTerm(
+                            session.name || "Untitled Session",
+                            filters.search
+                          )}
                     </h3>
                     <span
                       className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(
@@ -523,7 +567,12 @@ export default function Trainings() {
                           d="M1152 640H512V512h640v128zM256 1664h681l-64 128H128V128h1408v640h-128V256H256v1408zm256-384h617l-64 128H512v-128zm512-384v128H512V896h512zm939 967q14 28 14 57q0 26-10 49t-27 41t-41 28t-50 10h-754q-26 0-49-10t-41-27t-28-41t-10-50q0-29 14-57l299-598v-241h-128V896h640v128h-128v241l299 598zm-242-199l-185-369v-271h-128v271l-185 369h498z"
                         />
                       </svg>
-                      <span className="truncate">{highlightSearchTerm(session.server_filename, filters.search)}</span>
+                      <span className="truncate">
+                        {highlightSearchTerm(
+                          session.server_filename,
+                          filters.search
+                        )}
+                      </span>
                     </div>
                   )}
 
