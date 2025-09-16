@@ -69,7 +69,16 @@ const ModelConfig = ({ data }) => {
                 label="Loss Function"
                 value={modelInfo?.loss_function}
               />
-              <InfoItem label="Optimizer" value={modelInfo?.optimizer} />
+              <InfoItem
+                label="Optimizer"
+                value={
+                  modelInfo?.optimizer
+                    ? typeof modelInfo.optimizer === 'string'
+                      ? modelInfo.optimizer
+                      : `${modelInfo.optimizer.type || 'Unknown'} (lr: ${modelInfo.optimizer.learning_rate || 'N/A'})`
+                    : "N/A"
+                }
+              />
               <InfoItem
                 label="Learning Rate"
                 value={modelInfo?.learning_rate}
@@ -153,109 +162,141 @@ const ModelConfig = ({ data }) => {
         );
 
       case "CNN":
+        const activationFunctions = {
+          relu: "ReLU",
+          sigmoid: "Sigmoid",
+          // tanh: "Tanh",
+          softmax: "Softmax",
+          // leakyRelu: "Leaky ReLU",
+          // prelu: "PReLU",
+          // thresholdedRelu: "Thresholded ReLU",
+          // hardSigmoid: "Hard Sigmoid",
+          // exponential: "Exponential",
+          linear: "Linear",
+        };
+
+        const optimizers = {
+          sgd: "Stochastic Gradient Descent",
+          rmsprop: "RMSprop (Root Mean Square Propagation)",
+          adam: "Adam (Adaptive Moment Estimation)",
+          adagrad: "Adagrad (Adaptive Gradient Algorithm)",
+          adadelta: "Adadelta (Adaptive Delta)",
+          adamax: "Adamax",
+          nadam: "Nadam (Nesterov-accelerated Adaptive Moment Estimation)",
+          ftrl: "FTRL (Follow-The-Regularized-Leader)",
+          proximal_sgd: "ProximalSGD",
+        };
+
+        const lossFunctions = {
+          mse: "Mean Squared Error",
+          mae: "Mean Absolute Error",
+          binary_crossentropy: "Binary Cross Entropy",
+          categorical_crossentropy: "Categorical Cross Entropy",
+          sparse_categorical_crossentropy: "Sparse Categorical Cross Entropy",
+        };
+
+        const layerTypes = {
+          convolution: "Convolutional",
+          pooling: "Pooling",
+          dense: "Dense",
+          flatten: "Flatten",
+          reshape: "Reshape",
+          batch_norm: "Batch Normalization",
+          dropout: "Dropout",
+        };
+
+        const poolingTypes = {
+          max: "Max Pooling",
+          average: "Average Pooling",
+        };
+
+        const regularizerTypes = {
+          l1: "L1",
+          l2: "L2",
+          l1_l2: "L1-L2",
+        };
         return (
           <div className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-gray-700">
               <InfoItem label="Input Shape" value={modelInfo?.input_shape} />
               <InfoItem
                 label="Loss Function"
-                value={modelInfo?.loss_function}
+                value={lossFunctions[modelInfo?.loss]}
               />
-              <InfoItem label="Optimizer" value={modelInfo?.optimizer} />
+              <InfoItem
+                label="Optimizer"
+                value={
+                  modelInfo?.optimizer
+                    ? typeof modelInfo.optimizer === 'string'
+                      ? modelInfo.optimizer
+                      : `${optimizers[modelInfo.optimizer.type] || 'Unknown'}`
+                    : "N/A"
+                }
+              />
               <InfoItem
                 label="Learning Rate"
-                value={modelInfo?.learning_rate}
+                value={modelInfo?.optimizer?.learning_rate}
               />
             </div>
 
-            {/* Convolutional Layers */}
-            {modelInfo?.conv_layers && (
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                <h5 className="font-medium text-blue-800 mb-3">
-                  Convolutional Layers
-                </h5>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <InfoItem
-                    label="Number of Layers"
-                    value={modelInfo.conv_layers.num_layers}
-                  />
-                  <InfoItem
-                    label="Filters"
-                    value={modelInfo.conv_layers.filters}
-                  />
-                  <InfoItem
-                    label="Kernel Size"
-                    value={modelInfo.conv_layers.kernel_size}
-                  />
-                  <InfoItem
-                    label="Stride"
-                    value={modelInfo.conv_layers.stride}
-                  />
-                  <InfoItem
-                    label="Padding"
-                    value={modelInfo.conv_layers.padding}
-                  />
-                  <InfoItem
-                    label="Activation"
-                    value={modelInfo.conv_layers.activation}
-                  />
+            {/* Model Layers */}
+            {modelInfo?.layers && modelInfo.layers.length > 0 && (
+              <div className="rounded-lg">
+                <h4 className="text-lg font-semibold text-gray-700 mb-2">
+                  Model Architecture
+                </h4>
+                <div className="space-y-3">
+                  {modelInfo.layers.map((layer, index) => (
+                    <div key={index} className="bg-white rounded-lg p-3 border">
+                      <h6 className="font-semibold text-gray-700 mb-2">
+                        Layer {index + 1}: {layerTypes[layer.layer_type] || layer.layer_type}
+                      </h6>
+                      <div className="grid grid-cols-2 md:grid-cols-3 gap-2 text-sm">
+                        {layer.layer_type === "convolution" && (
+                          <>
+                            <div><span className="text-gray-500">Filters:</span> <span className="font-medium">{layer.filters}</span></div>
+                            <div><span className="text-gray-500">Kernel:</span> <span className="font-medium">{layer.kernel_size}</span></div>
+                            <div><span className="text-gray-500">Stride:</span> <span className="font-medium">{layer.stride}</span></div>
+                            <div><span className="text-gray-500">Padding:</span> <span className="font-medium">{layer.padding}</span></div>
+                            <div><span className="text-gray-500">Activation:</span> <span className="font-medium">{activationFunctions[layer.activation_function] || layer.activation_function}</span></div>
+                          </>
+                        )}
+                        {layer.layer_type === "pooling" && (
+                          <>
+                            <div><span className="text-gray-500">Type:</span> <span className="font-medium">{poolingTypes[layer.pooling_type] || layer.pooling_type}</span></div>
+                            <div><span className="text-gray-500">Pool Size:</span> <span className="font-medium">{layer.pool_size}</span></div>
+                            <div><span className="text-gray-500">Stride:</span> <span className="font-medium">{layer.stride}</span></div>
+                          </>
+                        )}
+                        {layer.layer_type === "dense" && (
+                          <>
+                            <div><span className="text-gray-500">Units:</span> <span className="font-medium">{layer.num_nodes}</span></div>
+                            <div><span className="text-gray-500">Activation:</span> <span className="font-medium">{activationFunctions[layer.activation_function] || layer.activation_function}</span></div>
+                          </>
+                        )}
+                        {layer.layer_type === "dropout" && (
+                          <div><span className="text-gray-500">Rate:</span> <span className="font-medium">{layer.rate}</span></div>
+                        )}
+                        {layer.layer_type === "flatten" && (
+                          <div className="text-gray-500 italic">Flattens input</div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
             )}
 
-            {/* Pooling Layers */}
-            {modelInfo?.pooling && (
-              <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
-                <h5 className="font-medium text-purple-800 mb-3">
-                  Pooling Layers
-                </h5>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <InfoItem
-                    label="Pooling Type"
-                    value={modelInfo.pooling.type}
-                  />
-                  <InfoItem
-                    label="Pool Size"
-                    value={modelInfo.pooling.pool_size}
-                  />
-                  <InfoItem label="Stride" value={modelInfo.pooling.stride} />
-                </div>
-              </div>
-            )}
-
-            {/* Dense Layers */}
-            {modelInfo?.dense_layers && (
-              <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                <h5 className="font-medium text-green-800 mb-3">
-                  Dense Layers
-                </h5>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <InfoItem
-                    label="Number of Layers"
-                    value={modelInfo.dense_layers.num_layers}
-                  />
-                  <InfoItem
-                    label="Nodes"
-                    value={modelInfo.dense_layers.nodes}
-                  />
-                  <InfoItem
-                    label="Activation"
-                    value={modelInfo.dense_layers.activation}
-                  />
-                  <InfoItem
-                    label="Dropout Rate"
-                    value={modelInfo.dense_layers.dropout_rate}
-                  />
-                </div>
-              </div>
-            )}
 
             {/* Output Layer */}
             {modelInfo?.output_layer && (
-              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                <h5 className="font-medium text-yellow-800 mb-3">
+              <div className="rounded-lg">
+                <h4 className="text-lg font-semibold text-gray-700 mb-2">
                   Output Layer
-                </h5>
+                </h4>
+                {/* <h5 className="font-medium text-gray-800 mb-3">
+                  Output Layer
+                </h5> */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <InfoItem
                     label="Number of Nodes"
@@ -263,14 +304,14 @@ const ModelConfig = ({ data }) => {
                   />
                   <InfoItem
                     label="Activation"
-                    value={modelInfo.output_layer.activation}
+                    value={activationFunctions[modelInfo.output_layer.activation_function]}
                   />
                 </div>
               </div>
             )}
 
             {/* Training Parameters */}
-            <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+            {/* <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
               <h5 className="font-medium text-gray-800 mb-3">
                 Training Parameters
               </h5>
@@ -278,7 +319,7 @@ const ModelConfig = ({ data }) => {
                 <InfoItem label="Batch Size" value={modelInfo?.batch_size} />
                 <InfoItem label="Epochs" value={modelInfo?.epochs} />
               </div>
-            </div>
+            </div> */}
           </div>
         );
 
@@ -291,7 +332,16 @@ const ModelConfig = ({ data }) => {
                 label="Loss Function"
                 value={modelInfo?.loss_function}
               />
-              <InfoItem label="Optimizer" value={modelInfo?.optimizer} />
+              <InfoItem
+                label="Optimizer"
+                value={
+                  modelInfo?.optimizer
+                    ? typeof modelInfo.optimizer === 'string'
+                      ? modelInfo.optimizer
+                      : `${modelInfo.optimizer.type || 'Unknown'} (lr: ${modelInfo.optimizer.learning_rate || 'N/A'})`
+                    : "N/A"
+                }
+              />
               <InfoItem
                 label="Learning Rate"
                 value={modelInfo?.learning_rate}
@@ -404,7 +454,13 @@ const ModelConfig = ({ data }) => {
             <InfoItem label="Loss Function" value={data?.model_info?.loss} />
             <InfoItem
               label="Optimizer"
-              value={`${data?.model_info?.optimizer?.type} (lr: ${data?.model_info?.optimizer?.learning_rate})`}
+              value={
+                data?.model_info?.optimizer
+                  ? typeof data.model_info.optimizer === 'string'
+                    ? data.model_info.optimizer
+                    : `${data.model_info.optimizer.type || 'Unknown'} (lr: ${data.model_info.optimizer.learning_rate || 'N/A'})`
+                  : "N/A"
+              }
             />
             <InfoItem
               label="Output Nodes"
@@ -449,7 +505,7 @@ const ModelConfig = ({ data }) => {
       {/* Test Metrics Section */}
       {data?.model_info?.test_metrics?.length > 0 && (
         <div className="mt-4">
-          <h4 className="text-sm font-medium text-gray-700 mb-2">
+          <h4 className="text-lg font-semibold text-gray-700 mb-2">
             Test Metrics
           </h4>
           <div className="flex flex-wrap gap-2">
@@ -465,19 +521,6 @@ const ModelConfig = ({ data }) => {
         </div>
       )}
 
-      {/* Model Architecture - Layers (for models that use layers) */}
-      {data?.model_info?.layers?.length > 0 && (
-        <div className="mt-6">
-          <h4 className="text-lg font-semibold text-gray-700 mb-2">
-            Model Architecture (Layers)
-          </h4>
-          <div className="space-y-3">
-            {data.model_info.layers.map((layer, index) => (
-              <LayerInfo key={index} layer={layer} index={index} />
-            ))}
-          </div>
-        </div>
-      )}
     </div>
   );
 };
