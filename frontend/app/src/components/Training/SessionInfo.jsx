@@ -105,16 +105,28 @@ const SessionInfo = ({ data, setCurrentSection }) => {
 
   // Helper function to format time with proper units
   const formatTimeLeft = (milliseconds) => {
-    const totalMinutes = milliseconds / 60000;
-    const totalHours = totalMinutes / 60;
-    const totalDays = totalHours / 24;
+    const totalSeconds = Math.floor(milliseconds / 1000);
+    const seconds = totalSeconds % 60;
+    const totalMinutes = Math.floor(totalSeconds / 60);
+    const minutes = totalMinutes % 60;
+    const totalHours = Math.floor(totalMinutes / 60);
+    const hours = totalHours % 24;
+    const days = Math.floor(totalHours / 24);
 
-    if (totalDays >= 1) {
-      return `${totalDays.toFixed(1)} day${totalDays > 1 ? "s" : ""}`;
-    } else if (totalHours >= 1) {
-      return `${totalHours.toFixed(1)} hour${totalHours > 1 ? "s" : ""}`;
+    if (days > 0) {
+      return `${days} day${days > 1 ? "s" : ""} ${hours} hour${
+        hours !== 1 ? "s" : ""
+      }`;
+    } else if (hours > 0) {
+      return `${hours} hour${hours > 1 ? "s" : ""} ${minutes} minute${
+        minutes !== 1 ? "s" : ""
+      }`;
+    } else if (minutes > 0) {
+      return `${minutes} minute${minutes > 1 ? "s" : ""} ${seconds} second${
+        seconds !== 1 ? "s" : ""
+      }`;
     } else {
-      return `${totalMinutes.toFixed(1)} minute${totalMinutes > 1 ? "s" : ""}`;
+      return `${seconds} second${seconds !== 1 ? "s" : ""}`;
     }
   };
 
@@ -135,8 +147,8 @@ const SessionInfo = ({ data, setCurrentSection }) => {
     else if (idx === 1)
       return (
         <p>
-          Waiting for client recruitment. <br />{" "}
-          {formatTimeLeft(totalWait - elapsed)} left.
+          Waiting for clients. <br /> {formatTimeLeft(totalWait - elapsed)}{" "}
+          left.
         </p>
       );
     else if (idx === 2)
@@ -159,7 +171,7 @@ const SessionInfo = ({ data, setCurrentSection }) => {
     }
   };
   // Instead of number of clients, use elapsed time / wait time for extra bar fill
-  const waitStart = data?.createdAt ? formatTimestamp(data.createdAt) : null; //add 5 hours 30 minutes to the createdAt
+  const waitStart = data?.updatedAt ? formatTimestamp(data.updatedAt) : null; //add 5 hours 30 minutes to the createdAt
   const now = new Date();
 
   let elapsed = 0;
@@ -175,7 +187,7 @@ const SessionInfo = ({ data, setCurrentSection }) => {
     totalWait = Math.max(1, data?.federated_info?.wait_time * 60 * 1000);
   }
   let extra_bar_filled_clients = (elapsed / totalWait) * 33.33333333333333;
-  if (elapsed === totalWait) {
+  if (elapsed === totalWait || currentStatus !== 1) {
     extra_bar_filled_clients = 0;
   }
 
