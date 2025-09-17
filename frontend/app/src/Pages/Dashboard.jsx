@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { useHelp } from "../contexts/HelpContext";
 import Joyride from "react-joyride";
@@ -17,6 +17,7 @@ export default function Dashboard() {
   const [initiatedSessions, setInitiatedSessions] = useState([]);
   const [datasets, setDatasets] = useState({ uploads: [], processed: [] });
   const [sessions, setSessions] = useState([]);
+  const navigate = useNavigate();
   const { api } = useAuth();
   const user = JSON.parse(localStorage.getItem("user"));
   // Update fetchInitiatedSession
@@ -31,7 +32,11 @@ export default function Dashboard() {
       console.error("Error fetching initiated sessions:", error);
     }
   };
-
+  const openNewTraining = () => {
+    localStorage.removeItem("fedclient_request_form_data");
+    localStorage.removeItem("fedclient_request_current_step");
+    navigate(`/request`);
+  };
   // Update fetchDatasets
   const fetchDatasets = async () => {
     try {
@@ -706,21 +711,21 @@ export default function Dashboard() {
                               fill="#f1b31c"
                               d="M20.652 44.72c.073-.232.61-2.214.681-2.446c5.918.106 6.21-.091 7.089-3.008c1.66-5.508 2.144-6.494 3.805-12.002c.583-1.932.48-2.354-2.29-2.882l-1.687-.311c.063-.204.441-2.075.504-2.278a94.249 94.249 0 0 0 12.214-.789l-5.499 19c-.858 2.966-.752 3.204 4.93 4.302c-.066.234-.6 2.218-.665 2.453Z"
                             />
-                            <g fill="none" stroke="#000" stroke-width="2">
+                            <g fill="none" stroke="#000" strokeWidth="2">
                               <path
-                                stroke-miterlimit="10"
+                                strokeMiterlimit="10"
                                 d="M53.237 12.777q.762.501 1.483 1.082c10.08 8.124 10.052 24.883-.061 37.43S28.175 67.424 18.095 59.3a19.09 19.09 0 0 1-2.172-2.05"
                               />
                               <ellipse
                                 cx="34.153"
                                 cy="34.635"
-                                stroke-miterlimit="10"
+                                strokeMiterlimit="10"
                                 rx="29.033"
                                 ry="22.118"
                                 transform="rotate(-51.131 34.153 34.635)"
                               />
                               <path
-                                stroke-miterlimit="10"
+                                strokeMiterlimit="10"
                                 d="m51.373 48.515l3.286 2.775m-6.743.97l2.896 3.113m-6.555-.069l2.378 3.322m-6.392-.644l1.872 3.344m11.921-16.551l3.489 2.414"
                               />
                               <path
@@ -915,10 +920,10 @@ export default function Dashboard() {
 
           {/* Floating Action Button */}
           <div className="fixed bottom-8 right-8 dashboard-add-training z-50">
-            <Link to="/request">
+            <div>
               <div className="group relative">
                 {/* Main Button */}
-                <button className="relative flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 ease-out transform hover:scale-105 overflow-hidden min-w-[56px] h-14 group-hover:min-w-[160px] group-hover:px-4">
+                <button className="relative flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 ease-out transform hover:scale-105 overflow-hidden min-w-[56px] h-14 group-hover:min-w-[160px] group-hover:px-4" onClick={openNewTraining}>
 
                   {/* Plus Icon */}
                   <div className="flex items-center justify-center transition-all duration-300 ease-out group-hover:mr-2">
@@ -951,7 +956,7 @@ export default function Dashboard() {
                   <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-2 border-r-2 border-t-2 border-transparent border-t-gray-800"></div>
                 </div>
               </div>
-            </Link>
+            </div>
           </div>
         </div>
       </div>

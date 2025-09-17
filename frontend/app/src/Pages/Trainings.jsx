@@ -54,7 +54,7 @@ export default function Trainings() {
   const openNewTraining = () => {
     localStorage.removeItem("fedclient_request_form_data");
     localStorage.removeItem("fedclient_request_current_step");
-    navigate(`/Request`);
+    navigate(`/request`);
   };
 
   // const fetchSessions = async () => {

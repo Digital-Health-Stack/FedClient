@@ -116,9 +116,8 @@ const Result = ({ sessionId }) => {
           })
           .then((canvas) => {
             const link = document.createElement("a");
-            link.download = `training-results-${selectedMetric}-${
-              sessionId || "chart"
-            }.png`;
+            link.download = `training-results-${selectedMetric}-${sessionId || "chart"
+              }.png`;
             link.href = canvas.toDataURL("image/png");
             link.click();
           })
@@ -154,9 +153,8 @@ const Result = ({ sessionId }) => {
       ctx.drawImage(img, 0, 0);
 
       const link = document.createElement("a");
-      link.download = `training-results-${selectedMetric}-${
-        sessionId || "chart"
-      }.png`;
+      link.download = `training-results-${selectedMetric}-${sessionId || "chart"
+        }.png`;
       link.href = canvas.toDataURL("image/png");
       link.click();
     };
@@ -251,21 +249,19 @@ const Result = ({ sessionId }) => {
           <div className="flex space-x-2">
             <button
               onClick={() => setActiveTab("chart")}
-              className={`px-3 py-1 text-sm rounded-md ${
-                activeTab === "chart"
-                  ? "bg-blue-100 text-blue-700"
-                  : "text-gray-600 hover:bg-gray-100"
-              }`}
+              className={`px-3 py-1 text-sm rounded-md ${activeTab === "chart"
+                ? "bg-blue-100 text-blue-700"
+                : "text-gray-600 hover:bg-gray-100"
+                }`}
             >
               Chart View
             </button>
             <button
               onClick={() => setActiveTab("table")}
-              className={`px-3 py-1 text-sm rounded-md ${
-                activeTab === "table"
-                  ? "bg-blue-100 text-blue-700"
-                  : "text-gray-600 hover:bg-gray-100"
-              }`}
+              className={`px-3 py-1 text-sm rounded-md ${activeTab === "table"
+                ? "bg-blue-100 text-blue-700"
+                : "text-gray-600 hover:bg-gray-100"
+                }`}
             >
               Table View
             </button>
@@ -282,9 +278,8 @@ const Result = ({ sessionId }) => {
                       : downloadTableAsCSV
                   }
                   className="flex items-center px-3 py-1 text-sm rounded-md bg-green-100 text-green-700 hover:bg-green-200 transition-colors"
-                  title={`Download ${
-                    activeTab === "chart" ? "chart as PNG" : "table as CSV"
-                  }`}
+                  title={`Download ${activeTab === "chart" ? "chart as PNG" : "table as CSV"
+                    }`}
                 >
                   <ArrowDownTrayIcon className="h-4 w-4 mr-1" />
                   Download {activeTab === "chart" ? "PNG" : "CSV"}
@@ -301,11 +296,10 @@ const Result = ({ sessionId }) => {
                   <button
                     key={metric}
                     onClick={() => setSelectedMetric(metric)}
-                    className={`px-3 py-1 text-sm rounded-md capitalize ${
-                      selectedMetric === metric
-                        ? "bg-blue-100 text-blue-700"
-                        : "bg-gray-100 text-gray-600"
-                    }`}
+                    className={`px-3 py-1 text-sm rounded-md capitalize ${selectedMetric === metric
+                      ? "bg-blue-100 text-blue-700"
+                      : "bg-gray-100 text-gray-600"
+                      }`}
                   >
                     {metric.replace(/_/g, " ")}
                   </button>
@@ -376,10 +370,10 @@ const Result = ({ sessionId }) => {
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                               {results.client_results[selectedMetric]?.[round]
                                 ? formatMetricValue(
-                                    results.client_results[selectedMetric][
-                                      round
-                                    ]
-                                  )
+                                  results.client_results[selectedMetric][
+                                  round
+                                  ]
+                                )
                                 : "-"}
                             </td>
                           </tr>
@@ -397,11 +391,10 @@ const Result = ({ sessionId }) => {
                   <button
                     key={metric}
                     onClick={() => setSelectedMetric(metric)}
-                    className={`px-3 py-1 text-sm rounded-md capitalize ${
-                      selectedMetric === metric
-                        ? "bg-blue-100 text-blue-700"
-                        : "bg-gray-100 text-gray-600"
-                    }`}
+                    className={`px-3 py-1 text-sm rounded-md capitalize ${selectedMetric === metric
+                      ? "bg-blue-100 text-blue-700"
+                      : "bg-gray-100 text-gray-600"
+                      }`}
                   >
                     {metric.replace(/_/g, " ")}
                   </button>
@@ -428,8 +421,8 @@ const Result = ({ sessionId }) => {
                 </div>
               ) : (
                 <div className="h-96 relative">
-                  <h4 className="text-md font-medium text-center text-gray-700 mb-2">
-                    {selectedMetric.toUpperCase().replace(/_/g, " ")}{" "}
+                  <h4 className="text-md font-medium text-center capitalize text-gray-700 mb-2">
+                    {selectedMetric.replace(/_/g, " ")}{" "}
                     Progression
                   </h4>
 
@@ -520,8 +513,8 @@ const Result = ({ sessionId }) => {
                       <YAxis
                         label={{
                           value: selectedMetric
-                            .toUpperCase()
-                            .replace(/_/g, " "),
+                            .replace(/_/g, " ")
+                            .replace(/^\w/, c => c.toUpperCase()),
                           angle: -90,
                           offset: -20,
                           position: "insideLeft",
@@ -570,8 +563,7 @@ const Result = ({ sessionId }) => {
 
         <div className="px-6 py-3 bg-gray-50 text-right text-xs text-gray-500 border-t border-gray-200">
           {sessionId &&
-            `Session ID #${sessionId} | Current Round: ${
-              results.current_round || "N/A"
+            `Session ID #${sessionId} | Current Round: ${results.current_round || "N/A"
             }`}
         </div>
       </div>
