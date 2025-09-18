@@ -55,7 +55,7 @@ const ActionSection = ({ data, sessionId, onRefreshData }) => {
     setLoadingDatasets(true);
     try {
       const response = await getProcessedDatasets(0, 100); // Fetch up to 100 datasets
-      setProcessedDatasets(response.data || []);
+      setProcessedDatasets(response.data.datasets || []);
     } catch (error) {
       console.error("Error fetching processed datasets:", error);
       setProcessedDatasets([]);
