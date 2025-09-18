@@ -12,7 +12,9 @@ from concurrent.futures import ThreadPoolExecutor
 from schemas.dataset import (
     DatasetCreate,
     RawDatasetListResponse,
+    RawDatasetListWithCountResponse,
     DatasetListResponse,
+    DatasetListWithCountResponse,
     Operation,
     DatasetUpdate,
 )
@@ -158,7 +160,7 @@ def hello_server():
 
 
 ############ Raw Dataset Management Routes
-@dataset_router.get("/list-raw-datasets", response_model=List[RawDatasetListResponse])
+@dataset_router.get("/list-raw-datasets", response_model=RawDatasetListWithCountResponse)
 def list_raw_datasets_endpoint(
     skip: int = Query(0, ge=0),
     limit: int = Query(100, ge=1, le=1000),
@@ -322,7 +324,7 @@ async def create_new_dataset(file: UploadFile = File(...)):
 
 
 ############ Processed Dataset Management Routes
-@dataset_router.get("/list-datasets", response_model=List[DatasetListResponse])
+@dataset_router.get("/list-datasets", response_model=DatasetListWithCountResponse)
 def list_datasets_endpoint(
     skip: int = Query(0, ge=0),
     limit: int = Query(100, ge=1, le=1000),

@@ -73,8 +73,8 @@ const ViewAllDatasets = () => {
       const response = await axios.get(endpoints[selectedFolder].fetch, {
         params: { skip: (currentPage - 1) * PAGE_SIZE, limit: PAGE_SIZE },
       });
-      setDatasets(response.data);
-      setTotalCount(response.headers["x-total-count"] || response.data.length);
+      setDatasets(response.data.datasets);
+      setTotalCount(response.data.total);
     } catch (err) {
       setError("Failed to load datasets");
     } finally {
@@ -316,10 +316,9 @@ const ViewAllDatasets = () => {
             <button
               onClick={() => handleTabClick("add")}
               className={`manage-data-add-dataset w-full flex items-center gap-3 p-3 rounded-xl text-left
-                ${
-                  selectedFolder === "add"
-                    ? "bg-blue-50 text-blue-700"
-                    : "hover:bg-gray-100"
+                ${selectedFolder === "add"
+                  ? "bg-blue-50 text-blue-700"
+                  : "hover:bg-gray-100"
                 }`}
             >
               <FilePlus className="h-5 w-5" />
@@ -330,11 +329,10 @@ const ViewAllDatasets = () => {
                 key={folder}
                 onClick={() => handleTabClick(folder)}
                 className={`manage-data-${folder}-datasets w-full flex items-center gap-3 p-3 rounded-xl text-left
-                ${
-                  selectedFolder === folder
+                ${selectedFolder === folder
                     ? "bg-blue-50 text-blue-700"
                     : "hover:bg-gray-100"
-                }`}
+                  }`}
               >
                 {folder === "raw" && (
                   <svg
@@ -372,11 +370,10 @@ const ViewAllDatasets = () => {
             <button
               onClick={() => handleTabClick("datasets")}
               className={`manage-data-datasets w-full flex items-center gap-3 p-3 rounded-xl text-left
-                      ${
-                        selectedFolder === "datasets"
-                          ? "bg-blue-50 text-blue-700"
-                          : "hover:bg-gray-100"
-                      }`}
+                      ${selectedFolder === "datasets"
+                  ? "bg-blue-50 text-blue-700"
+                  : "hover:bg-gray-100"
+                }`}
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -443,8 +440,8 @@ const ViewAllDatasets = () => {
                     {selectedFolder === "raw"
                       ? "Raw Datasets"
                       : selectedFolder == "datasets"
-                      ? "Testing Datasets"
-                      : "Processed Datasets"}
+                        ? "Testing Datasets"
+                        : "Processed Datasets"}
                   </h1>
                   <a
                     href="/preprocessing-docs"
