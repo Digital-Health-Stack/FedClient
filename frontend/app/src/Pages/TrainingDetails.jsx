@@ -123,6 +123,7 @@ export default function TrainingDetails() {
       id: "results",
       label: "Results",
       icon: <ChartBarIcon className="h-5 w-5" />,
+      disabled: ["PRICE_NEGOTIATION", "ACCEPTING_CLIENTS"],
     },
     { id: "actions", label: "Actions", icon: <BoltIcon className="h-5 w-5" /> },
     {
@@ -253,20 +254,28 @@ export default function TrainingDetails() {
         <div className="mb-4 p-2">{renderStatusBadge()}</div>
 
         <nav className="space-y-1">
-          {sections.map((section) => (
-            <button
-              key={section.id}
-              onClick={() => setCurrentSection(section.id)}
-              className={`w-full flex items-center px-3 py-2 text-sm font-medium rounded-md transition ${
-                currentSection === section.id
-                  ? "bg-blue-100 text-blue-700"
-                  : "text-gray-600 hover:bg-gray-100"
-              }`}
-            >
-              <span className="mr-3">{section.icon}</span>
-              {section.label}
-            </button>
-          ))}
+          {sections.map((section) => {
+            return (
+              <button
+                key={section.id}
+                onClick={() => setCurrentSection(section.id)}
+                disabled={
+                  section.disabled &&
+                  section.disabled.includes(
+                    federatedSessionData?.training_status
+                  )
+                }
+                className={`w-full flex items-center px-3 py-2 text-sm font-medium rounded-md transition disabled:opacity-50 ${
+                  currentSection === section.id
+                    ? "bg-blue-100 text-blue-700"
+                    : "text-gray-600 hover:bg-gray-100"
+                }`}
+              >
+                <span className="mr-3">{section.icon}</span>
+                {section.label}
+              </button>
+            );
+          })}
         </nav>
       </div>
 
