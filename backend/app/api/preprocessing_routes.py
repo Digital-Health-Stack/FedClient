@@ -160,7 +160,9 @@ def hello_server():
 
 
 ############ Raw Dataset Management Routes
-@dataset_router.get("/list-raw-datasets", response_model=RawDatasetListWithCountResponse)
+@dataset_router.get(
+    "/list-raw-datasets", response_model=RawDatasetListWithCountResponse
+)
 def list_raw_datasets_endpoint(
     skip: int = Query(0, ge=0),
     limit: int = Query(100, ge=1, le=1000),
@@ -413,7 +415,12 @@ async def delete_processed_dataset_file(
         if isinstance(filename, dict) and "error" in filename:
             raise HTTPException(status_code=404, detail=filename["error"])
 
-        await hdfs_client.delete_file_from_hdfs(HDFS_PROCESSED_DATASETS_DIR, filename)
+        try:
+            await hdfs_client.delete_file_from_hdfs(
+                HDFS_PROCESSED_DATASETS_DIR, filename
+            )
+        except Exception as e:
+            print("Failed to delete file from HDFS (continuing):", str(e))
 
         result = delete_dataset(db, dataset_id)
         if isinstance(result, dict) and "error" in result:
