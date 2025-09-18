@@ -269,7 +269,7 @@ def main(session_id, client_token):
 
         # ==== Load and update global parameters ====
         global_parameters = receive_global_parameters(get_url, session_id, client_token)
-        print("Checkpoint isFirst : ", global_parameters)
+        # print("Checkpoint isFirst : ", global_parameters)
         if global_parameters and global_parameters["is_first"] == 0:
             print(
                 "Checkpint global_parameters: ",
@@ -285,7 +285,7 @@ def main(session_id, client_token):
 
         # print("Local parameters saved to local_parameters.txt")
         before_training = model.get_parameters()
-        print("Before Training : ", before_training)
+        # print("Before Training : ", before_training)
 
         print(f"X dtype: {X.dtype}, Y dtype: {Y.dtype}")
         print(f"X shape: {X.shape}, Y shape: {Y.shape}")
@@ -294,7 +294,7 @@ def main(session_id, client_token):
         model.fit(X, Y)
         print("Training completed")
         after_training = model.get_parameters()
-        print("After Training : ", after_training)
+        # print("After Training : ", after_training)
         # TODO: Compare parameters for all model types
         # compare_parameters(before_training, after_training)
 

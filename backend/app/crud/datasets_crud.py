@@ -63,13 +63,10 @@ def rename_raw_dataset(db: Session, old_file_name: str, new_file_name: str):
 
 def list_raw_datasets(db: Session, skip: int, limit: int):
     try:
-        return (
-            db.query(RawDataset)
-            .options(load_only(RawDataset.filename))
-            .offset(skip)
-            .limit(limit)
-            .all()
-        )
+        query = db.query(RawDataset).options(load_only(RawDataset.filename))
+        total = query.count()
+        datasets = query.offset(skip).limit(limit).all()
+        return {"datasets": datasets, "total": total}
     except SQLAlchemyError as e:
         return {"error": f"Database error: {e}"}
 
@@ -185,13 +182,10 @@ def rename_dataset(db: Session, filename: str, new_file_name: str):
 
 def list_datasets(db: Session, skip: int, limit: int):
     try:
-        return (
-            db.query(Dataset)
-            .options(load_only(Dataset.filename))
-            .offset(skip)
-            .limit(limit)
-            .all()
-        )
+        query = db.query(Dataset).options(load_only(Dataset.filename))
+        total = query.count()
+        datasets = query.offset(skip).limit(limit).all()
+        return {"datasets": datasets, "total": total}
     except SQLAlchemyError as e:
         return {"error": f"Database error: {e}"}
 

@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, List
 
 
 class DatasetCreate(BaseModel):
@@ -24,10 +24,20 @@ class RawDatasetListResponse(BaseModel):
     description: Optional[str] = None
 
 
+class RawDatasetListWithCountResponse(BaseModel):
+    datasets: List[RawDatasetListResponse]
+    total: int
+
+
 class DatasetListResponse(BaseModel):
     dataset_id: int
     filename: str
     description: Optional[str] = None
+
+
+class DatasetListWithCountResponse(BaseModel):
+    datasets: List[DatasetListResponse]
+    total: int
 
 
 class Operation(BaseModel):

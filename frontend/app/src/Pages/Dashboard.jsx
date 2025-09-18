@@ -17,18 +17,41 @@ export default function Dashboard() {
   const [initiatedSessions, setInitiatedSessions] = useState([]);
   const [datasets, setDatasets] = useState({ uploads: [], processed: [] });
   const [sessions, setSessions] = useState([]);
+  const [dashInfo, setDashInfo] = useState({
+    total_active_sessions: 0,
+    total_raw_datasets: 0,
+    total_processed_datasets: 0,
+    total_sessions: 0
+  });
   const navigate = useNavigate();
   const { api } = useAuth();
   const user = JSON.parse(localStorage.getItem("user"));
   // Update fetchInitiatedSession
   const fetchInitiatedSession = async () => {
     try {
-      const res = await getUserInitiatedSessions(api);
+      const res = await getAllSessions(
+        api, 1, 5,
+        {
+          sortOrder: "desc",
+          search: "",
+          trainingStatus: "STARTED",
+        }
+      );
       // Check if res.data is an array before slicing
-      const data = Array.isArray(res.data) ? res.data : [];
-      setInitiatedSessions(data.slice(0, 5));
+      const data = Array.isArray(res.data.data) ? res.data.data : []; // data is an array of sessions
+      console.log(res);
+
+      setInitiatedSessions(data);
+      setDashInfo(prev => ({
+        ...prev,
+        total_active_sessions: res.data.total || 0,
+      }));
     } catch (error) {
       setInitiatedSessions([]);
+      setDashInfo(prev => ({
+        ...prev,
+        total_active_sessions: 0,
+      }));
       console.error("Error fetching initiated sessions:", error);
     }
   };
@@ -41,17 +64,28 @@ export default function Dashboard() {
   const fetchDatasets = async () => {
     try {
       const [raw, processed] = await Promise.all([
-        getRawDatasets().catch(() => ({ data: [] })), // Handle rejected promises
-        getProcessedDatasets().catch(() => ({ data: [] })),
+        getRawDatasets().catch(() => ({ data: { datasets: [], total: 0 } })), // Handle rejected promises
+        getProcessedDatasets().catch(() => ({ data: { datasets: [], total: 0 } })),
       ]);
 
-      // Ensure data is an array
-      const uploads = Array.isArray(raw.data) ? raw.data : [];
-      const processedData = Array.isArray(processed.data) ? processed.data : [];
+      // Ensure data is an array and handle the new API response format
+      const uploads = Array.isArray(raw.data.datasets) ? raw.data.datasets : [];
+      const processedData = Array.isArray(processed.data.datasets) ? processed.data.datasets : [];
+      console.log(uploads, processedData);
+      setDashInfo(prev => ({
+        ...prev,
+        total_raw_datasets: raw.data.total || 0,
+        total_processed_datasets: processed.data.total || 0,
+      }));
 
       setDatasets({ uploads, processed: processedData });
     } catch (error) {
       setDatasets({ uploads: [], processed: [] });
+      setDashInfo(prev => ({
+        ...prev,
+        total_raw_datasets: 0,
+        total_processed_datasets: 0,
+      }));
       console.error("Error fetching datasets:", error);
     }
   };
@@ -62,6 +96,10 @@ export default function Dashboard() {
       const res = await getAllSessions(api, 1, 5);
       const data = Array.isArray(res.data.data) ? res.data.data : [];
       setSessions(data.slice(0, 5));
+      setDashInfo(prev => ({
+        ...prev,
+        total_sessions: res.data.total || 0,
+      }));
     } catch (error) {
       setSessions([]);
       console.error("Error fetching sessions:", error);
@@ -98,9 +136,20 @@ export default function Dashboard() {
     CANCELLED: "Cancelled",
     FAILED: "Failed",
   };
-
+  const formatTimestamp = (timestamp) => {
+    try {
+      const utcTimestamp = timestamp + "Z";
+      const date = new Date(utcTimestamp);
+      return date.toLocaleString("en-IN", {
+        dateStyle: "medium",
+        timeStyle: "short",
+      });
+    } catch (e) {
+      return timestamp;
+    }
+  };
   useEffect(() => {
-    // fetchInitiatedSession();
+    fetchInitiatedSession();
     fetchDatasets();
     fetchSessions();
   }, []);
@@ -292,7 +341,7 @@ export default function Dashboard() {
                     </div>
                   </div>
                   <p className="text-2xl font-semibold mt-2">
-                    {initiatedSessions.length}
+                    {dashInfo.total_active_sessions}
                   </p>
                 </div>
                 <div className="bg-blue-100 p-3 rounded-lg">
@@ -356,7 +405,7 @@ export default function Dashboard() {
                     </div>
                   </div>
                   <p className="text-2xl font-semibold mt-2">
-                    {datasets.uploads.length}
+                    {dashInfo.total_raw_datasets}
                   </p>
                 </div>
                 <div className="bg-purple-100 p-3 rounded-lg">
@@ -421,7 +470,7 @@ export default function Dashboard() {
                     </div>
                   </div>
                   <p className="text-2xl font-semibold mt-2">
-                    {datasets.processed.length}
+                    {dashInfo.total_processed_datasets}
                   </p>
                 </div>
                 <div className="bg-green-100 p-3 rounded-lg">
@@ -451,85 +500,200 @@ export default function Dashboard() {
           </div>
 
           {/* Active Sessions Table */}
-          <div className="bg-white rounded-xl shadow-sm p-6 mb-8 dashboard-active-training-sessions relative">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold text-gray-900">
-                Active Training Sessions
-              </h2>
-              <Link
-                to="/trainings"
-                className="text-blue-600 text-sm hover:underline"
-              >
-                View All →
-              </Link>
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden mb-8 dashboard-active-training-sessions relative">
+            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 px-6 py-4 border-b border-gray-100">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <div className="bg-blue-100 p-2 rounded-lg">
+                    <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h2 className="text-lg font-semibold text-gray-900">
+                      Active Training Sessions
+                    </h2>
+                    {console.log(dashInfo)}
+                    <p className="text-sm text-gray-500">
+                      {dashInfo.total_active_sessions} session{initiatedSessions.length !== 1 ? 's' : ''} currently running
+                    </p>
+                  </div>
+                </div>
+                <Link
+                  to="/trainings"
+                  className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+                >
+                  View All
+                  <svg className="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </Link>
+              </div>
             </div>
+
             <div className="overflow-x-auto">
               <table className="w-full">
-                <thead className="bg-gray-50">
+                <thead className="bg-gray-50 border-b border-gray-200">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                      Session ID
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                      Session Details
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                    {/* <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                      Status
+                    </th> */}
+                    <th className="px-6 py-4 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider">
                       Progress
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                      Status
+                    <th className="px-6 py-4 text-right text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                      Created At
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                      Action
-                    </th>
+                    {/* <th className="px-6 py-4 text-right text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                      Actions
+                    </th> */}
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-200">
+                <tbody className="divide-y divide-gray-100 bg-white">
                   {initiatedSessions.length > 0 &&
-                    initiatedSessions.map((session) => (
-                      <tr key={session.session_id}>
-                        <td className="px-6 py-4 text-sm font-medium text-gray-900">
-                          {session.session_id}
-                        </td>
-                        <td className="px-6 py-4">
-                          <div className="flex items-center">
-                            <div className="w-24 h-2 bg-gray-200 rounded-full overflow-hidden">
-                              <div
-                                className="h-full bg-blue-600"
-                                style={{
-                                  width: `${(session.curr_round / session.max_round) *
-                                    100
-                                    }%`,
-                                }}
-                              />
+                    initiatedSessions.map((session, index) => {
+                      const progressPercentage = Math.round(((session.curr_round - 1) / session.total_rounds) * 100);
+                      const isCompleted = session.curr_round === session.total_rounds;
+                      const isStarting = session.curr_round === 0;
+
+                      return (
+                        <tr key={session.id} className="hover:bg-gray-50 transition-colors">
+                          <td className="px-6">
+                            <div className="flex items-center space-x-3">
+                              <div className="flex-shrink-0">
+                                <div className="w-10 h-10 rounded-lg flex items-center justify-center">
+                                  <span className="text-blue-700 font-semibold text-sm">
+                                    #{String(session.id).padStart(2, '0')}
+                                  </span>
+                                </div>
+                              </div>
+                              <div className="min-w-0 flex-1">
+                                <div className="flex items-center space-x-2">
+                                  <p className="text-sm font-medium text-gray-900 truncate" title={session.name}>
+                                    {session.name && session.name.length > 35
+                                      ? session.name.slice(0, 35) + "..."
+                                      : session.name || "Untitled Session"}
+                                  </p>
+                                </div>
+                                {/* <div className="flex items-center space-x-2 mt-1">
+                                  <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
+                                    ID: {session.id}
+                                  </span>
+                                </div> */}
+                              </div>
                             </div>
-                            <span className="ml-2 text-sm text-gray-600">
-                              {session.curr_round}/{session.max_round}
+                          </td>
+
+                          {/* <td className="px-6 py-4">
+                            <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${isCompleted
+                              ? 'bg-green-100 text-green-800'
+                              : isStarting
+                                ? 'bg-yellow-100 text-yellow-800'
+                                : 'bg-blue-100 text-blue-800'
+                              }`}>
+                              <svg className={`w-3 h-3 mr-1 ${isCompleted ? 'text-green-500' : isStarting ? 'text-yellow-500' : 'text-blue-500'
+                                }`} fill="currentColor" viewBox="0 0 8 8">
+                                <circle cx={4} cy={4} r={3} />
+                              </svg>
+                              {isCompleted ? 'Completed' : isStarting ? 'Starting' : 'Training'}
                             </span>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4">
-                          <span
-                            className={`inline-flex items-center px-3 py-0.5 rounded-full text-sm font-medium ${getStatusColor(
-                              session.training_status
-                            )}`}
-                          >
-                            {TrainingStatuses[session.training_status] ||
-                              "Unknown"}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4">
-                          <Link
-                            to={`/trainings/${session.session_id}`}
-                            className="text-blue-600 hover:text-blue-900 text-sm font-medium"
-                          >
-                            Details →
-                          </Link>
-                        </td>
-                      </tr>
-                    ))}
+                          </td> */}
+
+                          <td className="px-6 py-4 text-center">
+                            <div className="flex justify-center">
+                              <div className="w-96">
+                                <div className="flex items-center justify-between mb-1">
+                                  <span className="text-xs font-medium text-gray-700">
+                                    On round {session.curr_round} of {session.total_rounds}
+                                  </span>
+                                  <span className="text-xs font-bold text-gray-900">
+                                    {/* {progressPercentage}% */}
+                                  </span>
+                                </div>
+                                <div className="w-full bg-gray-200 rounded-full h-2.5 overflow-hidden">
+                                  <div
+                                    className={`h-full rounded-full transition-all duration-500 ease-out ${isCompleted
+                                      ? 'bg-gradient-to-r from-green-500 to-green-600'
+                                      : 'bg-gradient-to-r from-blue-500 to-blue-600'
+                                      }`}
+                                    style={{
+                                      width: `${progressPercentage}%`,
+                                    }}
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                          </td>
+
+                          <td className="px-6 py-4 text-sm text-gray-500 text-right">
+                            {session.created_at ? (
+                              <div className="flex items-center justify-end space-x-1">
+                                <svg className="w-4 h-4 font-bold text-gray-400" fill="none" stroke="#6b7280" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                <span>{formatTimestamp(session.created_at)}</span>
+                              </div>
+                            ) : (
+                              <span className="text-gray-400">—</span>
+                            )}
+                          </td>
+
+                          {/* <td className="px-6 py-4 text-right">
+                            <div className="flex items-center justify-end space-x-2">
+                              <Link
+                                to={`/trainings/${session.id}`}
+                                className="inline-flex items-center px-3 py-1.5 border border-gray-300 shadow-sm text-xs font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+                              >
+                                <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                </svg>
+                                View
+                              </Link>
+                              {!isCompleted && (
+                                <button
+                                  className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+                                  title="Monitor Progress"
+                                >
+                                  <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                                  </svg>
+                                  Monitor
+                                </button>
+                              )}
+                            </div>
+                          </td> */}
+                        </tr>
+                      );
+                    })}
                 </tbody>
               </table>
+
               {!initiatedSessions.length && (
-                <div className="text-center py-8 text-gray-500">
-                  No active training sessions
+                <div className="text-center py-12">
+                  <div className="flex flex-col items-center space-y-3">
+                    <div className="bg-gray-100 rounded-full p-4">
+                      <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-medium text-gray-900 mb-1">No active training sessions</h3>
+                      <p className="text-sm text-gray-500">Start a new federated learning session to see it here.</p>
+                    </div>
+                    <Link
+                      to="/request"
+                      className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+                    >
+                      <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                      </svg>
+                      Start New Training
+                    </Link>
+                  </div>
                 </div>
               )}
             </div>
@@ -538,19 +702,37 @@ export default function Dashboard() {
           {/* Recent Data Section */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Recent Datasets */}
-            <div className="bg-white rounded-xl shadow-sm p-6 dashboard-recent-datasets relative">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-semibold text-gray-900">
-                  Recent Datasets
-                </h2>
-                <Link
-                  to="/view-all-datasets"
-                  className="text-blue-600 text-sm hover:underline"
-                >
-                  View All →
-                </Link>
+            <div className="bg-white rounded-xl shadow-sm dashboard-recent-datasets relative">
+              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 px-6 py-4 border-b rounded-t-xl border-gray-100">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <div className="bg-blue-100 p-2 rounded-lg">
+                      <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <h2 className="text-lg font-semibold text-gray-900">
+                        Recent Datasets
+                      </h2>
+                      {console.log(dashInfo)}
+                      <p className="text-sm text-gray-500">
+                        {dashInfo.total_raw_datasets + dashInfo.total_processed_datasets} dataset{dashInfo.total_raw_datasets + dashInfo.total_processed_datasets !== 1 ? 's' : ''} uploaded
+                      </p>
+                    </div>
+                  </div>
+                  <Link
+                    to="/view-all-datasets"
+                    className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+                  >
+                    View All
+                    <svg className="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </Link>
+                </div>
               </div>
-              <div className="space-y-4">
+              <div className="space-y-4 p-6 pt-3">
                 {datasets.uploads
                   .sort(
                     (a, b) => new Date(b.dataset_id) - new Date(a.dataset_id)
@@ -652,19 +834,37 @@ export default function Dashboard() {
             </div>
 
             {/* Recent Sessions */}
-            <div className="bg-white rounded-xl shadow-sm p-6 dashboard-recent-sessions relative">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-semibold text-gray-900">
-                  Recent Sessions
-                </h2>
-                <Link
-                  to="/trainings"
-                  className="text-blue-600 text-sm hover:underline"
-                >
-                  View All →
-                </Link>
+            <div className="bg-white rounded-xl shadow-sm dashboard-recent-sessions relative">
+              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 px-6 py-4 border-b rounded-t-xl border-gray-100">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <div className="bg-blue-100 p-2 rounded-lg">
+                      <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <h2 className="text-lg font-semibold text-gray-900">
+                        Recent Sessions
+                      </h2>
+                      {console.log(dashInfo)}
+                      <p className="text-sm text-gray-500">
+                        {dashInfo.total_sessions} session{dashInfo.total_sessions !== 1 ? 's' : ''} created
+                      </p>
+                    </div>
+                  </div>
+                  <Link
+                    to="/trainings"
+                    className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+                  >
+                    View All
+                    <svg className="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </Link>
+                </div>
               </div>
-              <div className="space-y-4">
+              <div className="space-y-4 p-6 pt-3">
                 {sessions.map((session) => {
                   const getStatusIcon = (status) => {
                     switch (status) {

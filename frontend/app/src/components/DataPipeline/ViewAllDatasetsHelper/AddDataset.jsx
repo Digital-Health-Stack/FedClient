@@ -278,9 +278,8 @@ const AddDataset = () => {
           {/* Centered File Upload UI with fixed height */}
           <div className="flex items-center justify-center w-full">
             <div
-              className={`add-dataset-upload-area bg-white p-8 rounded-2xl min-h-[350px] shadow-lg border flex flex-col items-center justify-center w-full transition-all duration-200 ${
-                isDragOver ? "border-blue-400 bg-blue-50 shadow-blue-200" : ""
-              }`}
+              className={`add-dataset-upload-area bg-white p-8 rounded-2xl min-h-[350px] shadow-lg border flex flex-col items-center justify-center w-full transition-all duration-200 ${isDragOver ? "border-blue-400 bg-blue-50 shadow-blue-200" : ""
+                }`}
               onDragOver={handleDragOver}
               onDragLeave={handleDragLeave}
               onDrop={handleDrop}
@@ -290,9 +289,8 @@ const AddDataset = () => {
                 className="flex flex-col items-center gap-2 cursor-pointer text-blue-600 hover:text-blue-800 font-medium"
               >
                 <ArrowUpTrayIcon
-                  className={`h-10 w-10 mb-2 transition-colors ${
-                    isDragOver ? "text-blue-500" : ""
-                  }`}
+                  className={`h-10 w-10 mb-2 transition-colors ${isDragOver ? "text-blue-500" : ""
+                    }`}
                 />
                 <span className="mb-2">
                   {isDragOver
@@ -352,12 +350,12 @@ const AddDataset = () => {
                           <div className="ml-2">
                             {uploadProgress[file.name].status ===
                               "uploading" && (
-                              <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-                            )}
+                                <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                              )}
                             {uploadProgress[file.name].status ===
                               "completed" && (
-                              <CheckCircleIcon className="h-4 w-4 text-green-500" />
-                            )}
+                                <CheckCircleIcon className="h-4 w-4 text-green-500" />
+                              )}
                             {uploadProgress[file.name].status === "failed" && (
                               <XCircleIcon
                                 className="h-4 w-4 text-red-500"
