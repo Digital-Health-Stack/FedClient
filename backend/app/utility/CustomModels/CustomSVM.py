@@ -296,8 +296,8 @@ class CustomSVM:
                 cm = confusion_matrix(y, y_pred)
                 results["confusion_matrix"] = cm.tolist()
         try:
-            print(len(results))
-            print(results.slice(0, 10))
+            print(f"Results count: {len(results)}")
+            print(f"Results: {results}")
         except Exception as e:
             print(f"Error in printing you can ignore this: {e}")
         return results
