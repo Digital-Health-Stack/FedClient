@@ -487,6 +487,7 @@ const ViewAllDatasets = () => {
                           key={dataset.dataset_id}
                           dataset={dataset}
                           isRaw={selectedFolder === "raw"}
+                          selectedFolder={selectedFolder}
                           onDelete={handleDelete}
                           onClick={() =>
                             navigate(
