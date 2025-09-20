@@ -418,13 +418,27 @@ def main(session_id, client_token):
 
         # Load data
         X = np.load(X_path, allow_pickle=True)
-        print("X : ", X.shape, type(X[0]))
+        (
+            print("X : ", X.shape, X.dtype)
+            if type(X) == np.ndarray
+            else print("X : ", len(X), type(X))
+        )
         if isinstance(X[0], str):
             # Parse each string row into individual pixel values
             print("Parsing string rows into individual pixel values")
             X = np.array(
                 [np.fromstring(img.strip(), sep=",", dtype=np.float32) for img in X]
             )
+
+            input_shape = model_config["model_info"]["input_shape"]
+            if isinstance(input_shape, str):
+                # Handle string format like '(150,150,3)'
+                import ast
+
+                input_shape = ast.literal_eval(input_shape)
+
+            print(f"Parsed input_shape: {input_shape}")
+            X = X.reshape(-1, *input_shape)
 
         Y = np.load(Y_path, allow_pickle=True)
 
@@ -451,32 +465,22 @@ def main(session_id, client_token):
         print(f"X dtype: {X.dtype}, Y dtype: {Y.dtype}")
         print(f"X shape: {X.shape}, Y shape: {Y.shape}")
 
-        print("model config:", model_config["model_info"]["input_shape"])
-
         # Convert input_shape from string to tuple if needed
-        input_shape = model_config["model_info"]["input_shape"]
-        if isinstance(input_shape, str):
-            # Handle string format like '(150,150,3)'
-            import ast
 
-            input_shape = ast.literal_eval(input_shape)
-
-        print(f"Parsed input_shape: {input_shape}")
-        # X = X.reshape(-1, *input_shape)
         # Reshape X to the input shape of the model
         # ==== Train ====
-        # model.fit(X, Y)
+        model.fit(X, Y)
         print("Training completed")
-        # after_training = model.get_parameters()
+        after_training = model.get_parameters()
         # print("After Training : ", after_training)
         # TODO: Compare parameters for all model types
         # compare_parameters(before_training, after_training)
 
         # Save updated parameters after training
-        # with open("updated_parameters.txt", "a", encoding="utf-8") as f:
-        #     f.write("\n--- Updated Parameters After Training ---\n")
-        #     f.write(json.dumps(model.get_parameters()))
-        #     f.write("\n")
+        with open("updated_parameters.txt", "a", encoding="utf-8") as f:
+            f.write("\n--- Updated Parameters After Training ---\n")
+            f.write(json.dumps(model.get_parameters()))
+            f.write("\n")
         # ==== Send updated parameters ====
         updated_parameters = model.get_parameters()
         # print("Updated Parameters : ", updated_parameters)
@@ -485,8 +489,9 @@ def main(session_id, client_token):
 
         # TODO: -------------------------------------------------------------------------------
         # Temporary evaluate function with simulated improving metrics
-        results = temporary_evaluate_with_improvement(X, Y, test_metrics, session_id)
+        # results = temporary_evaluate_with_improvement(X, Y, test_metrics, session_id)
         # TODO: -------------------------------------------------------------------------------
+        results = model.evaluate(X, Y, test_metrics)
 
         print("Results : ", results)
         payload = {
