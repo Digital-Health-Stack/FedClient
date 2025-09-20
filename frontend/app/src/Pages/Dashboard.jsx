@@ -21,7 +21,7 @@ export default function Dashboard() {
     total_active_sessions: 0,
     total_raw_datasets: 0,
     total_processed_datasets: 0,
-    total_sessions: 0
+    total_sessions: 0,
   });
   const navigate = useNavigate();
   const { api } = useAuth();
@@ -29,26 +29,23 @@ export default function Dashboard() {
   // Update fetchInitiatedSession
   const fetchInitiatedSession = async () => {
     try {
-      const res = await getAllSessions(
-        api, 1, 5,
-        {
-          sortOrder: "desc",
-          search: "",
-          trainingStatus: "STARTED",
-        }
-      );
+      const res = await getAllSessions(api, 1, 5, {
+        sortOrder: "desc",
+        search: "",
+        trainingStatus: "STARTED",
+      });
       // Check if res.data is an array before slicing
       const data = Array.isArray(res.data.data) ? res.data.data : []; // data is an array of sessions
       console.log(res);
 
       setInitiatedSessions(data);
-      setDashInfo(prev => ({
+      setDashInfo((prev) => ({
         ...prev,
         total_active_sessions: res.data.total || 0,
       }));
     } catch (error) {
       setInitiatedSessions([]);
-      setDashInfo(prev => ({
+      setDashInfo((prev) => ({
         ...prev,
         total_active_sessions: 0,
       }));
@@ -65,14 +62,18 @@ export default function Dashboard() {
     try {
       const [raw, processed] = await Promise.all([
         getRawDatasets().catch(() => ({ data: { datasets: [], total: 0 } })), // Handle rejected promises
-        getProcessedDatasets().catch(() => ({ data: { datasets: [], total: 0 } })),
+        getProcessedDatasets().catch(() => ({
+          data: { datasets: [], total: 0 },
+        })),
       ]);
 
       // Ensure data is an array and handle the new API response format
       const uploads = Array.isArray(raw.data.datasets) ? raw.data.datasets : [];
-      const processedData = Array.isArray(processed.data.datasets) ? processed.data.datasets : [];
+      const processedData = Array.isArray(processed.data.datasets)
+        ? processed.data.datasets
+        : [];
       console.log(uploads, processedData);
-      setDashInfo(prev => ({
+      setDashInfo((prev) => ({
         ...prev,
         total_raw_datasets: raw.data.total || 0,
         total_processed_datasets: processed.data.total || 0,
@@ -81,7 +82,7 @@ export default function Dashboard() {
       setDatasets({ uploads, processed: processedData });
     } catch (error) {
       setDatasets({ uploads: [], processed: [] });
-      setDashInfo(prev => ({
+      setDashInfo((prev) => ({
         ...prev,
         total_raw_datasets: 0,
         total_processed_datasets: 0,
@@ -96,7 +97,7 @@ export default function Dashboard() {
       const res = await getAllSessions(api, 1, 5);
       const data = Array.isArray(res.data.data) ? res.data.data : [];
       setSessions(data.slice(0, 5));
-      setDashInfo(prev => ({
+      setDashInfo((prev) => ({
         ...prev,
         total_sessions: res.data.total || 0,
       }));
@@ -505,8 +506,18 @@ export default function Dashboard() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-3">
                   <div className="bg-blue-100 p-2 rounded-lg">
-                    <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                    <svg
+                      className="w-5 h-5 text-blue-600"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+                      />
                     </svg>
                   </div>
                   <div>
@@ -515,7 +526,9 @@ export default function Dashboard() {
                     </h2>
                     {console.log(dashInfo)}
                     <p className="text-sm text-gray-500">
-                      {dashInfo.total_active_sessions} session{initiatedSessions.length !== 1 ? 's' : ''} currently running
+                      {dashInfo.total_active_sessions} session
+                      {initiatedSessions.length !== 1 ? "s" : ""} currently
+                      running
                     </p>
                   </div>
                 </div>
@@ -524,8 +537,18 @@ export default function Dashboard() {
                   className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
                 >
                   View All
-                  <svg className="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  <svg
+                    className="ml-1 w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 5l7 7-7 7"
+                    />
                   </svg>
                 </Link>
               </div>
@@ -555,24 +578,34 @@ export default function Dashboard() {
                 <tbody className="divide-y divide-gray-100 bg-white">
                   {initiatedSessions.length > 0 &&
                     initiatedSessions.map((session, index) => {
-                      const progressPercentage = Math.round(((session.curr_round - 1) / session.total_rounds) * 100);
-                      const isCompleted = session.curr_round === session.total_rounds;
+                      const progressPercentage = Math.round(
+                        ((session.curr_round - 1) / session.total_rounds) * 100
+                      );
+                      const isCompleted =
+                        session.curr_round === session.total_rounds;
                       const isStarting = session.curr_round === 0;
 
                       return (
-                        <tr key={session.id} className="hover:bg-gray-50 transition-colors">
+                        <tr
+                          key={session.id}
+                          className="hover:bg-gray-50 transition-colors"
+                          onClick={() => navigate(`/trainings/${session.id}`)}
+                        >
                           <td className="px-6">
                             <div className="flex items-center space-x-3">
                               <div className="flex-shrink-0">
                                 <div className="w-10 h-10 rounded-lg flex items-center justify-center">
                                   <span className="text-blue-700 font-semibold text-sm">
-                                    #{String(session.id).padStart(2, '0')}
+                                    #{String(session.id).padStart(2, "0")}
                                   </span>
                                 </div>
                               </div>
                               <div className="min-w-0 flex-1">
                                 <div className="flex items-center space-x-2">
-                                  <p className="text-sm font-medium text-gray-900 truncate" title={session.name}>
+                                  <p
+                                    className="text-sm font-medium text-gray-900 truncate"
+                                    title={session.name}
+                                  >
                                     {session.name && session.name.length > 35
                                       ? session.name.slice(0, 35) + "..."
                                       : session.name || "Untitled Session"}
@@ -607,7 +640,8 @@ export default function Dashboard() {
                               <div className="w-96">
                                 <div className="flex items-center justify-between mb-1">
                                   <span className="text-xs font-medium text-gray-700">
-                                    On round {session.curr_round} of {session.total_rounds}
+                                    On round {session.curr_round} of{" "}
+                                    {session.total_rounds}
                                   </span>
                                   <span className="text-xs font-bold text-gray-900">
                                     {/* {progressPercentage}% */}
@@ -615,10 +649,11 @@ export default function Dashboard() {
                                 </div>
                                 <div className="w-full bg-gray-200 rounded-full h-2.5 overflow-hidden">
                                   <div
-                                    className={`h-full rounded-full transition-all duration-500 ease-out ${isCompleted
-                                      ? 'bg-gradient-to-r from-green-500 to-green-600'
-                                      : 'bg-gradient-to-r from-blue-500 to-blue-600'
-                                      }`}
+                                    className={`h-full rounded-full transition-all duration-500 ease-out ${
+                                      isCompleted
+                                        ? "bg-gradient-to-r from-green-500 to-green-600"
+                                        : "bg-gradient-to-r from-blue-500 to-blue-600"
+                                    }`}
                                     style={{
                                       width: `${progressPercentage}%`,
                                     }}
@@ -631,10 +666,22 @@ export default function Dashboard() {
                           <td className="px-6 py-4 text-sm text-gray-500 text-right">
                             {session.created_at ? (
                               <div className="flex items-center justify-end space-x-1">
-                                <svg className="w-4 h-4 font-bold text-gray-400" fill="none" stroke="#6b7280" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                <svg
+                                  className="w-4 h-4 font-bold text-gray-400"
+                                  fill="none"
+                                  stroke="#6b7280"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                                  />
                                 </svg>
-                                <span>{formatTimestamp(session.created_at)}</span>
+                                <span>
+                                  {formatTimestamp(session.created_at)}
+                                </span>
                               </div>
                             ) : (
                               <span className="text-gray-400">—</span>
@@ -676,23 +723,47 @@ export default function Dashboard() {
                 <div className="text-center py-12">
                   <div className="flex flex-col items-center space-y-3">
                     <div className="bg-gray-100 rounded-full p-4">
-                      <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                      <svg
+                        className="w-8 h-8 text-gray-400"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={1.5}
+                          d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+                        />
                       </svg>
                     </div>
                     <div>
-                      <h3 className="text-sm font-medium text-gray-900 mb-1">No active training sessions</h3>
-                      <p className="text-sm text-gray-500">Start a new federated learning session to see it here.</p>
+                      <h3 className="text-sm font-medium text-gray-900 mb-1">
+                        No active training sessions
+                      </h3>
+                      <p className="text-sm text-gray-500">
+                        Start a new federated learning session to see it here.
+                      </p>
                     </div>
-                    <Link
-                      to="/request"
+                    <button
+                      onClick={openNewTraining}
                       className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
                     >
-                      <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                      <svg
+                        className="w-4 h-4 mr-2"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                        />
                       </svg>
                       Start New Training
-                    </Link>
+                    </button>
                   </div>
                 </div>
               )}
@@ -707,8 +778,18 @@ export default function Dashboard() {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-3">
                     <div className="bg-blue-100 p-2 rounded-lg">
-                      <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                      <svg
+                        className="w-5 h-5 text-blue-600"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+                        />
                       </svg>
                     </div>
                     <div>
@@ -717,7 +798,15 @@ export default function Dashboard() {
                       </h2>
                       {console.log(dashInfo)}
                       <p className="text-sm text-gray-500">
-                        {dashInfo.total_raw_datasets + dashInfo.total_processed_datasets} dataset{dashInfo.total_raw_datasets + dashInfo.total_processed_datasets !== 1 ? 's' : ''} uploaded
+                        {dashInfo.total_raw_datasets +
+                          dashInfo.total_processed_datasets}{" "}
+                        dataset
+                        {dashInfo.total_raw_datasets +
+                          dashInfo.total_processed_datasets !==
+                        1
+                          ? "s"
+                          : ""}{" "}
+                        uploaded
                       </p>
                     </div>
                   </div>
@@ -726,8 +815,18 @@ export default function Dashboard() {
                     className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
                   >
                     View All
-                    <svg className="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    <svg
+                      className="ml-1 w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M9 5l7 7-7 7"
+                      />
                     </svg>
                   </Link>
                 </div>
@@ -839,8 +938,18 @@ export default function Dashboard() {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-3">
                     <div className="bg-blue-100 p-2 rounded-lg">
-                      <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                      <svg
+                        className="w-5 h-5 text-blue-600"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+                        />
                       </svg>
                     </div>
                     <div>
@@ -849,7 +958,8 @@ export default function Dashboard() {
                       </h2>
                       {console.log(dashInfo)}
                       <p className="text-sm text-gray-500">
-                        {dashInfo.total_sessions} session{dashInfo.total_sessions !== 1 ? 's' : ''} created
+                        {dashInfo.total_sessions} session
+                        {dashInfo.total_sessions !== 1 ? "s" : ""} created
                       </p>
                     </div>
                   </div>
@@ -858,8 +968,18 @@ export default function Dashboard() {
                     className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
                   >
                     View All
-                    <svg className="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    <svg
+                      className="ml-1 w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M9 5l7 7-7 7"
+                      />
                     </svg>
                   </Link>
                 </div>
@@ -1123,8 +1243,10 @@ export default function Dashboard() {
             <div>
               <div className="group relative">
                 {/* Main Button */}
-                <button className="relative flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 ease-out transform hover:scale-105 overflow-hidden min-w-[56px] h-14 group-hover:min-w-[160px] group-hover:px-4" onClick={openNewTraining}>
-
+                <button
+                  className="relative flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 ease-out transform hover:scale-105 overflow-hidden min-w-[56px] h-14 group-hover:min-w-[160px] group-hover:px-4"
+                  onClick={openNewTraining}
+                >
                   {/* Plus Icon */}
                   <div className="flex items-center justify-center transition-all duration-300 ease-out group-hover:mr-2">
                     <svg
