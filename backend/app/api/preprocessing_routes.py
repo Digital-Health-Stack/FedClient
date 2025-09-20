@@ -249,7 +249,10 @@ async def delete_raw_dataset_file(
         if isinstance(filename, dict) and "error" in filename:
             raise HTTPException(status_code=404, detail=filename["error"])
 
-        await hdfs_client.delete_file_from_hdfs(HDFS_RAW_DATASETS_DIR, filename)
+        try:
+            await hdfs_client.delete_file_from_hdfs(HDFS_RAW_DATASETS_DIR, filename)
+        except Exception as e:
+            print("Failed to delete file from HDFS (continuing):", str(e))
 
         result = delete_raw_dataset(db, dataset_id)
         if isinstance(result, dict) and "error" in result:

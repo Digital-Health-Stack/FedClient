@@ -17,7 +17,14 @@ const RAW_DATASET_RENAME_URL =
 const PROCESSED_DATASET_RENAME_URL =
   process.env.REACT_APP_PRIVATE_SERVER_BASE_URL + "/edit-dataset-details";
 
-const FileCard = ({ dataset, isRaw, onDelete, onClick, onEditSuccess }) => {
+const FileCard = ({
+  dataset,
+  isRaw,
+  onDelete,
+  onClick,
+  onEditSuccess,
+  selectedFolder,
+}) => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isProcessing] = useState(dataset.filename.endsWith("__PROCESSING__"));
   const displayName = dataset.filename.replace(/__PROCESSING__$/, "");
@@ -102,24 +109,29 @@ const FileCard = ({ dataset, isRaw, onDelete, onClick, onEditSuccess }) => {
                 handleCopy(displayName);
               }}
             />
-            <button
-              className="p-1.5 text-blue-400 hover:text-blue-600 hover:bg-blue-100 rounded-full transition-colors"
-              onClick={(e) => {
-                e.stopPropagation();
-                setIsEditModalOpen(true);
-              }}
-            >
-              <PencilIcon className="h-5 w-5" />
-            </button>
-            <button
-              className="p-1.5 text-red-400 hover:text-red-600 hover:bg-red-100 rounded-full transition-colors"
-              onClick={(e) => {
-                e.stopPropagation();
-                onDelete(dataset.dataset_id, isRaw);
-              }}
-            >
-              <TrashIcon className="h-5 w-5" />
-            </button>
+            {selectedFolder !== "datasets" && (
+              <button
+                className="p-1.5 text-blue-400 hover:text-blue-600 hover:bg-blue-100 rounded-full transition-colors"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsEditModalOpen(true);
+                }}
+              >
+                <PencilIcon className="h-5 w-5" />
+              </button>
+            )}
+
+            {selectedFolder !== "datasets" && (
+              <button
+                className="p-1.5 text-red-400 hover:text-red-600 hover:bg-red-100 rounded-full transition-colors"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onDelete(dataset.dataset_id, isRaw);
+                }}
+              >
+                <TrashIcon className="h-5 w-5" />
+              </button>
+            )}
           </div>
         )}
       </div>
