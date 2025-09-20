@@ -48,6 +48,10 @@ const ActionSection = ({ data, sessionId, onRefreshData }) => {
   const [loadingDatasets, setLoadingDatasets] = useState(false);
   const [isAcceptingPrice, setIsAcceptingPrice] = useState(false);
   const [isRejectingPrice, setIsRejectingPrice] = useState(false);
+  const [isAcceptingParticipation, setIsAcceptingParticipation] =
+    useState(false);
+  const [isRejectingParticipation, setIsRejectingParticipation] =
+    useState(false);
   const [serverStats, _] = useState(fedInfo?.server_stats || null);
 
   // Fetch processed datasets
@@ -69,22 +73,53 @@ const ActionSection = ({ data, sessionId, onRefreshData }) => {
     fetchProcessedDatasets();
   }, []);
 
-  const onSubmitParticipationDecision = async (data) => {
+  const onSubmitParticipationDecision = async (decision) => {
+    const isAccepting = decision === "accepted";
+
+    // Set the appropriate loading state
+    if (isAccepting) {
+      setIsAcceptingParticipation(true);
+    } else {
+      setIsRejectingParticipation(true);
+    }
+
     const requestData = {
       session_id: sessionId,
-      decision: data.decision === "accepted" ? 1 : 0,
+      decision: isAccepting ? 1 : 0,
     };
+
     try {
-      submitTrainingAcceptanceResponse(api, requestData).then((response) => {
-        // alert(response?.data?.message);
-        toast.success(response?.data?.message, {
-          position: "bottom-center",
-          autoClose: 4000,
-        });
-        navigate(`/trainings/${sessionId}`);
+      const response = await submitTrainingAcceptanceResponse(api, requestData);
+      toast.success(response?.data?.message, {
+        position: "bottom-center",
+        autoClose: 4000,
       });
+
+      // Refresh the data after successful submission
+      if (onRefreshData) {
+        await onRefreshData();
+      }
+
+      // Reload the page after a short delay
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
     } catch (error) {
       console.error("Error submitting decision:", error);
+      toast.error(
+        "Failed to submit participation decision. Please try again.",
+        {
+          position: "bottom-center",
+          autoClose: 4000,
+        }
+      );
+    } finally {
+      // Reset the appropriate loading state
+      if (isAccepting) {
+        setIsAcceptingParticipation(false);
+      } else {
+        setIsRejectingParticipation(false);
+      }
     }
   };
 
@@ -363,37 +398,39 @@ const ActionSection = ({ data, sessionId, onRefreshData }) => {
         Join Training Session
       </h3>
 
-      <form onSubmit={handleSubmit(onSubmitParticipationDecision)}>
-        <div className="space-y-4">
-          <div className="flex items-center space-x-4">
-            <label className="inline-flex items-center">
-              <input
-                type="radio"
-                value="accepted"
-                {...register("decision", { required: true })}
-                className="h-4 w-4 text-blue-600 focus:ring-blue-500"
-              />
-              <span className="ml-2 text-gray-700">Accept</span>
-            </label>
-            <label className="inline-flex items-center">
-              <input
-                type="radio"
-                value="rejected"
-                {...register("decision", { required: true })}
-                className="h-4 w-4 text-red-600 focus:ring-red-500"
-              />
-              <span className="ml-2 text-gray-700">Reject</span>
-            </label>
-          </div>
-
-          <button
-            type="submit"
-            className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+      <div className="space-y-4">
+        <div className="flex space-x-4 justify-center">
+          <LoaderButton
+            type="button"
+            disabled={isAcceptingParticipation || isRejectingParticipation}
+            isLoading={isAcceptingParticipation}
+            loadingText="Accepting..."
+            onClick={() => onSubmitParticipationDecision("accepted")}
+            className={`px-8 py-3 border border-transparent rounded-md shadow-sm text-sm font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2 ${
+              isAcceptingParticipation || isRejectingParticipation
+                ? "bg-gray-400 cursor-not-allowed focus:ring-gray-500"
+                : "bg-green-500 hover:bg-green-600 focus:ring-green-500"
+            }`}
           >
-            Submit Response
-          </button>
+            Accept Training
+          </LoaderButton>
+
+          <LoaderButton
+            type="button"
+            disabled={isAcceptingParticipation || isRejectingParticipation}
+            isLoading={isRejectingParticipation}
+            loadingText="Rejecting..."
+            onClick={() => onSubmitParticipationDecision("rejected")}
+            className={`px-8 py-3 border border-transparent rounded-md shadow-sm text-sm font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2 ${
+              isAcceptingParticipation || isRejectingParticipation
+                ? "bg-gray-400 cursor-not-allowed focus:ring-gray-500"
+                : "bg-red-500 hover:bg-red-600 focus:ring-red-500"
+            }`}
+          >
+            Reject Training
+          </LoaderButton>
         </div>
-      </form>
+      </div>
     </div>
   );
 
@@ -544,6 +581,8 @@ const ActionSection = ({ data, sessionId, onRefreshData }) => {
   switch (trainingStatus) {
     case "PRICE_NEGOTIATION":
       return renderPriceAcceptanceForm();
+
+    // CHANGE HERE FOR SHOWING PARTICIPATION DECISION FORM ON OTHER CLIENTS
     case "ACCEPTING_CLIENTS":
       if (clientStatus === -1) {
         return renderParticipationDecisionForm();
