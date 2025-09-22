@@ -4,10 +4,15 @@ import LandMarkSVM from "../CustomModels/LandMarkSVM";
 import MultiLayerPerceptron from "../CustomModels/MultiLayerPerceptron";
 import CNN from "../CustomModels/CNN";
 import LSTM from "../CustomModels/LSTM";
+import LogisticRegression from "../CustomModels/LogisticRegression";
 export const availableModels = {
   LinearRegression: {
     label: "Linear Regression",
     component: LinearRegression,
+  },
+  LogisticRegression: {
+    label: "Logistic Regression",
+    component: LogisticRegression,
   },
   // SVM: {
   //   label: "SVM",
