@@ -213,6 +213,12 @@ export default function Request() {
       return setCurrentStep(4);
     }
 
+    if (
+      data.model_name === "DecisionTreeClassifier" ||
+      data.model_name === "DecisionTreeRegressor"
+    ) {
+      data.model_name = "DecisionTree";
+    }
     const requestData = {
       fed_info: data,
       // client_token: api.getAccessToken(),

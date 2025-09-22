@@ -5,6 +5,7 @@ import MultiLayerPerceptron from "../CustomModels/MultiLayerPerceptron";
 import CNN from "../CustomModels/CNN";
 import LSTM from "../CustomModels/LSTM";
 import LogisticRegression from "../CustomModels/LogisticRegression";
+import DecisionTree from "../CustomModels/DecisionTree";
 export const availableModels = {
   LinearRegression: {
     label: "Linear Regression",
@@ -37,5 +38,14 @@ export const availableModels = {
   SVM: {
     label: "SVM",
     component: CustomSVM,
+  },
+  DecisionTree: {
+    label: "Decision Tree Classifier",
+    component: (props) => <DecisionTree {...props} taskType="classification" />,
+  },
+  DecisionTreeRegressor: {
+    label: "Decision Tree Regressor",
+    component: (props) => <DecisionTree {...props} taskType="regression" />,
+    backendModelName: "DecisionTree",
   },
 };
