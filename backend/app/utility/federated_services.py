@@ -94,23 +94,23 @@ def process_parquet_and_save_xy(
     if not parquet_files:
         raise Exception("No parquet files found in the downloaded folder")
 
-    print(f"Combined DataFrame Shape: {combined_df.shape}")
-    print(f"DataFrame Column Labels: {combined_df.columns.tolist()}")
+    # print(f"Combined DataFrame Shape: {combined_df.shape}")
+    # print(f"DataFrame Column Labels: {combined_df.columns.tolist()}")
 
     # Check if all output columns exist
     missing_cols = [col for col in output_column if col not in combined_df.columns]
     if missing_cols:
         raise Exception(f"Output column(s) not found in the DataFrame: {missing_cols}")
 
-    print(combined_df.dtypes)
-    print("Check head", combined_df.head())
+    # print(combined_df.dtypes)
+    # print("Check head", combined_df.head())
 
     # X = np.array([reshape_image(img) for img in combined_df["image"]])
     X = combined_df[input_columns].values
     Y = combined_df[output_column].values
 
-    print(f"X shape: {X.shape}")
-    print(f"Y shape: {Y.shape}")
+    # print(f"X shape: {X.shape}")
+    # print(f"Y shape: {Y.shape}")
 
     # print("First Array : ", type(X), getattr(X, 'shape', 'no shape'))
     # print("Second Array : ", type(X[0]), getattr(X[0], 'shape', 'no shape'))
