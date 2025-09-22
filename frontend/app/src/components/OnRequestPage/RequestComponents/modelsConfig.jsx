@@ -6,6 +6,7 @@ import CNN from "../CustomModels/CNN";
 import LSTM from "../CustomModels/LSTM";
 import LogisticRegression from "../CustomModels/LogisticRegression";
 import DecisionTree from "../CustomModels/DecisionTree";
+import RandomForest from "../CustomModels/RandomForest";
 export const availableModels = {
   LinearRegression: {
     label: "Linear Regression",
@@ -15,18 +16,6 @@ export const availableModels = {
     label: "Logistic Regression",
     component: LogisticRegression,
   },
-  // SVM: {
-  //   label: "SVM",
-  //   component: CustomSVM,
-  // },
-  // LandMarkSVM: {
-  //   label: "LandMark SVM",
-  //   component: LandMarkSVM,
-  // },
-  // multiLayerPerceptron: {
-  //   label: "Multi Layer Perceptron",
-  //   component: MultiLayerPerceptron,
-  // },
   CNN: {
     label: "CNN",
     component: CNN,
@@ -47,5 +36,9 @@ export const availableModels = {
     label: "Decision Tree Regressor",
     component: (props) => <DecisionTree {...props} taskType="regression" />,
     backendModelName: "DecisionTree",
+  },
+  RandomForest: {
+    label: "Random Forest",
+    component: RandomForest,
   },
 };

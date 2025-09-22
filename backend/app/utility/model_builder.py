@@ -6,6 +6,7 @@ from .CustomModels.MultiLayerPerceptron import MultiLayerPerceptron
 from .CustomModels.CustomCNN import CustomCNN
 from .CustomModels.LogisticRegression import LogisticRegression
 from .CustomModels.DecisionTree import DecisionTree
+from .CustomModels.RandomForest import RandomForest
 import json
 
 model_classes = {
@@ -17,6 +18,7 @@ model_classes = {
     "LSTM": CustomLSTM,
     "LogisticRegression": LogisticRegression,
     "DecisionTree": DecisionTree,
+    "RandomForest": RandomForest,
 }
 
 
