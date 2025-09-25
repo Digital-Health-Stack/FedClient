@@ -62,102 +62,89 @@ const ModelConfig = ({ data }) => {
         );
 
       case "multiLayerPerceptron":
+        // Align the MLP display style with CNN and use MLP form schema
+        const activationMap = {
+          relu: "ReLU",
+          tanh: "Tanh",
+          logistic: "Sigmoid (logistic)",
+          identity: "Identity",
+        };
+
         return (
           <div className="space-y-6">
+            {/* Core Params (styled like CNN header grids) */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-gray-700">
+              <InfoItem label="Task Type" value={modelInfo?.task_type} />
+              {modelInfo?.num_classes !== undefined && (
+                <InfoItem label="Num Classes" value={modelInfo?.num_classes} />
+              )}
               <InfoItem
-                label="Loss Function"
-                value={modelInfo?.loss_function}
-              />
-              <InfoItem
-                label="Optimizer"
+                label="Activation"
                 value={
-                  modelInfo?.optimizer
-                    ? typeof modelInfo.optimizer === 'string'
-                      ? modelInfo.optimizer
-                      : `${modelInfo.optimizer.type || 'Unknown'} (lr: ${modelInfo.optimizer.learning_rate || 'N/A'})`
-                    : "N/A"
+                  activationMap[modelInfo?.activation] || modelInfo?.activation
                 }
               />
               <InfoItem
                 label="Learning Rate"
                 value={modelInfo?.learning_rate}
               />
+              <InfoItem label="Max Iterations" value={modelInfo?.max_iter} />
+              <InfoItem label="Alpha (L2)" value={modelInfo?.alpha} />
+              <InfoItem label="Random State" value={modelInfo?.random_state} />
             </div>
 
-            {/* Input Layer */}
-            {modelInfo?.input_layer && (
-              <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                <h5 className="font-medium text-gray-800 mb-3">Input Layer</h5>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <InfoItem
-                    label="Input Shape"
-                    value={modelInfo.input_layer.input_shape}
-                  />
-                  <InfoItem
-                    label="Number of Nodes"
-                    value={modelInfo.input_layer.num_nodes}
-                  />
+            {/* Architecture - Hidden Layers like CNN's layers list */}
+            {Array.isArray(modelInfo?.hidden_layer_sizes) &&
+              modelInfo.hidden_layer_sizes.length > 0 && (
+                <div className="rounded-lg">
+                  <h4 className="text-lg font-semibold text-gray-700 mb-2">
+                    Model Architecture
+                  </h4>
+                  <div className="space-y-3">
+                    {modelInfo.hidden_layer_sizes.map((nodes, index) => (
+                      <div
+                        key={index}
+                        className="bg-white rounded-lg p-3 border"
+                      >
+                        <h6 className="font-semibold text-gray-700 mb-2">
+                          Layer {index + 1}: Dense
+                        </h6>
+                        <div className="grid grid-cols-2 gap-2 text-sm">
+                          <div>
+                            <span className="text-gray-500">Units:</span>{" "}
+                            <span className="font-medium">{nodes}</span>
+                          </div>
+                          <div>
+                            <span className="text-gray-500">Activation:</span>{" "}
+                            <span className="font-medium">
+                              {activationMap[modelInfo?.activation] ||
+                                modelInfo?.activation}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
 
-            {/* Hidden Layers */}
-            {modelInfo?.hidden_layers && (
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                <h5 className="font-medium text-blue-800 mb-3">
-                  Hidden Layers
-                </h5>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <InfoItem
-                    label="Number of Layers"
-                    value={modelInfo.hidden_layers.num_layers}
-                  />
-                  <InfoItem
-                    label="Nodes per Layer"
-                    value={modelInfo.hidden_layers.nodes_per_layer}
-                  />
-                  <InfoItem
-                    label="Activation"
-                    value={modelInfo.hidden_layers.activation}
-                  />
-                  <InfoItem
-                    label="Dropout Rate"
-                    value={modelInfo.hidden_layers.dropout_rate}
-                  />
-                </div>
-              </div>
-            )}
-
-            {/* Output Layer */}
-            {modelInfo?.output_layer && (
-              <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                <h5 className="font-medium text-green-800 mb-3">
+            {/* Output section for classification (nodes inferred from classes) */}
+            {modelInfo?.task_type === "classification" && (
+              <div className="rounded-lg">
+                <h4 className="text-lg font-semibold text-gray-700 mb-2">
                   Output Layer
-                </h5>
+                </h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <InfoItem
                     label="Number of Nodes"
-                    value={modelInfo.output_layer.num_nodes}
+                    value={modelInfo?.num_classes}
                   />
-                  <InfoItem
-                    label="Activation"
-                    value={modelInfo.output_layer.activation}
-                  />
+                  {/* Activation is not explicitly captured in MLP form; omit to avoid misinformation */}
                 </div>
               </div>
             )}
 
-            {/* Training Parameters */}
-            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-              <h5 className="font-medium text-yellow-800 mb-3">
-                Training Parameters
-              </h5>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <InfoItem label="Batch Size" value={modelInfo?.batch_size} />
-                <InfoItem label="Epochs" value={modelInfo?.epochs} />
-              </div>
-            </div>
+            {/* Test Metrics (already rendered globally below if present) */}
           </div>
         );
 
@@ -227,9 +214,9 @@ const ModelConfig = ({ data }) => {
                 label="Optimizer"
                 value={
                   modelInfo?.optimizer
-                    ? typeof modelInfo.optimizer === 'string'
+                    ? typeof modelInfo.optimizer === "string"
                       ? modelInfo.optimizer
-                      : `${optimizers[modelInfo.optimizer.type] || 'Unknown'}`
+                      : `${optimizers[modelInfo.optimizer.type] || "Unknown"}`
                     : "N/A"
                 }
               />
@@ -249,36 +236,97 @@ const ModelConfig = ({ data }) => {
                   {modelInfo.layers.map((layer, index) => (
                     <div key={index} className="bg-white rounded-lg p-3 border">
                       <h6 className="font-semibold text-gray-700 mb-2">
-                        Layer {index + 1}: {layerTypes[layer.layer_type] || layer.layer_type}
+                        Layer {index + 1}:{" "}
+                        {layerTypes[layer.layer_type] || layer.layer_type}
                       </h6>
                       <div className="grid grid-cols-2 md:grid-cols-3 gap-2 text-sm">
                         {layer.layer_type === "convolution" && (
                           <>
-                            <div><span className="text-gray-500">Filters:</span> <span className="font-medium">{layer.filters}</span></div>
-                            <div><span className="text-gray-500">Kernel:</span> <span className="font-medium">{layer.kernel_size}</span></div>
-                            <div><span className="text-gray-500">Stride:</span> <span className="font-medium">{layer.stride}</span></div>
-                            <div><span className="text-gray-500">Padding:</span> <span className="font-medium">{layer.padding}</span></div>
-                            <div><span className="text-gray-500">Activation:</span> <span className="font-medium">{activationFunctions[layer.activation_function] || layer.activation_function}</span></div>
+                            <div>
+                              <span className="text-gray-500">Filters:</span>{" "}
+                              <span className="font-medium">
+                                {layer.filters}
+                              </span>
+                            </div>
+                            <div>
+                              <span className="text-gray-500">Kernel:</span>{" "}
+                              <span className="font-medium">
+                                {layer.kernel_size}
+                              </span>
+                            </div>
+                            <div>
+                              <span className="text-gray-500">Stride:</span>{" "}
+                              <span className="font-medium">
+                                {layer.stride}
+                              </span>
+                            </div>
+                            <div>
+                              <span className="text-gray-500">Padding:</span>{" "}
+                              <span className="font-medium">
+                                {layer.padding}
+                              </span>
+                            </div>
+                            <div>
+                              <span className="text-gray-500">Activation:</span>{" "}
+                              <span className="font-medium">
+                                {activationFunctions[
+                                  layer.activation_function
+                                ] || layer.activation_function}
+                              </span>
+                            </div>
                           </>
                         )}
                         {layer.layer_type === "pooling" && (
                           <>
-                            <div><span className="text-gray-500">Type:</span> <span className="font-medium">{poolingTypes[layer.pooling_type] || layer.pooling_type}</span></div>
-                            <div><span className="text-gray-500">Pool Size:</span> <span className="font-medium">{layer.pool_size}</span></div>
-                            <div><span className="text-gray-500">Stride:</span> <span className="font-medium">{layer.stride}</span></div>
+                            <div>
+                              <span className="text-gray-500">Type:</span>{" "}
+                              <span className="font-medium">
+                                {poolingTypes[layer.pooling_type] ||
+                                  layer.pooling_type}
+                              </span>
+                            </div>
+                            <div>
+                              <span className="text-gray-500">Pool Size:</span>{" "}
+                              <span className="font-medium">
+                                {layer.pool_size}
+                              </span>
+                            </div>
+                            <div>
+                              <span className="text-gray-500">Stride:</span>{" "}
+                              <span className="font-medium">
+                                {layer.stride}
+                              </span>
+                            </div>
                           </>
                         )}
                         {layer.layer_type === "dense" && (
                           <>
-                            <div><span className="text-gray-500">Units:</span> <span className="font-medium">{layer.num_nodes}</span></div>
-                            <div><span className="text-gray-500">Activation:</span> <span className="font-medium">{activationFunctions[layer.activation_function] || layer.activation_function}</span></div>
+                            <div>
+                              <span className="text-gray-500">Units:</span>{" "}
+                              <span className="font-medium">
+                                {layer.num_nodes}
+                              </span>
+                            </div>
+                            <div>
+                              <span className="text-gray-500">Activation:</span>{" "}
+                              <span className="font-medium">
+                                {activationFunctions[
+                                  layer.activation_function
+                                ] || layer.activation_function}
+                              </span>
+                            </div>
                           </>
                         )}
                         {layer.layer_type === "dropout" && (
-                          <div><span className="text-gray-500">Rate:</span> <span className="font-medium">{layer.rate}</span></div>
+                          <div>
+                            <span className="text-gray-500">Rate:</span>{" "}
+                            <span className="font-medium">{layer.rate}</span>
+                          </div>
                         )}
                         {layer.layer_type === "flatten" && (
-                          <div className="text-gray-500 italic">Flattens input</div>
+                          <div className="text-gray-500 italic">
+                            Flattens input
+                          </div>
                         )}
                       </div>
                     </div>
@@ -286,7 +334,6 @@ const ModelConfig = ({ data }) => {
                 </div>
               </div>
             )}
-
 
             {/* Output Layer */}
             {modelInfo?.output_layer && (
@@ -304,7 +351,11 @@ const ModelConfig = ({ data }) => {
                   />
                   <InfoItem
                     label="Activation"
-                    value={activationFunctions[modelInfo.output_layer.activation_function]}
+                    value={
+                      activationFunctions[
+                        modelInfo.output_layer.activation_function
+                      ]
+                    }
                   />
                 </div>
               </div>
@@ -336,9 +387,11 @@ const ModelConfig = ({ data }) => {
                 label="Optimizer"
                 value={
                   modelInfo?.optimizer
-                    ? typeof modelInfo.optimizer === 'string'
+                    ? typeof modelInfo.optimizer === "string"
                       ? modelInfo.optimizer
-                      : `${modelInfo.optimizer.type || 'Unknown'} (lr: ${modelInfo.optimizer.learning_rate || 'N/A'})`
+                      : `${modelInfo.optimizer.type || "Unknown"} (lr: ${
+                          modelInfo.optimizer.learning_rate || "N/A"
+                        })`
                     : "N/A"
                 }
               />
@@ -456,9 +509,11 @@ const ModelConfig = ({ data }) => {
               label="Optimizer"
               value={
                 data?.model_info?.optimizer
-                  ? typeof data.model_info.optimizer === 'string'
+                  ? typeof data.model_info.optimizer === "string"
                     ? data.model_info.optimizer
-                    : `${data.model_info.optimizer.type || 'Unknown'} (lr: ${data.model_info.optimizer.learning_rate || 'N/A'})`
+                    : `${data.model_info.optimizer.type || "Unknown"} (lr: ${
+                        data.model_info.optimizer.learning_rate || "N/A"
+                      })`
                   : "N/A"
               }
             />
@@ -520,7 +575,6 @@ const ModelConfig = ({ data }) => {
           </div>
         </div>
       )}
-
     </div>
   );
 };

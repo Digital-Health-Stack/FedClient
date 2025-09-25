@@ -16,6 +16,10 @@ export const availableModels = {
     label: "Logistic Regression",
     component: LogisticRegression,
   },
+  multiLayerPerceptron: {
+    label: "Multi-Layer Perceptron",
+    component: MultiLayerPerceptron,
+  },
   CNN: {
     label: "CNN",
     component: CNN,

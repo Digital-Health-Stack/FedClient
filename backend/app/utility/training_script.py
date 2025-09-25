@@ -10,6 +10,7 @@ from sqlalchemy.orm import Session
 from models.Trainings import CurrentTrainings
 from dotenv import load_dotenv
 import tensorflow as tf
+import traceback
 
 load_dotenv()
 
@@ -420,25 +421,49 @@ def main(session_id, client_token):
         X = np.load(X_path, allow_pickle=True)
         (
             print("X : ", X.shape, X.dtype)
-            if type(X) == np.ndarray
+            if isinstance(X, np.ndarray)
             else print("X : ", len(X), type(X))
         )
-        if isinstance(X[0], str):
-            # Parse each string row into individual pixel values
-            print("Parsing string rows into individual pixel values")
-            X = np.array(
-                [np.fromstring(img.strip(), sep=",", dtype=np.float32) for img in X]
+        # Normalize dataset formats: allow object arrays of shape (n,1) with string rows
+        try:
+            first_elem = (
+                X[0]
+                if not (isinstance(X, np.ndarray) and X.ndim == 2 and X.shape[1] == 1)
+                else X[0, 0]
             )
+        except Exception:
+            first_elem = None
 
-            input_shape = model_config["model_info"]["input_shape"]
-            if isinstance(input_shape, str):
-                # Handle string format like '(150,150,3)'
-                import ast
+        if isinstance(first_elem, str):
+            print("Parsing string rows into individual pixel values")
+            if isinstance(X, np.ndarray) and X.ndim == 2 and X.shape[1] == 1:
+                strings = [row[0] for row in X]
+            else:
+                strings = list(X)
+            X = np.array(
+                [np.fromstring(s.strip(), sep=",", dtype=np.float32) for s in strings],
+                dtype=np.float32,
+            )
+            # Optional reshape if input_shape is provided
+            model_info = (
+                model_config.get("model_info", {})
+                if isinstance(model_config, dict)
+                else {}
+            )
+            input_shape = model_info.get("input_shape")
+            if input_shape is not None:
+                if isinstance(input_shape, str):
+                    # Handle string format like '(150,150,3)'
+                    import ast
 
-                input_shape = ast.literal_eval(input_shape)
-
-            print(f"Parsed input_shape: {input_shape}")
-            X = X.reshape(-1, *input_shape)
+                    input_shape = ast.literal_eval(input_shape)
+                print(f"Parsed input_shape: {input_shape}")
+                try:
+                    X = X.reshape(-1, *input_shape)
+                except Exception as reshape_err:
+                    print(
+                        f"Reshape failed with error {reshape_err}. Keeping flat features."
+                    )
 
         Y = np.load(Y_path, allow_pickle=True)
 
@@ -507,7 +532,7 @@ def main(session_id, client_token):
 
     except Exception as e:
         print(f"Error from training_script: {e}")
-        print(e.with_traceback())
+        traceback.print_exc()
 
 
 if __name__ == "__main__":
