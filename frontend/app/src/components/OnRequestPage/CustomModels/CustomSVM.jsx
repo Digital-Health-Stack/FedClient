@@ -64,19 +64,6 @@ const CustomSVM = () => {
         />
       </div>
 
-      {/* Kernel Info */}
-      <div className="border border-gray-300 rounded-md p-4 bg-blue-50">
-        <div className="flex items-center space-x-2">
-          <QuestionMarkCircleIcon className="h-5 w-5 text-blue-500" />
-          <p className="font-medium text-gray-700">Linear Kernel Only</p>
-        </div>
-        <p className="text-sm text-gray-600 mt-2">
-          This SVM implementation is restricted to linear kernels for federated
-          learning compatibility. Linear SVMs provide good performance while
-          allowing parameter sharing across clients.
-        </p>
-      </div>
-
       {/* Max Iterations */}
       <div className="flex items-center border border-gray-300 rounded-md p-2">
         <span className="bg-gray-200 text-gray-700 px-3 py-2 rounded-l-md">
