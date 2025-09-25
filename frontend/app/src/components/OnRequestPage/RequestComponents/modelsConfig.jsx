@@ -24,10 +24,10 @@ export const availableModels = {
     label: "CNN",
     component: CNN,
   },
-  LSTM: {
-    label: "LSTM",
-    component: LSTM,
-  },
+  // LSTM: {
+  //   label: "LSTM",
+  //   component: LSTM,
+  // },
   SVM: {
     label: "SVM",
     component: CustomSVM,

@@ -27,15 +27,23 @@ const ModelConfig = ({ data }) => {
 
       case "SVM":
         return (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-gray-700">
-            <InfoItem label="Regularization (C)" value={modelInfo?.C} />
-            <InfoItem label="Learning Rate" value={modelInfo?.lr} />
-            <InfoItem label="Number of Iterations" value={modelInfo?.n_iters} />
-            <InfoItem label="Weight Shape" value={modelInfo?.weights_shape} />
-            <InfoItem
-              label="Binary Classification"
-              value={modelInfo?.binary_classification ? "Yes" : "No"}
-            />
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-gray-700">
+              <InfoItem label="Regularization (C)" value={modelInfo?.C} />
+              <InfoItem label="Max Iterations" value={modelInfo?.max_iter} />
+              <InfoItem label="Learning Rate" value={modelInfo?.lr} />
+              <InfoItem label="Weight Shape" value={modelInfo?.weights_shape} />
+              <InfoItem
+                label="Binary Classification"
+                value={
+                  modelInfo?.is_binary === "true"
+                    ? "Yes"
+                    : modelInfo?.is_binary === "false"
+                    ? "No"
+                    : modelInfo?.is_binary
+                }
+              />
+            </div>
           </div>
         );
 
@@ -492,6 +500,61 @@ const ModelConfig = ({ data }) => {
                   value={modelInfo?.validation_split}
                 />
               </div>
+            </div>
+          </div>
+        );
+
+      case "DecisionTree":
+        return (
+          <div className="space-y-6">
+            {/* Core Hyperparameters (aligned with CNN/MLP header grid) */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-gray-700">
+              <InfoItem label="Task Type" value={modelInfo?.task_type} />
+              <InfoItem label="Max Depth" value={modelInfo?.max_depth} />
+              <InfoItem
+                label="Min Samples Split"
+                value={modelInfo?.min_samples_split}
+              />
+              <InfoItem
+                label="Min Samples Leaf"
+                value={modelInfo?.min_samples_leaf}
+              />
+            </div>
+
+            {/* No layered architecture for Decision Trees; parameters above suffice */}
+          </div>
+        );
+
+      case "RandomForest":
+        return (
+          <div className="space-y-6">
+            {/* Core Hyperparameters (aligned with CNN/MLP header grid) */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-gray-700">
+              <InfoItem label="Estimators" value={modelInfo?.n_estimators} />
+              <InfoItem label="Max Depth" value={modelInfo?.max_depth} />
+              <InfoItem
+                label="Min Samples Split"
+                value={modelInfo?.min_samples_split}
+              />
+              <InfoItem
+                label="Min Samples Leaf"
+                value={modelInfo?.min_samples_leaf}
+              />
+            </div>
+
+            {/* No layered architecture for Random Forest; parameters above suffice */}
+          </div>
+        );
+
+      case "LogisticRegression":
+        return (
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-gray-700">
+              <InfoItem label="Learning Rate" value={modelInfo?.lr} />
+              <InfoItem
+                label="Number of Iterations"
+                value={modelInfo?.n_iters}
+              />
             </div>
           </div>
         );
