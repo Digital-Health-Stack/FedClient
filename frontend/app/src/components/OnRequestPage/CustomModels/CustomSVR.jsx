@@ -30,12 +30,18 @@ Note: This component is restricted to LINEAR kernels only for federated learning
 */
 
 const CustomSVR = () => {
-  const { register } = useFormContext();
+  const { register, watch } = useFormContext();
 
   const defaultValues = {
     C: 1.0,
     epsilon: 0.1,
+    kernel: "linear",
+    gamma: "scale",
+    degree: 3,
+    coef0: 0,
   };
+
+  const selectedKernel = watch("model_info.kernel", defaultValues.kernel);
 
   // start of the model_info object
   return (
@@ -83,6 +89,70 @@ const CustomSVR = () => {
           {...register("model_info.epsilon")}
         />
       </div>
+
+      {/* Kernel */}
+      <div className="flex items-center border border-gray-300 rounded-md p-2">
+        <span className="bg-gray-200 text-gray-700 px-3 py-2 rounded-l-md">
+          Kernel
+        </span>
+        <select
+          className="flex-1 p-2 border-0 focus:ring-0 focus:outline-none"
+          defaultValue={defaultValues.kernel}
+          {...register("model_info.kernel")}
+        >
+          <option value="linear">linear</option>
+          <option value="rbf">rbf</option>
+          <option value="poly">poly</option>
+        </select>
+      </div>
+
+      {/* Gamma (for rbf/poly) */}
+      {(selectedKernel === "rbf" || selectedKernel === "poly") && (
+        <div className="flex items-center border border-gray-300 rounded-md p-2">
+          <span className="bg-gray-200 text-gray-700 px-3 py-2 rounded-l-md">
+            Gamma
+          </span>
+          <input
+            type="text"
+            className="flex-1 p-2 border-0 focus:ring-0 focus:outline-none"
+            placeholder="e.g. scale, auto, or 0.1"
+            defaultValue={defaultValues.gamma}
+            {...register("model_info.gamma")}
+          />
+        </div>
+      )}
+
+      {/* Degree, Coef0 (for poly) */}
+      {selectedKernel === "poly" && (
+        <>
+          <div className="flex items-center border border-gray-300 rounded-md p-2">
+            <span className="bg-gray-200 text-gray-700 px-3 py-2 rounded-l-md">
+              Degree
+            </span>
+            <input
+              type="number"
+              min="1"
+              className="flex-1 p-2 border-0 focus:ring-0 focus:outline-none"
+              placeholder="e.g. 3"
+              defaultValue={defaultValues.degree}
+              {...register("model_info.degree")}
+            />
+          </div>
+          <div className="flex items-center border border-gray-300 rounded-md p-2">
+            <span className="bg-gray-200 text-gray-700 px-3 py-2 rounded-l-md">
+              Coef0
+            </span>
+            <input
+              type="number"
+              step="0.1"
+              className="flex-1 p-2 border-0 focus:ring-0 focus:outline-none"
+              placeholder="e.g. 0.0"
+              defaultValue={defaultValues.coef0}
+              {...register("model_info.coef0")}
+            />
+          </div>
+        </>
+      )}
 
       {/* Select Test Metrics */}
       <SelectTestMetrics register={register} />

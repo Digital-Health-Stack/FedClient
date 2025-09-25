@@ -546,6 +546,27 @@ const ModelConfig = ({ data }) => {
           </div>
         );
 
+      case "SVR":
+        return (
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-gray-700">
+              <InfoItem label="Regularization (C)" value={modelInfo?.C} />
+              <InfoItem label="Epsilon" value={modelInfo?.epsilon} />
+              <InfoItem label="Kernel" value={modelInfo?.kernel} />
+              {(modelInfo?.kernel === "rbf" ||
+                modelInfo?.kernel === "poly") && (
+                <InfoItem label="Gamma" value={modelInfo?.gamma} />
+              )}
+              {modelInfo?.kernel === "poly" && (
+                <>
+                  <InfoItem label="Degree" value={modelInfo?.degree} />
+                  <InfoItem label="Coef0" value={modelInfo?.coef0} />
+                </>
+              )}
+            </div>
+          </div>
+        );
+
       case "LogisticRegression":
         return (
           <div className="space-y-6">
