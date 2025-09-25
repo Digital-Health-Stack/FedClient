@@ -1,5 +1,6 @@
 import LinearRegression from "../CustomModels/LinearRegression";
 import CustomSVM from "../CustomModels/CustomSVM";
+import CustomSVR from "../CustomModels/CustomSVR";
 import LandMarkSVM from "../CustomModels/LandMarkSVM";
 import MultiLayerPerceptron from "../CustomModels/MultiLayerPerceptron";
 import CNN from "../CustomModels/CNN";
@@ -31,6 +32,10 @@ export const availableModels = {
   SVM: {
     label: "SVM",
     component: CustomSVM,
+  },
+  SVR: {
+    label: "SVR (Regression)",
+    component: CustomSVR,
   },
   DecisionTree: {
     label: "Decision Tree Classifier",
