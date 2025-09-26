@@ -7,6 +7,7 @@ from .CustomModels.CustomCNN import CustomCNN
 from .CustomModels.LogisticRegression import LogisticRegression
 from .CustomModels.DecisionTree import DecisionTree
 from .CustomModels.RandomForest import RandomForest
+from .CustomModels.XGBoostRegressor import XGBoostRegressor
 from .CustomModels.CustomSVR import CustomSVR
 import json
 
@@ -21,6 +22,7 @@ model_classes = {
     "LogisticRegression": LogisticRegression,
     "DecisionTree": DecisionTree,
     "RandomForest": RandomForest,
+    "XGBoostRegressor": XGBoostRegressor,
 }
 
 

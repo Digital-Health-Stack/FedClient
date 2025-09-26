@@ -8,6 +8,7 @@ import LSTM from "../CustomModels/LSTM";
 import LogisticRegression from "../CustomModels/LogisticRegression";
 import DecisionTree from "../CustomModels/DecisionTree";
 import RandomForest from "../CustomModels/RandomForest";
+import XGBoostRegressor from "../CustomModels/XGBoostRegressor";
 export const availableModels = {
   LinearRegression: {
     label: "Linear Regression",
@@ -49,5 +50,9 @@ export const availableModels = {
   RandomForest: {
     label: "Random Forest",
     component: RandomForest,
+  },
+  XGBoostRegressor: {
+    label: "XGBoost Regressor",
+    component: XGBoostRegressor,
   },
 };
