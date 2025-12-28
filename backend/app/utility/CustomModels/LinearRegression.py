@@ -46,18 +46,29 @@ class LinearRegression:
         try:
             self.fit_sklearn(X, y)
             return
-        except Exception:
+        except Exception as e:
             # Manual gradient descent fallback
+            print(f"[DEBUG] sklearn fit failed: {e}, falling back to manual gradient descent")
             pass
 
         n = len(X)
-        m = 0
+        n_features = X.shape[1]
+
+        # Initialize weights as a vector for multi-feature support
+        m = np.zeros(n_features)
         c = 0
 
         for _ in range(self.n_iters):
-            y_pred = m * X.flatten() + c
-            dm = (-2 / n) * np.sum((y - y_pred) * X.flatten())
+            # Matrix multiplication for multi-feature: y_pred = X @ m + c
+            y_pred = X.dot(m) + c
+
+            # Gradient for weights: dm = (-2/n) * X.T @ (y - y_pred)
+            dm = (-2 / n) * X.T.dot(y - y_pred)
+
+            # Gradient for bias: dc = (-2/n) * sum(y - y_pred)
             dc = (-2 / n) * np.sum(y - y_pred)
+
+            # Update parameters
             m -= self.lr * dm
             c -= self.lr * dc
 

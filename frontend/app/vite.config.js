@@ -19,6 +19,7 @@ export default defineConfig(({ mode }) => {
     server: {
       host: "0.0.0.0", // Allows external access from Docker
       port: 5174, // Change to the new port
+      allowedHosts: ["fedclient.abdm.gov.in"]
     },
   };
 });

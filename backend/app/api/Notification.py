@@ -51,11 +51,13 @@ async def redis_listener():
 
 async def redis_round_listener():
     await pubsub2.subscribe("new-round")
+    print("Subscribed to new-round")
     try:
         async for message in pubsub2.listen():
             if message is None or message["type"] != "message":
                 continue
             message_data = json.loads(message["data"])
+            print(f"Message data: {message_data}")
             session_id = message_data.get("session_id")
             redis_key = f"client_filename:{session_id}"
             client_filename = await redis_client.get(redis_key)

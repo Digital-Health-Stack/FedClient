@@ -368,13 +368,16 @@ const Result = ({ sessionId }) => {
                               )}
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                              {results.client_results[selectedMetric]?.[round]
+                            {formatMetricValue(
+                                results.client_results[selectedMetric][round]
+                              )}
+                              {/* {results.client_results[selectedMetric][round]
                                 ? formatMetricValue(
                                   results.client_results[selectedMetric][
                                   round
                                   ]
                                 )
-                                : "-"}
+                                : "-"} */}
                             </td>
                           </tr>
                         );

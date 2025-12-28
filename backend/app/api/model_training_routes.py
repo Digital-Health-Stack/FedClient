@@ -225,7 +225,6 @@ async def accept_client_filename_training(request: AcceptClientFilenameTrainingR
 
         redis_key = f"client_filename:{session_id}"
         await redis_client.set(redis_key, client_filename)
-
         return {"message": "Client filename saved successfully"}
     except Exception as e:
         print(f"Error accepting client filename training: {e}")

@@ -62,6 +62,12 @@ class SklearnMetricsCallback(Callback):
         # Make sure y_val is flattened for comparison
         y_val_flat = self.y_val.flatten() if len(self.y_val.shape) > 1 else self.y_val
 
+        # Check if y_val contains string labels and convert to integers
+        if y_val_flat.dtype == object or y_val_flat.dtype.kind in ('U', 'S'):
+            unique_labels = np.unique(y_val_flat)
+            label_to_int = {label: idx for idx, label in enumerate(unique_labels)}
+            y_val_flat = np.array([label_to_int[label] for label in y_val_flat])
+
         # Calculate requested metrics
         for metric in self.metric_names:
             if metric == "accuracy":
@@ -349,6 +355,16 @@ class CustomCNN:
                 y_test = np.array(y_test)
             y_test_flat = y_test.flatten() if len(y_test.shape) > 1 else y_test
             print(f"[DEBUG] y_test_flat shape: {y_test_flat.shape}")
+
+            # Check if y_test contains string labels and convert to integers
+            if y_test_flat.dtype == object or y_test_flat.dtype.kind in ('U', 'S'):
+                print(f"[DEBUG] y_test contains string labels, converting to integers")
+                unique_labels = np.unique(y_test_flat)
+                print(f"[DEBUG] Unique labels: {unique_labels}")
+                label_to_int = {label: idx for idx, label in enumerate(unique_labels)}
+                print(f"[DEBUG] Label mapping: {label_to_int}")
+                y_test_flat = np.array([label_to_int[label] for label in y_test_flat])
+                print(f"[DEBUG] Converted y_test_flat shape: {y_test_flat.shape}, dtype: {y_test_flat.dtype}")
 
             # Convert predictions to labels
             print(f"[DEBUG] is_classification: {self.is_classification}")
