@@ -617,8 +617,8 @@ const ModelConfig = ({ data }) => {
   return (
     <div className="bg-white p-5 rounded-xl border border-gray-100">
       <h3 className="text-xl font-semibold mb-4 text-gray-800 border-b pb-2 flex items-center">
-        <InformationCircleIcon className="h-5 w-5 text-gray-700 mr-2" />
-        Model Configuration - {modelType || "Unknown Model"}
+        {/* <InformationCircleIcon className="h-5 w-5 text-gray-700 mr-2" /> */}
+        {modelType || "Unknown Model"}
       </h3>
 
       {renderModelSpecificConfig()}

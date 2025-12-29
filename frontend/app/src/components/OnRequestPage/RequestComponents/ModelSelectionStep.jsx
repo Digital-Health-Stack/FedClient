@@ -16,7 +16,7 @@ export default function ModelSelectionStep() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center space-x-2">
+      {/* <div className="flex items-center space-x-2">
         <CubeIcon className="h-6 w-6 text-purple-600" />
         <h4 className="text-lg font-semibold">Model Selection</h4>
         <div className="relative ml-1">
@@ -50,7 +50,7 @@ export default function ModelSelectionStep() {
             </div>
           )}
         </div>
-      </div>
+      </div> */}
 
       <select
         title="Select the model you want to use for training"

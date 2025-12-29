@@ -13,6 +13,7 @@ import PreprocessingOptions from "./ProcessingComponents/PreprocessingOptions.js
 import { preprocessDataset } from "../../../services/privateService";
 import { WrenchIcon } from "@heroicons/react/24/outline";
 import { useLocation, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 import {
   DndContext,
   closestCenter,
@@ -185,6 +186,35 @@ const PreprocessingDetails = ({ columns, filename, directory }) => {
     setSelectedSubOperation("");
   }, [selectedColumn]);
 
+  // Auto-add operation when all required fields are filled
+  useEffect(() => {
+    // Check if main operation is selected
+    if (!selectedMainOperation) return;
+
+    // Get sub-options for the selected operation
+    const subOptions = getSubOptions();
+
+    // If sub-options exist, wait for sub-operation to be selected
+    if (subOptions.length > 0) {
+      if (!selectedSubOperation) return;
+    }
+
+    // All required fields are filled, auto-add the operation
+    // Use a small delay to ensure state is updated and prevent rapid re-triggers
+    const timeoutId = setTimeout(() => {
+      // Double-check that fields are still filled (in case user changed them during timeout)
+      if (selectedMainOperation) {
+        const currentSubOptions = getSubOptions();
+        if (currentSubOptions.length === 0 || selectedSubOperation) {
+          handleAddSelection();
+        }
+      }
+    }, 150);
+
+    return () => clearTimeout(timeoutId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedColumn, selectedMainOperation, selectedSubOperation]);
+
   const handleAddSelection = () => {
     if (!selectedMainOperation) return;
 
@@ -195,6 +225,16 @@ const PreprocessingDetails = ({ columns, filename, directory }) => {
       column: selectedColumn || "All Columns",
       operation: finalOperation,
     };
+
+    // Check if this exact operation already exists to prevent duplicates
+    const isDuplicate = operations.some(
+      (op) =>
+        op.column === newOperation.column &&
+        op.operation === newOperation.operation
+    );
+
+    if (isDuplicate) return;
+
     setOperations([...operations, newOperation]);
     setSelectedMainOperation("");
     setSelectedSubOperation("");
@@ -233,7 +273,15 @@ const PreprocessingDetails = ({ columns, filename, directory }) => {
 
     try {
       setIsSubmitted(true);
-      preprocessDataset(payload);
+      await preprocessDataset(payload);
+      
+      // Show success message
+      toast.success("Will be added to Processed Datasets", {
+        position: "bottom-center",
+        autoClose: 3000,
+      });
+      
+      // Navigate to appropriate view
       if (location.pathname.includes("raw")) {
         navigate("/view-all-datasets#raw");
       } else {
@@ -242,6 +290,10 @@ const PreprocessingDetails = ({ columns, filename, directory }) => {
     } catch (error) {
       console.error("Error in submitting data for preprocessing:", error);
       setIsSubmitted(false);
+      toast.error("Failed to process dataset. Please try again.", {
+        position: "bottom-center",
+        autoClose: 3000,
+      });
     }
   };
   return (

@@ -278,7 +278,7 @@ const AddDataset = () => {
           {/* Centered File Upload UI with fixed height */}
           <div className="flex items-center justify-center w-full">
             <div
-              className={`add-dataset-upload-area bg-white p-8 rounded-2xl min-h-[350px] shadow-lg border flex flex-col items-center justify-center w-full transition-all duration-200 ${isDragOver ? "border-blue-400 bg-blue-50 shadow-blue-200" : ""
+              className={`add-dataset-upload-area bg-white p-8 rounded-2xl min-h-[350px] shadow-lg border-2 border-dashed flex flex-col items-center justify-center w-full transition-all duration-200 ${isDragOver ? "border-blue-400 bg-blue-50 shadow-blue-200" : "border-blue-600 hover:border-blue-800"
                 }`}
               onDragOver={handleDragOver}
               onDragLeave={handleDragLeave}
@@ -303,9 +303,11 @@ const AddDataset = () => {
                   type="file"
                   className="hidden"
                   multiple
+                  accept=".csv,.parquet"
                   onChange={handleFileSelect}
                 />
-                <span className="text-xs text-gray-400">or drag and drop</span>
+                <span className="text-xs text-gray-400 mb-1">or drag and drop</span>
+                <span className="text-xs text-gray-500 mt-1">Accepted Formats: .csv, .parquet</span>
               </label>
               <button
                 type="button"

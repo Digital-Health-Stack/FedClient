@@ -240,11 +240,20 @@ const ActionSection = ({ data, sessionId, onRefreshData }) => {
       <h3 className="text-lg font-semibold text-gray-800 mb-4">
         Set Training Price
       </h3>
+      
+      <div className="p-4 bg-gray-50 rounded-lg mb-3">
+          <div>
+            <h4 className="font-medium text-gray-700">Training Price (in Data Points)</h4>
+            <p className="text-2xl font-bold text-blue-600 mt-1">
+              {sessionPrice || 0} Data Points
+            </p>
+          </div>
+        </div>
       {/* Client Dataset Section */}
-      <div className="bg-white p-4 rounded-lg mb-3 shadow-sm border border-gray-200">
-        <div className="space-y-3">
-          <label className="block text-sm font-medium text-gray-700">
-            Client Dataset
+      <div className="bg-white rounded-lg mb-3 shadow-sm border-gray-200">
+        <div className="space-y-2">
+          <label className="block text-sm font-medium text-[1.1rem] text-gray-700">
+            For training you need to pay this much. Pick a dataset to pay with.
           </label>
           <div className="flex space-x-2">
             <select
@@ -334,14 +343,6 @@ const ActionSection = ({ data, sessionId, onRefreshData }) => {
       )}
 
       <div className="space-y-4">
-        <div className="p-4 bg-gray-50 rounded-lg">
-          <div>
-            <h4 className="font-medium text-gray-700">Training Price</h4>
-            <p className="text-2xl font-bold text-blue-600 mt-1">
-              {sessionPrice || 0} Data Points
-            </p>
-          </div>
-        </div>
 
         <div className="flex justify-start items-center gap-8">
           <label className="block text-gray-700 font-medium">

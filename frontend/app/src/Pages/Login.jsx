@@ -76,16 +76,17 @@ export default function Register({ clientToken, setClientToken, setSocket }) {
         ) : (
           <form className="space-y-4" onSubmit={handleSubmit(handleRegister)}>
             <div>
-              <label className="block text-sm font-medium">Client Name:</label>
+              <label className="block text-sm font-medium">Organisation Name:</label>
               <input
                 type="text"
                 className={`w-full p-2 border rounded ${
                   errors.name ? "border-red-500" : "border-gray-300"
                 }`}
                 {...register("name", {
-                  required: "Client Name is required",
+                  required: "Organisation Name is required",
                 })}
               />
+              <p className="text-gray-500 text-xs mt-1">If independent, enter 'None'.</p>
               {errors.name && (
                 <p className="text-red-500 text-xs">{errors.name.message}</p>
               )}

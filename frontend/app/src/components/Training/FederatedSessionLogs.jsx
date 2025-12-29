@@ -179,12 +179,12 @@ const FederatedSessionLogs = ({ sessionId }) => {
       {/* Add relative for absolute buttons */}
       <div className="bg-white shadow rounded-lg border border-gray-200">
         <div className="px-6 py-4 border-b border-gray-200">
-          <h3 className="text-lg font-medium text-gray-900 flex items-center">
+          {/* <h3 className="text-lg font-medium text-gray-900 flex items-center">
             Training Logs
             {loading && (
               <ArrowPathIcon className="h-5 w-5 ml-2 text-blue-500 animate-spin" />
             )}
-          </h3>
+          </h3> */}
           {/* Search and filter controls */}
           <div className="mt-2 flex flex-col sm:flex-row gap-3">
             {/* Search input */}

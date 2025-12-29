@@ -13,10 +13,10 @@ const DatasetInfo = ({ data }) => {
   const navigate = useNavigate();
   return (
     <div className="bg-white shadow rounded-lg border border-gray-200 p-6 mb-6">
-      <h3 className="text-xl font-semibold mb-6 text-gray-800 border-b pb-2 flex items-center">
+      {/* <h3 className="text-xl font-semibold mb-6 text-gray-800 border-b pb-2 flex items-center">
         <InformationCircleIcon className="h-5 w-5 text-indigo-700 mr-2" />
         Dataset Information
-      </h3>
+      </h3> */}
 
       {/* Combined Dataset Details and Output Columns */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
@@ -25,7 +25,7 @@ const DatasetInfo = ({ data }) => {
           <div className="flex items-center mb-4">
             <DocumentTextIcon className="h-5 w-5 text-gray-600 mr-2" />
             <h4 className="text-lg font-medium text-gray-700">
-              Dataset Details
+              Details
             </h4>
           </div>
           <div className="space-y-3">

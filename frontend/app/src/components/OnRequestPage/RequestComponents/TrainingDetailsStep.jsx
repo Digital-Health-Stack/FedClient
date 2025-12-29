@@ -12,7 +12,7 @@ export default function TrainingDetailsStep({ disabled = false }) {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center space-x-2">
+      {/* <div className="flex items-center space-x-2">
         <BuildingOfficeIcon className="h-6 w-6 text-blue-600" />
         <h4 className="text-lg font-semibold">Training Details</h4>
         <div className="relative ml-1">
@@ -45,7 +45,7 @@ export default function TrainingDetailsStep({ disabled = false }) {
             </div>
           )}
         </div>
-      </div>
+      </div> */}
 
       <div className="space-y-4">
         <label
