@@ -76,7 +76,7 @@ export default function HyperparametersInfoStep() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center space-x-2">
+      {/* <div className="flex items-center space-x-2">
         <ChartBarIcon className="h-6 w-6 text-yellow-600" />
         <h4 className="text-lg font-semibold">Hyperparameters</h4>
         <div className="relative ml-1">
@@ -110,7 +110,7 @@ export default function HyperparametersInfoStep() {
             </div>
           )}
         </div>
-      </div>
+      </div> */}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>

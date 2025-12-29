@@ -251,7 +251,7 @@ export default function SelectDatasetsStep({
 
   return (
     <div className="space-y-8">
-      <div className="flex items-center space-x-3">
+      {/* <div className="flex items-center space-x-3">
         <FolderIcon className="h-7 w-7 text-blue-600" />
         <h3 className="text-xl font-semibold text-gray-800">
           Dataset Information
@@ -287,7 +287,7 @@ export default function SelectDatasetsStep({
             </div>
           )}
         </div>
-      </div>
+      </div> */}
 
       <div className="space-y-6">
         <div className="grid grid-cols-1 gap-6">

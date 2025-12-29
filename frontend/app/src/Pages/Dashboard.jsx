@@ -425,7 +425,7 @@ export default function Dashboard() {
                 </div>
               </div>
               <Link
-                to="/view-all-datasets"
+                to="/view-all-datasets#raw"
                 className="text-blue-600 text-sm mt-4 block hover:underline"
               >
                 Manage datasets →
@@ -492,7 +492,7 @@ export default function Dashboard() {
                 </div>
               </div>
               <Link
-                to="/view-all-datasets"
+                to="/view-all-datasets#processed"
                 className="text-blue-600 text-sm mt-4 block hover:underline"
               >
                 Process data →

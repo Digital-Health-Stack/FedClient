@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { useAuth } from "../contexts/AuthContext";
 import { getFederatedSession } from "../services/federatedService";
@@ -61,11 +61,12 @@ const statusConfig = {
 export default function TrainingDetails() {
   const { sessionId } = useParams();
   const { api } = useAuth();
+  const location = useLocation();
+  const navigate = useNavigate();
   const [federatedSessionData, setFederatedSessionData] = useState({});
   const [currentSection, setCurrentSection] = useState("session-info");
   const [showSectionInfo, setShowSectionInfo] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const navigate = useNavigate();
 
   const fetchFederatedSessionData = async () => {
     try {
@@ -82,6 +83,17 @@ export default function TrainingDetails() {
   useEffect(() => {
     fetchFederatedSessionData();
   }, [sessionId]);
+
+  // Valid section IDs for hash navigation
+  const validSectionIds = [
+    "session-info",
+    "dataset-info",
+    "model-config",
+    "session-logs",
+    "results",
+    "actions",
+    "retry",
+  ];
 
   const sections = [
     {
@@ -138,13 +150,36 @@ export default function TrainingDetails() {
     // },
   ];
 
+  // Handle hash-based navigation
+  useEffect(() => {
+    const hash = window.location.hash.replace("#", "");
+    if (validSectionIds.includes(hash)) {
+      setCurrentSection(hash);
+    } else {
+      // Default to session-info if no valid hash
+      setCurrentSection("session-info");
+      navigate(`${location.pathname}#session-info`, { replace: true });
+    }
+  }, [location.hash, location.pathname, navigate]);
+
+  const handleSectionClick = (sectionId) => {
+    navigate(`${location.pathname}#${sectionId}`);
+    setCurrentSection(sectionId);
+  };
+
+  // Wrapper for setCurrentSection that also updates hash
+  // This allows components that use setCurrentSection to work with hash navigation
+  const setCurrentSectionWithHash = (sectionId) => {
+    handleSectionClick(sectionId);
+  };
+
   const renderStatusBadge = () => {
     const status = federatedSessionData?.training_status;
     const config = statusConfig[status] || statusConfig["CANCELLED"];
 
     return (
       <div
-        onClick={() => setCurrentSection("actions")}
+        onClick={() => handleSectionClick("actions")}
         className={`inline-flex items-center px-3 py-1  rounded-full text-sm font-medium ${config.color} cursor-pointer`}
       >
         {config.icon}
@@ -258,7 +293,7 @@ export default function TrainingDetails() {
             return (
               <button
                 key={section.id}
-                onClick={() => setCurrentSection(section.id)}
+                onClick={() => handleSectionClick(section.id)}
                 disabled={
                   section.disabled &&
                   section.disabled.includes(
@@ -338,7 +373,7 @@ export default function TrainingDetails() {
           {currentSection === "session-info" && (
             <SessionInfo
               data={federatedSessionData}
-              setCurrentSection={setCurrentSection}
+              setCurrentSection={setCurrentSectionWithHash}
             />
           )}
           {currentSection === "session-logs" && (

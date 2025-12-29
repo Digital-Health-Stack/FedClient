@@ -17,7 +17,7 @@ import {
   ChartBarIcon,
   CurrencyRupeeIcon,
 } from "@heroicons/react/24/outline";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { ProgressBar, Step } from "react-step-progress-bar";
 import "react-step-progress-bar/styles.css";
 import { Link } from "react-router-dom";
@@ -130,6 +130,73 @@ const SessionInfo = ({ data, setCurrentSection }) => {
     }
   };
 
+  const formatTimestamp = (timestamp) => {
+    try {
+      const utcTimestamp = timestamp + "Z";
+      const date = new Date(utcTimestamp);
+      return date;
+    } catch (e) {
+      return timestamp;
+    }
+  };
+
+  // Calculate wait start and total wait time
+  const waitStart = data?.updatedAt ? formatTimestamp(data.updatedAt) : null;
+  const totalWait = data?.federated_info?.wait_time
+    ? Math.max(1, data?.federated_info?.wait_time * 60 * 1000)
+    : 1;
+
+  // Real-time elapsed time state
+  const [elapsed, setElapsed] = useState(0);
+  const [currentTime, setCurrentTime] = useState(new Date());
+
+  // Update elapsed time every second
+  useEffect(() => {
+    if (!waitStart || currentStatus !== 1) {
+      setElapsed(0);
+      return;
+    }
+
+    // Calculate initial elapsed time
+    const calculateElapsed = () => {
+      const now = new Date();
+      const elapsedTime = Math.max(
+        0,
+        Math.min(now.getTime() - waitStart.getTime(), totalWait)
+      );
+      return elapsedTime;
+    };
+
+    // Set initial elapsed time
+    setElapsed(calculateElapsed());
+    setCurrentTime(new Date());
+
+    // Update every second
+    const interval = setInterval(() => {
+      const now = new Date();
+      setCurrentTime(now);
+      const elapsedTime = calculateElapsed();
+      setElapsed(elapsedTime);
+
+      // Stop interval if time has elapsed
+      if (elapsedTime >= totalWait) {
+        clearInterval(interval);
+      }
+    }, 1000);
+
+    // Cleanup interval on unmount or when dependencies change
+    return () => clearInterval(interval);
+  }, [waitStart, totalWait, currentStatus]);
+
+  // Calculate progress bar fill for client recruitment phase
+  let extra_bar_filled_clients = (elapsed / totalWait) * 33.33333333333333;
+  if (elapsed >= totalWait || currentStatus !== 1) {
+    extra_bar_filled_clients = 0;
+  }
+
+  // Calculate remaining time
+  const remainingTime = Math.max(0, totalWait - elapsed);
+
   // Helper to get time left for the current step
   const getStepTimeInfo = (idx) => {
     if (idx === 0)
@@ -147,8 +214,7 @@ const SessionInfo = ({ data, setCurrentSection }) => {
     else if (idx === 1)
       return (
         <p>
-          Waiting for clients. <br /> {formatTimeLeft(totalWait - elapsed)}{" "}
-          left.
+          Waiting for clients. <br /> {formatTimeLeft(remainingTime)} left.
         </p>
       );
     else if (idx === 2)
@@ -161,47 +227,48 @@ const SessionInfo = ({ data, setCurrentSection }) => {
     return "--";
   };
 
-  const formatTimestamp = (timestamp) => {
-    try {
-      const utcTimestamp = timestamp + "Z";
-      const date = new Date(utcTimestamp);
-      return date;
-    } catch (e) {
-      return timestamp;
-    }
-  };
-  // Instead of number of clients, use elapsed time / wait time for extra bar fill
-  const waitStart = data?.updatedAt ? formatTimestamp(data.updatedAt) : null; //add 5 hours 30 minutes to the createdAt
-  const now = new Date();
-
-  let elapsed = 0;
-  let totalWait = 1; // avoid division by zero
-  if (waitStart) {
-    elapsed = Math.max(
-      0,
-      Math.min(
-        now.getTime() - waitStart.getTime(),
-        data?.federated_info?.wait_time * 60 * 1000
-      )
-    );
-    totalWait = Math.max(1, data?.federated_info?.wait_time * 60 * 1000);
-  }
-  let extra_bar_filled_clients = (elapsed / totalWait) * 33.33333333333333;
-  if (elapsed === totalWait || currentStatus !== 1) {
-    extra_bar_filled_clients = 0;
-  }
-
   const extra_bar_filled_rounds =
     ((data?.curr_round - 1) / data?.federated_info?.no_of_rounds) *
     33.33333333333333;
   return (
     <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
       {/* Session Information Header */}
-      <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
-        <h3 className="text-lg font-medium text-gray-900 flex items-center">
+      <div className="bg-gray-50 px-6 py-4 border-b border-gray-200 relative">
+        {/* <h3 className="text-lg font-medium text-gray-900 flex items-center">
           <InformationCircleIcon className="h-5 w-5 text-gray-600 mr-2" />
           Session Details
-        </h3>
+        </h3> */}
+        {/* Top Right Timer Display */}
+        {currentStatus === 1 && remainingTime > 0 && (
+          <div className="absolute top-4 right-6 flex items-center gap-2 bg-blue-50 border border-blue-200 rounded-lg px-4 py-2">
+            <UserGroupIcon className="h-5 w-5 text-blue-600" />
+            <div className="flex flex-col">
+              <span className="text-xs text-blue-600 font-medium">
+                Open for other participants
+              </span>
+              <span className="text-sm font-semibold text-blue-800">
+                {formatTimeLeft(remainingTime)}
+              </span>
+            </div>
+          </div>
+        )}
+        {currentStatus === 0  && (
+          <div className="absolute top-4 right-6 flex items-center gap-2 bg-blue-50 border border-blue-200 rounded-lg px-4 py-2">
+            <UserGroupIcon className="h-5 w-5 text-blue-600" />
+            <div className="flex flex-col">
+              <span className="text-xs text-blue-600 font-medium">
+                Waiting for your price confirmation. Go to{" "}
+          <span
+            className="underline cursor-pointer"
+            onClick={() => setCurrentSection("actions")}
+          >
+            Actions
+          </span>
+          {" "}to confirm your price.
+              </span>
+            </div>
+          </div>
+        )}
       </div>
       {/* Progress Bar with hoverable tooltip for time left */}
       {/* {alert(progressIndex + " " + steps.length)} */}
@@ -339,8 +406,14 @@ const SessionInfo = ({ data, setCurrentSection }) => {
           />
           {console.log(data)}
           <InfoItem
-            label="No of Clients Accepted"
-            value={data?.no_of_clients}
+            label="Number of Training Participants"
+            value={
+              data?.no_of_clients === 1
+                ? "Only you"
+                : data?.no_of_clients > 1
+                ? `You + ${data?.no_of_clients - 1} more`
+                : "N/A"
+            }
             icon={<UserGroupIcon className="h-5 w-5 text-gray-400" />}
           />
           <StatusItem

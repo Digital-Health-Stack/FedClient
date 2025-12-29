@@ -229,7 +229,7 @@ export default function Request() {
       const res = await createSession(api, requestData);
       // Clear saved form data on successful submission
       clearSavedFormData();
-      navigate(`/trainings/${res.data.session_id}`);
+      navigate(`/trainings/${res.data.session_id}#actions`);
     } catch (error) {
       console.error("Submission error:", error);
       toast.error("Failed to submit training request. Please try again.");
@@ -256,6 +256,7 @@ export default function Request() {
             <div className="mb-8">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
+                  {React.createElement(steps[currentStep].icon, { className: "h-6 w-6 text-blue-600" })}
                   <h3 className="text-2xl font-semibold text-gray-800">
                     {steps[currentStep].label}
                   </h3>
@@ -263,15 +264,15 @@ export default function Request() {
               </div>
               <p className="text-gray-500 mt-2 text-sm">
                 {currentStep === 0 &&
-                  "Enter your organization details to proceed with the model request"}
+                  "Enter a name for your training session. This will help you identify and manage your federated learning jobs."}
                 {currentStep === 1 &&
-                  "Select datasets you want to include in the training process"}
+                  "Select and configure the datasets you want to use for training and testing. You can fetch stats, select columns, and choose tasks for your federated learning job."}
                 {currentStep === 2 &&
-                  "Choose the machine learning model architecture"}
+                  "Choose the machine learning model architecture you want to use for this federated training session. Each model may have different configuration options."}
                 {currentStep === 3 &&
-                  "Configure statistical parameters for model training"}
+                  "Configure the expected accuracy and variation for your training. This will help us estimate data cost for training."}
                 {currentStep === 4 &&
-                  "Set hyperparameters for the training process"}
+                  "Set the training hyperparameters such as waiting time and number of rounds. These control the training process for your federated learning session."}
               </p>
             </div>
 
