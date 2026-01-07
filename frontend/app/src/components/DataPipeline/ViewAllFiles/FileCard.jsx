@@ -4,13 +4,9 @@ import {
   PencilIcon,
   TrashIcon,
   Cog6ToothIcon,
+  ArrowRightIcon,
 } from "@heroicons/react/24/solid";
 import EditDatasetModal from "./EditDatasetModal";
-import {
-  ClipboardDocumentListIcon,
-  CheckCircleIcon,
-} from "@heroicons/react/24/outline";
-import { toast } from "react-toastify";
 
 const RAW_DATASET_RENAME_URL =
   process.env.REACT_APP_PRIVATE_SERVER_BASE_URL + "/edit-raw-dataset-details";
@@ -24,11 +20,11 @@ const FileCard = ({
   onClick,
   onEditSuccess,
   selectedFolder,
+  isHighlighted = false,
 }) => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isProcessing] = useState(dataset.filename.endsWith("__PROCESSING__"));
   const displayName = dataset.filename.replace(/__PROCESSING__$/, "");
-  const [copied, setCopied] = useState(false);
 
   const handleEdit = async (newFilename, newDescription) => {
     try {
@@ -47,42 +43,32 @@ const FileCard = ({
       console.error("Error updating dataset:", error);
     }
   };
-  const handleCopy = async (text) => {
-    try {
-      await navigator.clipboard.writeText(text);
-      setCopied(true);
-      toast.success("File name copied!");
-      setTimeout(() => setCopied(false), 500);
-    } catch (err) {
-      console.error("Failed to copy text:", err);
-    }
-  };
+
   return (
     <div
-      className={`group relative px-4 py-3 rounded-xl border transition-all
+      className={`group relative px-4 py-3 rounded-xl border transition-all flex flex-col min-h-[140px]
         ${
           isProcessing
             ? "border-yellow-200 bg-yellow-50 cursor-wait"
-            : "border-gray-200 hover:border-blue-500 hover:bg-blue-50 hover:shadow-md cursor-pointer"
-        }`}
-      onClick={(e) => {
-        if (!isProcessing && !isEditModalOpen) {
-          onClick();
+            : "border-gray-200 hover:border-blue-500 hover:bg-blue-50 hover:shadow-md"
         }
-      }}
+        ${isHighlighted ? "ring-2 ring-blue-500 ring-offset-2 animate-pulse bg-blue-50 border-blue-400" : ""}`}
     >
-      <div className="flex justify-between items-start gap-3">
-        <div className="flex-col flex gap-1 items-start min-w-0">
-          {
-            <span className="text-xs font-medium text-gray-500 px-2 py-1 bg-gray-100 rounded-full">
-              ID: {dataset.dataset_id}
-            </span>
-          }
+      {isHighlighted && (
+        <span className="absolute -top-2 -right-2 bg-green-500 text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg animate-bounce">
+          NEW
+        </span>
+      )}
+      
+      {/* Top section with buttons */}
+      <div className="flex justify-between items-start gap-3 flex-1">
+        <div className="flex-col flex gap-1 items-start min-w-0 flex-1">
           <div className="flex items-center gap-2">
             <h3 className="text-lg font-semibold text-gray-800 truncate">
-              {displayName.length > 30
-                ? `${displayName.slice(0, 30)}...`
-                : displayName}
+            {console.log(displayName.split(".parquet")[0])}
+              {displayName.split(".parquet")[0].length > 30
+                ? `${displayName.split(".parquet")[0].slice(0, 30)}...`
+                : displayName.split(".parquet")[0]}
             </h3>
           </div>
 
@@ -100,41 +86,46 @@ const FileCard = ({
           )}
         </div>
 
-        {!isProcessing && (
-          <div className="flex flex-col items-center justify-between gap-2">
-            <ClipboardDocumentListIcon
-              className="h-5 w-5 box-content hover:bg-zinc-200 p-2 rounded-full"
+        {/* Delete and Edit buttons at top right, side by side */}
+        {!isProcessing && selectedFolder !== "datasets" && (
+          <div className="flex items-center gap-1">
+            <button
+              className="p-1.5 text-red-400 hover:text-red-600 hover:bg-red-100 rounded-full transition-colors"
               onClick={(e) => {
                 e.stopPropagation();
-                handleCopy(displayName);
+                onDelete(dataset.dataset_id, isRaw);
               }}
-            />
-            {selectedFolder !== "datasets" && (
-              <button
-                className="p-1.5 text-blue-400 hover:text-blue-600 hover:bg-blue-100 rounded-full transition-colors"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setIsEditModalOpen(true);
-                }}
-              >
-                <PencilIcon className="h-5 w-5" />
-              </button>
-            )}
-
-            {selectedFolder !== "datasets" && (
-              <button
-                className="p-1.5 text-red-400 hover:text-red-600 hover:bg-red-100 rounded-full transition-colors"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onDelete(dataset.dataset_id, isRaw);
-                }}
-              >
-                <TrashIcon className="h-5 w-5" />
-              </button>
-            )}
+            >
+              <TrashIcon className="h-5 w-5" />
+            </button>
+            <button
+              className="p-1.5 text-blue-400 hover:text-blue-600 hover:bg-blue-100 rounded-full transition-colors"
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsEditModalOpen(true);
+              }}
+            >
+              <PencilIcon className="h-5 w-5" />
+            </button>
           </div>
         )}
       </div>
+
+      {/* Bottom section with View link - sticks to bottom */}
+      {!isProcessing && (
+        <div className="flex justify-end mt-auto pt-3 border-t border-gray-100">
+          <button
+            className="flex items-center gap-1.5 text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors cursor-pointer"
+            onClick={(e) => {
+              e.stopPropagation();
+              onClick();
+            }}
+          >
+            {isRaw ? "View Summary / Preprocess" : "View Summary"}
+            <ArrowRightIcon className="h-4 w-4" />
+          </button>
+        </div>
+      )}
 
       <EditDatasetModal
         isOpen={isEditModalOpen}

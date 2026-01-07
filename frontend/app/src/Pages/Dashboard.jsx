@@ -233,12 +233,6 @@ export default function Dashboard() {
     }
   }, [showWalkthrough]);
 
-  const [showRawInfo, setShowRawInfo] = useState(false);
-  const [showActiveSessionsInfo, setShowActiveSessionsInfo] = useState(false);
-  const [showProcessedInfo, setShowProcessedInfo] = useState(false);
-  const [showActiveTrainingInfo, setShowActiveTrainingInfo] = useState(false);
-  const [showRecentDatasetsInfo, setShowRecentDatasetsInfo] = useState(false);
-  const [showRecentSessionsInfo, setShowRecentSessionsInfo] = useState(false);
 
   return (
     <>
@@ -305,40 +299,19 @@ export default function Dashboard() {
               <div className="flex items-center justify-between">
                 <div>
                   <div className="flex items-center gap-1">
-                    <p className="text-sm text-gray-500 ">Active Sessions</p>
-                    <div className="relative ml-1">
-                      <button
-                        type="button"
-                        className="w-5 h-5 flex items-center justify-center rounded-full text-gray-500 hover:text-gray-700"
-                        onClick={() =>
-                          setShowActiveSessionsInfo((prev) => !prev)
-                        }
-                        aria-label="Show info about active sessions"
+                    <p className="text-sm text-gray-500 ">Active Training Sessions</p>
+                    <div className="relative ml-1 group">
+                      <div
+                        className="w-5 h-5 flex items-center justify-center rounded-full text-gray-500 hover:text-gray-700 cursor-help"
+                        aria-label="Info about active sessions"
                       >
-                        <span className="font-bold text-xs">
-                          <InformationCircleIcon className="h-5 w-5" />
-                        </span>
-                      </button>
-                      {showActiveSessionsInfo && (
-                        <div className="absolute left-1/2 -translate-x-1/2 mt-2 z-20 w-64 bg-white border border-gray-200 rounded-lg shadow-lg p-4 text-sm text-gray-700 animate-fade-in">
-                          <div className="flex justify-between items-center mb-2">
-                            <span className="font-semibold">
-                              Active Sessions
-                            </span>
-                            <button
-                              className="text-gray-400 hover:text-gray-600"
-                              onClick={() => setShowActiveSessionsInfo(false)}
-                              aria-label="Close info"
-                            >
-                              ×
-                            </button>
-                          </div>
-                          <div>
-                            Shows the number of federated learning sessions you
-                            have initiated and are currently active.
-                          </div>
-                        </div>
-                      )}
+                        <InformationCircleIcon className="h-5 w-5" />
+                      </div>
+                      {/* Hover Tooltip */}
+                      <div className="absolute left-1/2 -translate-x-1/2 mt-1 z-30 w-64 px-3 py-2 bg-gray-800 text-white text-xs rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">
+                        Shows the number of federated learning sessions you have initiated and are currently active.
+                        <div className="absolute bottom-full left-1/2 -translate-x-1/2 border-4 border-transparent border-b-gray-800"></div>
+                      </div>
                     </div>
                   </div>
                   <p className="text-2xl font-semibold mt-2">
@@ -373,36 +346,18 @@ export default function Dashboard() {
                 <div>
                   <div className="flex items-center gap-1">
                     <p className="text-sm text-gray-500">Raw Datasets</p>
-                    <div className="relative ml-1">
-                      <button
-                        type="button"
-                        className="w-5 h-5 flex items-center justify-center rounded-full text-gray-500 hover:text-gray-700"
-                        onClick={() => setShowRawInfo((prev) => !prev)}
-                        aria-label="Show info about raw datasets"
+                    <div className="relative ml-1 group">
+                      <div
+                        className="w-5 h-5 flex items-center justify-center rounded-full text-gray-500 hover:text-gray-700 cursor-help"
+                        aria-label="Info about raw datasets"
                       >
-                        <span className="font-bold text-xs">
-                          <InformationCircleIcon className="h-5 w-5" />
-                        </span>
-                      </button>
-                      {showRawInfo && (
-                        <div className="absolute left-1/2 -translate-x-1/2 mt-2 z-20 w-64 bg-white border border-gray-200 rounded-lg shadow-lg p-4 text-sm text-gray-700 animate-fade-in">
-                          <div className="flex justify-between items-center mb-2">
-                            <span className="font-semibold">Raw Datasets</span>
-                            <button
-                              className="text-gray-400 hover:text-gray-600"
-                              onClick={() => setShowRawInfo(false)}
-                              aria-label="Close info"
-                            >
-                              ×
-                            </button>
-                          </div>
-                          <div>
-                            These are the original datasets you have uploaded.
-                            You can manage, view, or preprocess them for
-                            federated learning tasks.
-                          </div>
-                        </div>
-                      )}
+                        <InformationCircleIcon className="h-5 w-5" />
+                      </div>
+                      {/* Hover Tooltip */}
+                      <div className="absolute left-1/2 -translate-x-1/2 mt-1 z-30 w-64 px-3 py-2 bg-gray-800 text-white text-xs rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">
+                        These are the original datasets you have uploaded. You can manage, view, or preprocess them for federated learning tasks.
+                        <div className="absolute bottom-full left-1/2 -translate-x-1/2 border-4 border-transparent border-b-gray-800"></div>
+                      </div>
                     </div>
                   </div>
                   <p className="text-2xl font-semibold mt-2">
@@ -437,37 +392,18 @@ export default function Dashboard() {
                 <div>
                   <div className="flex items-center gap-1">
                     <p className="text-sm text-gray-500">Processed Datasets</p>
-                    <div className="relative ml-1">
-                      <button
-                        type="button"
-                        className="w-5 h-5 flex items-center justify-center rounded-full text-gray-500 hover:text-gray-700"
-                        onClick={() => setShowProcessedInfo((prev) => !prev)}
-                        aria-label="Show info about processed datasets"
+                    <div className="relative ml-1 group">
+                      <div
+                        className="w-5 h-5 flex items-center justify-center rounded-full text-gray-500 hover:text-gray-700 cursor-help"
+                        aria-label="Info about processed datasets"
                       >
-                        <span className="font-bold text-xs">
-                          <InformationCircleIcon className="h-5 w-5" />
-                        </span>
-                      </button>
-                      {showProcessedInfo && (
-                        <div className="absolute left-1/2 -translate-x-1/2 mt-2 z-20 w-64 bg-white border border-gray-200 rounded-lg shadow-lg p-4 text-sm text-gray-700 animate-fade-in">
-                          <div className="flex justify-between items-center mb-2">
-                            <span className="font-semibold">
-                              Processed Datasets
-                            </span>
-                            <button
-                              className="text-gray-400 hover:text-gray-600"
-                              onClick={() => setShowProcessedInfo(false)}
-                              aria-label="Close info"
-                            >
-                              ×
-                            </button>
-                          </div>
-                          <div>
-                            These are datasets that have been pre-processed and
-                            are ready for use in federated learning tasks.
-                          </div>
-                        </div>
-                      )}
+                        <InformationCircleIcon className="h-5 w-5" />
+                      </div>
+                      {/* Hover Tooltip */}
+                      <div className="absolute left-1/2 -translate-x-1/2 mt-1 z-30 w-64 px-3 py-2 bg-gray-800 text-white text-xs rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">
+                        These are datasets that have been pre-processed and are ready for use in federated learning tasks.
+                        <div className="absolute bottom-full left-1/2 -translate-x-1/2 border-4 border-transparent border-b-gray-800"></div>
+                      </div>
                     </div>
                   </div>
                   <p className="text-2xl font-semibold mt-2">
@@ -521,9 +457,24 @@ export default function Dashboard() {
                     </svg>
                   </div>
                   <div>
-                    <h2 className="text-lg font-semibold text-gray-900">
-                      Active Training Sessions
-                    </h2>
+                    <div className="flex items-center gap-1">
+                      <h2 className="text-lg font-semibold text-gray-900">
+                        Active Training Sessions
+                      </h2>
+                      <div className="relative ml-1 group">
+                        <div
+                          className="w-5 h-5 flex items-center justify-center rounded-full text-gray-500 hover:text-gray-700 cursor-help"
+                          aria-label="Info about active training sessions"
+                        >
+                          <InformationCircleIcon className="h-5 w-5" />
+                        </div>
+                        {/* Hover Tooltip */}
+                        <div className="absolute left-1/2 -translate-x-1/2 mt-1 z-30 w-64 px-3 py-2 bg-gray-800 text-white text-xs rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">
+                          View your active training sessions here. Monitor progress, check current round status, and track your ongoing federated learning tasks.
+                          <div className="absolute bottom-full left-1/2 -translate-x-1/2 border-4 border-transparent border-b-gray-800"></div>
+                        </div>
+                      </div>
+                    </div>
                     {console.log(dashInfo)}
                     <p className="text-sm text-gray-500">
                       {dashInfo.total_active_sessions} session
@@ -793,9 +744,24 @@ export default function Dashboard() {
                       </svg>
                     </div>
                     <div>
-                      <h2 className="text-lg font-semibold text-gray-900">
-                        Recent Datasets
-                      </h2>
+                      <div className="flex items-center gap-1">
+                        <h2 className="text-lg font-semibold text-gray-900">
+                          Recent Datasets
+                        </h2>
+                        <div className="relative ml-1 group">
+                          <div
+                            className="w-5 h-5 flex items-center justify-center rounded-full text-gray-500 hover:text-gray-700 cursor-help"
+                            aria-label="Info about recent datasets"
+                          >
+                            <InformationCircleIcon className="h-5 w-5" />
+                          </div>
+                          {/* Hover Tooltip */}
+                          <div className="absolute left-1/2 -translate-x-1/2 mt-1 z-30 w-64 px-3 py-2 bg-gray-800 text-white text-xs rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">
+                            View your recently uploaded datasets here. Includes both raw and processed datasets that are ready for federated learning.
+                            <div className="absolute bottom-full left-1/2 -translate-x-1/2 border-4 border-transparent border-b-gray-800"></div>
+                          </div>
+                        </div>
+                      </div>
                       {console.log(dashInfo)}
                       <p className="text-sm text-gray-500">
                         {dashInfo.total_raw_datasets +
@@ -953,9 +919,24 @@ export default function Dashboard() {
                       </svg>
                     </div>
                     <div>
-                      <h2 className="text-lg font-semibold text-gray-900">
-                        Recent Sessions
-                      </h2>
+                      <div className="flex items-center gap-1">
+                        <h2 className="text-lg font-semibold text-gray-900">
+                          Recent Training Sessions
+                        </h2>
+                        <div className="relative ml-1 group">
+                          <div
+                            className="w-5 h-5 flex items-center justify-center rounded-full text-gray-500 hover:text-gray-700 cursor-help"
+                            aria-label="Info about recent sessions"
+                          >
+                            <InformationCircleIcon className="h-5 w-5" />
+                          </div>
+                          {/* Hover Tooltip */}
+                          <div className="absolute left-1/2 -translate-x-1/2 mt-1 z-30 w-64 px-3 py-2 bg-gray-800 text-white text-xs rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">
+                            View your recent training sessions here. Track all sessions including completed, active, and cancelled ones.
+                            <div className="absolute bottom-full left-1/2 -translate-x-1/2 border-4 border-transparent border-b-gray-800"></div>
+                          </div>
+                        </div>
+                      </div>
                       {console.log(dashInfo)}
                       <p className="text-sm text-gray-500">
                         {dashInfo.total_sessions} session

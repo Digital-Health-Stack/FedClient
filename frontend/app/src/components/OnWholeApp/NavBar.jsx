@@ -94,13 +94,18 @@ const NavBar = () => {
         >
           {user && (
             <ul className="md:flex justify-end items-center space-y-4 md:space-y-0 md:space-x-6 w-full">
-              <li>
+              <li className="relative group">
                 <NavLink
                   className="navbar-dashboard flex items-center gap-2 py-2 px-4 hover:text-gray-400"
                   to="/"
                 >
                   <HomeIcon className="w-5 h-5" /> Dashboard
                 </NavLink>
+                {/* Hover Tooltip */}
+                <div className="absolute left-1/2 -translate-x-1/2 top-full mt-1 z-50 w-64 px-3 py-2 bg-gray-800 text-white text-xs rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">
+                  This is your Dashboard - the main overview of your federated learning activities.
+                  <div className="absolute bottom-full left-1/2 -translate-x-1/2 border-4 border-transparent border-b-gray-800"></div>
+                </div>
               </li>
               {/* <li>
                 <NavLink
@@ -111,7 +116,7 @@ const NavBar = () => {
                 </NavLink>
               </li> */}
 
-              <li>
+              <li className="relative group">
                 <NavLink
                   className="navbar-manage-data flex items-center gap-2 py-2 px-4 hover:text-gray-400"
                   // to="/ManageData"
@@ -119,14 +124,24 @@ const NavBar = () => {
                 >
                   <ServerStackIcon className="w-5 h-5" /> Manage Data
                 </NavLink>
+                {/* Hover Tooltip */}
+                <div className="absolute left-1/2 -translate-x-1/2 top-full mt-1 z-50 w-64 px-3 py-2 bg-gray-800 text-white text-xs rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">
+                  Upload and manage your datasets for federated learning.
+                  <div className="absolute bottom-full left-1/2 -translate-x-1/2 border-4 border-transparent border-b-gray-800"></div>
+                </div>
               </li>
-              <li>
+              <li className="relative group">
                 <NavLink
                   className="navbar-trainings flex items-center gap-2 py-2 px-4 hover:text-gray-400"
                   to="/trainings"
                 >
                   <ChartBarSquareIcon className="w-5 h-5" /> Trainings
                 </NavLink>
+                {/* Hover Tooltip */}
+                <div className="absolute left-1/2 -translate-x-1/2 top-full mt-1 z-50 w-64 px-3 py-2 bg-gray-800 text-white text-xs rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">
+                  View all your training sessions and their current status.
+                  <div className="absolute bottom-full left-1/2 -translate-x-1/2 border-4 border-transparent border-b-gray-800"></div>
+                </div>
               </li>
               {user && (
                 <li className="notification-container relative">

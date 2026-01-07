@@ -137,7 +137,7 @@ const DatasetHead = ({
       <div className="p-4 border-b flex items-center justify-between bg-blue-50 rounded-t-xl">
         <div className="flex items-center gap-2">
           <TableCellsIcon className="w-6 h-6 text-blue-600" />
-          <h2 className="text-xl font-semibold text-blue-800">Sample Data</h2>
+          <h2 className="text-xl font-semibold text-blue-800">View Top Rows</h2>
         </div>
       </div>
 

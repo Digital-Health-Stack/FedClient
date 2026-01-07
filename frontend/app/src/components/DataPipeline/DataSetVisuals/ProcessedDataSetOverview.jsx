@@ -37,12 +37,12 @@ const DataSetOverview = () => {
     // },
     {
       id: "columns",
-      title: "Column Analysis",
+      title: "View Summary",
       icon: <ChartBarIcon className="w-5 h-5" />,
     },
     {
       id: "preprocessing",
-      title: "Data Preprocessing",
+      title: "Clean/Preprocess Data",
       icon: <WrenchIcon className="w-5 h-5" />,
     },
   ];

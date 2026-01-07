@@ -133,7 +133,7 @@ const ColumnDetails = ({ columnStats, selectedColumnIndex, sendToBackend }) => {
         <div className="flex items-center gap-2">
           <ChartBarIcon className="w-6 h-6 text-blue-600" />
           <h2 className="text-xl font-semibold text-blue-800">
-            Column Analysis
+            View Summary
           </h2>
         </div>
         <button

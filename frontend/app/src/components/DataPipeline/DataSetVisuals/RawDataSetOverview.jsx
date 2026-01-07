@@ -29,22 +29,22 @@ const DataSetOverview = () => {
     {
       id: "summary",
       title: "Overview",
-      icon: <InformationCircleIcon className="w-5 h-5" />,
+      icon: <InformationCircleIcon className="w-5 h-5 " />,
     },
     {
       id: "head",
-      title: "Sample Data",
-      icon: <TableCellsIcon className="w-5 h-5" />,
+      title: "View Top Rows",
+      icon: <TableCellsIcon className="w-5 h-5 " />,
     },
     {
       id: "columns",
-      title: "Column Analysis",
-      icon: <ChartBarIcon className="w-5 h-5" />,
+      title: "View Summary",
+      icon: <ChartBarIcon className="w-5 h-5 " />,
     },
     {
       id: "preprocessing",
-      title: "Data Preprocessing",
-      icon: <WrenchIcon className="w-5 h-5" />,
+      title: "Clean/Preprocess Data",
+      icon: <WrenchIcon className="w-5 h-5 " />,
     },
   ];
   useEffect(() => {

@@ -51,9 +51,8 @@ const SortableOperationItem = ({ config, index, onRemove }) => {
     <li
       ref={setNodeRef}
       style={style}
-      className={`flex items-center justify-between bg-white p-4 rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow ${
-        isDragging ? "opacity-50 z-50" : ""
-      }`}
+      className={`flex items-center justify-between bg-white p-4 rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow ${isDragging ? "opacity-50 z-50" : ""
+        }`}
     >
       <div className="flex items-center gap-3 flex-1">
         <button
@@ -274,13 +273,13 @@ const PreprocessingDetails = ({ columns, filename, directory }) => {
     try {
       setIsSubmitted(true);
       await preprocessDataset(payload);
-      
+
       // Show success message
       toast.success("Will be added to Processed Datasets", {
         position: "bottom-center",
         autoClose: 3000,
       });
-      
+
       // Navigate to appropriate view
       if (location.pathname.includes("raw")) {
         navigate("/view-all-datasets#raw");
@@ -302,7 +301,7 @@ const PreprocessingDetails = ({ columns, filename, directory }) => {
         <div className="flex items-center gap-2">
           <WrenchIcon className="w-6 h-6 text-blue-600" />
           <h2 className="text-xl font-semibold text-blue-800">
-            Data Preprocessing
+            Clean/Preprocess Data
           </h2>
         </div>
       </div>
@@ -342,9 +341,8 @@ const PreprocessingDetails = ({ columns, filename, directory }) => {
 
       {/* Configuration Banner */}
       <div
-        className={`${
-          isBannerFixed ? "fixed top-0 left-0 right-0" : "relative"
-        } w-full bg-white border-b border-gray-200 shadow-sm p-4 grid grid-cols-1 md:grid-cols-4 gap-4 items-start z-50 transition-all`}
+        className={`${isBannerFixed ? "fixed top-0 left-0 right-0" : "relative"
+          } w-full bg-white border-b border-gray-200 shadow-sm p-4 grid grid-cols-1 md:grid-cols-4 gap-4 items-start z-50 transition-all`}
       >
         {/* Column Selector */}
         <div className="space-y-2">
@@ -387,11 +385,10 @@ const PreprocessingDetails = ({ columns, filename, directory }) => {
         {/* Sub-Operation Dropdown (always present but conditionally visible) */}
         <div className="space-y-2">
           <label
-            className={`text-sm font-medium text-gray-700 ${
-              selectedMainOperation && getSubOptions().length > 0
+            className={`text-sm font-medium text-gray-700 ${selectedMainOperation && getSubOptions().length > 0
                 ? ""
                 : "invisible"
-            }`}
+              }`}
           >
             Select Sub-Category
           </label>

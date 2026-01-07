@@ -29,11 +29,29 @@ const ViewAllDatasets = () => {
   const [error, setError] = useState(null);
   const { showWalkthrough, stopWalkthrough } = useHelp();
   const [walkthroughKey, setWalkthroughKey] = useState(0);
+  const [highlightedDatasets, setHighlightedDatasets] = useState([]);
 
   useEffect(() => {
     const hash = window.location.hash.replace("#", "");
     if (["add", "raw", "processed", "datasets"].includes(hash)) {
       setSelectedFolder(hash);
+      
+      // Check for highlighted datasets when navigating to raw
+      if (hash === "raw") {
+        const stored = localStorage.getItem('highlightDatasets');
+        if (stored) {
+          try {
+            const filenames = JSON.parse(stored);
+            setHighlightedDatasets(filenames);
+            // Clear localStorage after reading
+            localStorage.removeItem('highlightDatasets');
+            // Auto-clear highlights after 8 seconds
+            setTimeout(() => setHighlightedDatasets([]), 8000);
+          } catch (e) {
+            console.error('Error parsing highlightDatasets:', e);
+          }
+        }
+      }
     } else {
       setSelectedFolder("add");
       navigate(`${location.pathname}#add`);
@@ -392,7 +410,7 @@ const ViewAllDatasets = () => {
                   d="M1152 640H512V512h640v128zM256 1664h681l-64 128H128V128h1408v640h-128V256H256v1408zm256-384h617l-64 128H512v-128zm512-384v128H512V896h512zm939 967q14 28 14 57q0 26-10 49t-27 41t-41 28t-50 10h-754q-26 0-49-10t-41-27t-28-41t-10-50q0-29 14-57l299-598v-241h-128V896h640v128h-128v241l299 598zm-242-199l-185-369v-271h-128v271l-185 369h498z"
                 />
               </svg>
-              Testing Datasets
+              Server Benchmarks
             </button>
           </div>
           {selectedFolder === "add" && <AddDataset />}
@@ -447,7 +465,7 @@ const ViewAllDatasets = () => {
                     {selectedFolder === "raw"
                       ? "Raw Datasets"
                       : selectedFolder == "datasets"
-                      ? "Testing Datasets"
+                      ? "Server Benchmarks"
                       : "Processed Datasets"}
                   </h1>
                   <a
@@ -495,6 +513,11 @@ const ViewAllDatasets = () => {
                             )
                           }
                           onEditSuccess={fetchData}
+                          isHighlighted={highlightedDatasets.some(h => 
+                            dataset.filename === h || 
+                            dataset.filename.includes(h.replace(/\.(csv|parquet)$/i, '')) ||
+                            h.includes(dataset.filename.replace(/\.(csv|parquet)$/i, ''))
+                          )}
                         />
                       ))}
                   </div>
