@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { useAuth } from "../contexts/AuthContext";
+import { useHelp } from "../contexts/HelpContext";
+import CoachMarksOverlay from "../components/Common/CoachMarksOverlay";
 import { getFederatedSession } from "../services/federatedService";
 import { getDatasetOverview } from "../services/fedServerService";
 import axios from "axios";
@@ -67,6 +69,52 @@ export default function TrainingDetails() {
   const [currentSection, setCurrentSection] = useState("session-info");
   const [showSectionInfo, setShowSectionInfo] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const { showWalkthrough, stopWalkthrough } = useHelp();
+
+  // Coach marks steps for training details sidebar
+  const coachMarksSteps = [
+    {
+      target: ".training-participants-info",
+      content: "Shows how many participants are in this training session.",
+      placement: "right",
+      padding: 8,
+    },
+    // {
+    //   target: ".training-nav-session-info",
+    //   content: "View session overview and metadata.",
+    //   placement: "right",
+    // },
+    // {
+    //   target: ".training-nav-dataset-info",
+    //   content: "See dataset details used in training.",
+    //   placement: "bottom",
+    // },
+    // {
+    //   target: ".training-nav-model-config",
+    //   content: "View model configuration and settings.",
+    //   placement: "right",
+    // },
+    // {
+    //   target: ".training-nav-session-logs",
+    //   content: "Check training logs and events.",
+    //   placement: "bottom",
+    // },
+    {
+      target: ".training-nav-results",
+      content: "View training results and metrics.",
+      placement: "top",
+    },
+    {
+      target: ".training-nav-actions",
+      content: "Join, cancel, or manage this session.",
+      placement: "right",
+    },
+    {
+      target: ".training-nav-retry",
+      content: "Retry this training as new request.",
+      placement: "bottom",
+    },
+  ];
 
   const fetchFederatedSessionData = async () => {
     try {
@@ -268,9 +316,17 @@ export default function TrainingDetails() {
   }
 
   return (
-    <div className="flex bg-gray-50 min-h-screen">
-      {/* Sidebar Navigation */}
-      <div className="w-64 bg-white shadow-sm p-4 border-r border-gray-200">
+    <>
+      <CoachMarksOverlay
+        isVisible={showWalkthrough}
+        onDismiss={stopWalkthrough}
+        steps={coachMarksSteps}
+        title="Training Session Details"
+        subtitle="Navigate through different sections of your training"
+      />
+      <div className="flex bg-gray-50 min-h-screen">
+        {/* Sidebar Navigation */}
+        <div className="w-64 bg-white shadow-sm p-4 border-r border-gray-200">
         <div className="flex items-center justify-between mb-6 p-2">
           <h3 className="text-lg font-semibold text-gray-800">
             Session Navigation
@@ -300,7 +356,7 @@ export default function TrainingDetails() {
                     federatedSessionData?.training_status
                   )
                 }
-                className={`w-full flex items-center px-3 py-2 text-sm font-medium rounded-md transition disabled:opacity-50 ${
+                className={`training-nav-${section.id} w-full flex items-center px-3 py-2 text-sm font-medium rounded-md transition disabled:opacity-50 ${
                   currentSection === section.id
                     ? "bg-blue-100 text-blue-700"
                     : "text-gray-600 hover:bg-gray-100"
@@ -415,5 +471,6 @@ export default function TrainingDetails() {
         </div>
       </div>
     </div>
+    </>
   );
 }

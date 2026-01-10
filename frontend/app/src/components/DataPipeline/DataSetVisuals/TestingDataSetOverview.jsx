@@ -6,6 +6,7 @@ import {
   TableCellsIcon,
   ListBulletIcon,
   WrenchIcon,
+  AcademicCapIcon,
 } from "@heroicons/react/24/outline";
 import DatasetLayout from "./ProcessingComponents/DatasetLayout";
 import Tasks from "./ProcessingComponents/Tasks";
@@ -37,6 +38,12 @@ const TestingDataSetOverview = () => {
       id: "tasks",
       title: "Associated Tasks",
       icon: <ListBulletIcon className="w-5 h-5" />,
+    },
+    {
+      id: "trainings",
+      title: "Associated Trainings",
+      icon: <AcademicCapIcon className="w-5 h-5" />,
+      to: `/trainings?search=${encodeURIComponent(filename)}`,
     },
   ];
 

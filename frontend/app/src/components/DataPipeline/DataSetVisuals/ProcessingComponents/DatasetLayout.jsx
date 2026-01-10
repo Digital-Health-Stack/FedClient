@@ -85,20 +85,48 @@
 // export default DatasetLayout;
 
 import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronRightIcon, XMarkIcon } from "@heroicons/react/24/outline";
+import { useHelp } from "../../../../contexts/HelpContext";
+import CoachMarksOverlay from "../../../Common/CoachMarksOverlay";
 
 const ICON_COLORS = [
-  "text-blue-500",
-  "text-green-500",
-  "text-purple-500",
-  "text-indigo-500",
-  "text-pink-500",
+  "text-black",
+  "text-black",
+  "text-black",
+  "text-black",
+  "text-black",
 ];
 
 const DatasetLayout = ({ children, sections }) => {
   const [isPanelOpen, setIsPanelOpen] = useState(true);
   const [activeSection, setActiveSection] = useState(null);
+  const { showWalkthrough, stopWalkthrough } = useHelp();
+
+  // Coach marks for dataset navigation
+  const coachMarksSteps = [
+    {
+      target: ".dataset-nav-summary",
+      content: "View dataset summary and statistics.",
+      placement: "right",
+    },
+    {
+      target: ".dataset-nav-head",
+      content: "Preview the first rows of data.",
+      placement: "right",
+    },
+    {
+      target: ".dataset-nav-columns",
+      content: "Explore column details and distributions.",
+      placement: "right",
+    },
+    {
+      target: ".dataset-nav-preprocessing",
+      content: "Clean and preprocess your data.",
+      placement: "right",
+    },
+  ];
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -121,8 +149,16 @@ const DatasetLayout = ({ children, sections }) => {
   }, [sections]);
 
   return (
-    <div className="flex h-[calc(100vh-6rem)] sticky top-0">
-      <AnimatePresence initial={false}>
+    <>
+      <CoachMarksOverlay
+        isVisible={showWalkthrough}
+        onDismiss={stopWalkthrough}
+        steps={coachMarksSteps}
+        title="Dataset Overview"
+        subtitle="Explore and preprocess your dataset"
+      />
+      <div className="flex h-[calc(100vh-6rem)] sticky top-0">
+        <AnimatePresence initial={false}>
         {isPanelOpen && (
           <motion.div
             initial={{ width: 0 }}
@@ -148,13 +184,30 @@ const DatasetLayout = ({ children, sections }) => {
                   const Icon = React.cloneElement(section.icon, {
                     className: `w-6 h-6 ${color}`,
                   });
+                  
+                  // If section has a 'to' property, use React Router Link for navigation
+                  if (section.to) {
+                    return (
+                      <Link
+                        key={section.id}
+                        to={section.to}
+                        className="flex items-center p-3 rounded-lg transition duration-150 hover:bg-gray-100"
+                      >
+                        {Icon}
+                        <span className="ml-3 font-medium text-gray-800">
+                          {section.title}
+                        </span>
+                      </Link>
+                    );
+                  }
+                  
                   return (
                     <a
                       key={section.id}
                       href={`#${section.id}`}
                       // className={`flex items-center p-3 rounded-lg transition duration-150 ${active ? "bg-gray-100" : "hover:bg-gray-100"
                       //   }`}
-                      className={`flex items-center p-3 rounded-lg transition duration-150 hover:bg-gray-100`}
+                      className={`dataset-nav-${section.id} flex items-center p-3 rounded-lg transition duration-150 hover:bg-gray-100`}
                     >
                       {Icon}
                       <span className="ml-3 font-medium text-gray-800">
@@ -169,18 +222,19 @@ const DatasetLayout = ({ children, sections }) => {
         )}
       </AnimatePresence>
 
-      <div className="flex-1 overflow-y-auto">
-        {!isPanelOpen && (
-          <button
-            onClick={() => setIsPanelOpen(true)}
-            className="fixed left-0 top-1/2 transform -translate-y-1/2 p-2 bg-white shadow-md rounded-r-full z-10"
-          >
-            <ChevronRightIcon className="w-6 h-6 text-gray-600" />
-          </button>
-        )}
-        <div className="w-full p-6">{children}</div>
+        <div className="flex-1 overflow-y-auto">
+          {!isPanelOpen && (
+            <button
+              onClick={() => setIsPanelOpen(true)}
+              className="fixed left-0 top-1/2 transform -translate-y-1/2 p-2 bg-white shadow-md rounded-r-full z-10"
+            >
+              <ChevronRightIcon className="w-6 h-6 text-gray-600" />
+            </button>
+          )}
+          <div className="w-full p-6">{children}</div>
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 

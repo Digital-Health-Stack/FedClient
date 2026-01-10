@@ -28,7 +28,12 @@ const NavBar = () => {
 
   // Only show help button on pages with walkthrough functionality
   const showHelpButton =
-    location.pathname === "/" || location.pathname === "/view-all-datasets";
+    location.pathname === "/" ||
+    location.pathname === "/view-all-datasets" ||
+    location.pathname === "/trainings" ||
+    location.pathname.startsWith("/trainings/") ||
+    location.pathname.startsWith("/raw-dataset-overview/") ||
+    location.pathname.startsWith("/processed-dataset-overview/");
   const handleToggle = () => {
     setIsNavbarOpen(!isNavbarOpen);
   };
@@ -207,7 +212,7 @@ const NavBar = () => {
                     onClick={startWalkthrough}
                     title="Help & Tutorial"
                   >
-                    <QuestionMarkCircleIcon className="w-5 h-5" />
+                    <QuestionMarkCircleIcon className="w-5 h-5" /> Help
                   </button>
                 </li>
               )}

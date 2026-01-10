@@ -1,11 +1,14 @@
 import React, { useEffect, useState, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
+import { useHelp } from "../contexts/HelpContext";
+import CoachMarksOverlay from "../components/Common/CoachMarksOverlay";
 import { getAllSessions } from "../services/federatedService";
 import {
   ArrowPathIcon,
   ExclamationTriangleIcon,
   CubeIcon,
+  PlusIcon,
   ArrowRightIcon,
   ClockIcon,
   ChartBarIcon,
@@ -21,6 +24,7 @@ import { InView } from "react-intersection-observer";
 
 export default function Trainings() {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { api } = useAuth();
   const [sessions, setSessions] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -35,19 +39,42 @@ export default function Trainings() {
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
 
+  // Get search filter from URL params
+  const searchFromUrl = searchParams.get("search") || "";
+
   const [showInfo, setShowInfo] = useState(false);
   const [filters, setFilters] = useState({
     sortOrder: "desc",
     trainingStatus: "",
-    search: "",
+    search: searchFromUrl,
   });
   const [tempFilters, setTempFilters] = useState({
     sortOrder: "desc",
     trainingStatus: "",
-    search: "",
+    search: searchFromUrl,
   });
-  const [showFilters, setShowFilters] = useState(false);
+  const [showFilters, setShowFilters] = useState(!!searchFromUrl);
   const isInitialMount = useRef(true);
+  const { showWalkthrough, stopWalkthrough } = useHelp();
+
+  // Coach marks steps
+  const coachMarksSteps = [
+    {
+      target: ".trainings-new-button",
+      content: "Start a new federated learning session.",
+      placement: "bottom",
+    },
+    {
+      target: ".trainings-search",
+      content: "Search trainings by name.",
+      placement: "bottom",
+    },
+    {
+      target: ".trainings-filters",
+      content: "Filter by status and sort order.",
+      placement: "bottom",
+    },
+  ];
 
   const openDetails = (sessionId) => {
     navigate(`/trainings/${sessionId}`);
@@ -178,6 +205,8 @@ export default function Trainings() {
     };
     setTempFilters(clearedFilters);
     setFilters(clearedFilters);
+    // Clear search from URL params
+    setSearchParams({});
   };
 
   // Function to highlight search terms in text
@@ -289,7 +318,15 @@ export default function Trainings() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <>
+      <CoachMarksOverlay
+        isVisible={showWalkthrough}
+        onDismiss={stopWalkthrough}
+        steps={coachMarksSteps}
+        title="Training Sessions"
+        subtitle="Browse and manage your federated learning sessions"
+      />
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4 relative">
         <div className="flex flex-col">
           <div className="flex items-center gap-2">
@@ -334,9 +371,41 @@ export default function Trainings() {
           </p>
         </div>
         <div className="flex items-center gap-2">
+          {/* Search Bar */}
+          <div className="relative trainings-search">
+            <MagnifyingGlassIcon className="h-4 w-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+            <input
+              type="text"
+              value={tempFilters.search}
+              onChange={(e) =>
+                setTempFilters((prev) => ({
+                  ...prev,
+                  search: e.target.value,
+                }))
+              }
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  setFilters((prev) => ({ ...prev, search: tempFilters.search }));
+                }
+              }}
+              placeholder="Search trainings..."
+              className="w-48 sm:w-64 pl-9 pr-8 py-1.5 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            />
+            {tempFilters.search && (
+              <button
+                onClick={() => {
+                  setTempFilters((prev) => ({ ...prev, search: "" }));
+                  setFilters((prev) => ({ ...prev, search: "" }));
+                }}
+                className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+              >
+                <XMarkIcon className="h-4 w-4" />
+              </button>
+            )}
+          </div>
           <button
             onClick={() => setShowFilters(!showFilters)}
-            className={`inline-flex items-center px-3 py-1.5 border shadow-sm text-sm font-medium rounded-md ${
+            className={`trainings-filters inline-flex items-center px-3 py-1.5 border shadow-sm text-sm font-medium rounded-md ${
               showFilters
                 ? "border-blue-300 text-blue-700 bg-blue-50 hover:bg-blue-100"
                 : "border-gray-300 text-gray-700 bg-white hover:bg-gray-50"
@@ -347,7 +416,7 @@ export default function Trainings() {
           </button>
           <button
             onClick={resetAndFetch}
-            className="inline-flex items-center px-3 py-1.5 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+            className="trainings-refresh inline-flex items-center px-3 py-1.5 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
           >
             <ArrowPathIcon className="h-4 w-4 mr-2" />
             Refresh
@@ -462,13 +531,13 @@ export default function Trainings() {
       {sessions.length === 0 ? (
         <div className="flex flex-col gap-4">
           <div
-            className="bg-blue-200 hover:bg-blue-300  rounded-lg shadow-sm border-2 border-blue-600 overflow-hidden hover:shadow-md transition-shadow cursor-pointer h-40"
+            className="trainings-new-button bg-blue-200 hover:bg-blue-300  rounded-lg shadow-sm border-2 border-blue-600 overflow-hidden hover:shadow-md transition-shadow cursor-pointer h-40"
             onClick={openNewTraining}
           >
             <div className="p-5 h-full flex items-center justify-center">
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-medium text-gray-800 truncate flex items-center gap-3">
-                  <DocumentArrowUpIcon className="w-8 h-8" /> New Training
+                  <PlusIcon className="w-8 h-8" /> New Training
                 </h3>
               </div>
             </div>
@@ -507,13 +576,13 @@ export default function Trainings() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
             <div
-              className="bg-blue-200 hover:bg-blue-300  rounded-lg shadow-sm border-2 border-blue-600 overflow-hidden hover:shadow-md transition-shadow cursor-pointer"
+              className="trainings-new-button bg-blue-200 hover:bg-blue-300  rounded-lg shadow-sm border-2 border-blue-600 overflow-hidden hover:shadow-md transition-shadow cursor-pointer"
               onClick={openNewTraining}
             >
               <div className="p-5 h-full flex items-center justify-center">
                 <div className="flex items-center justify-between">
                   <h3 className="text-lg font-medium text-gray-800 truncate flex items-center gap-3">
-                    <DocumentArrowUpIcon className="w-8 h-8" /> New Training
+                    <PlusIcon className="w-8 h-8" /> New Training
                   </h3>
                 </div>
               </div>
@@ -694,5 +763,6 @@ export default function Trainings() {
         </>
       )}
     </div>
+    </>
   );
 }

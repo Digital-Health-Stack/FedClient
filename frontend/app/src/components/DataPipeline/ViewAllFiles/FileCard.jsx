@@ -46,11 +46,10 @@ const FileCard = ({
 
   return (
     <div
-      className={`group relative px-4 py-3 rounded-xl border transition-all flex flex-col min-h-[140px]
-        ${
-          isProcessing
-            ? "border-yellow-200 bg-yellow-50 cursor-wait"
-            : "border-gray-200 hover:border-blue-500 hover:bg-blue-50 hover:shadow-md"
+      className={`group relative px-4 py-3 rounded-xl border-2 border-indigo-100 transition-all flex flex-col min-h-[140px]
+        ${isProcessing
+          ? "border-yellow-200 bg-yellow-50 cursor-wait"
+          : "border-gray-200 hover:border-blue-500 hover:bg-blue-50 hover:shadow-md"
         }
         ${isHighlighted ? "ring-2 ring-blue-500 ring-offset-2 animate-pulse bg-blue-50 border-blue-400" : ""}`}
     >
@@ -59,13 +58,13 @@ const FileCard = ({
           NEW
         </span>
       )}
-      
+
       {/* Top section with buttons */}
       <div className="flex justify-between items-start gap-3 flex-1">
         <div className="flex-col flex gap-1 items-start min-w-0 flex-1">
           <div className="flex items-center gap-2">
             <h3 className="text-lg font-semibold text-gray-800 truncate">
-            {console.log(displayName.split(".parquet")[0])}
+              {console.log(displayName.split(".parquet")[0])}
               {displayName.split(".parquet")[0].length > 30
                 ? `${displayName.split(".parquet")[0].slice(0, 30)}...`
                 : displayName.split(".parquet")[0]}
@@ -99,7 +98,7 @@ const FileCard = ({
               <TrashIcon className="h-5 w-5" />
             </button>
             <button
-              className="p-1.5 text-blue-400 hover:text-blue-600 hover:bg-blue-100 rounded-full transition-colors"
+              className="p-1.5 text-indigo-400 hover:text-indigo-600 hover:bg-blue-100 rounded-full transition-colors"
               onClick={(e) => {
                 e.stopPropagation();
                 setIsEditModalOpen(true);
@@ -115,7 +114,7 @@ const FileCard = ({
       {!isProcessing && (
         <div className="flex justify-end mt-auto pt-3 border-t border-gray-100">
           <button
-            className="flex items-center gap-1.5 text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors cursor-pointer"
+            className="flex items-center gap-1.5 text-xs text-blue-600 hover:text-blue-800 transition-colors cursor-pointer"
             onClick={(e) => {
               e.stopPropagation();
               onClick();

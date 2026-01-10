@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { useHelp } from "../contexts/HelpContext";
-import Joyride from "react-joyride";
+import CoachMarksOverlay from "../components/Common/CoachMarksOverlay";
 import {
   getAllSessions,
   getUserInitiatedSessions,
@@ -155,117 +155,40 @@ export default function Dashboard() {
     fetchSessions();
   }, []);
   const { showWalkthrough, stopWalkthrough } = useHelp();
-  const [walkthroughKey, setWalkthroughKey] = useState(0);
-  const [steps] = useState([
-    {
-      target: ".navbar-dashboard",
-      content:
-        "This is your Dashboard - the main overview of your federated learning activities.",
-      disableBeacon: true,
-      placement: "bottom",
-    },
-    {
-      target: ".navbar-new-training",
-      content: "Click here to start a new federated learning training session.",
-      disableBeacon: true,
-      placement: "bottom",
-    },
-    {
-      target: ".navbar-trainings",
-      content: "View all your training sessions and their current status.",
-      disableBeacon: true,
-      placement: "bottom",
-    },
-    {
-      target: ".navbar-manage-data",
-      content: "Upload and manage your datasets for federated learning.",
-      disableBeacon: true,
-      placement: "bottom",
-    },
+
+  // Coach marks steps - all displayed simultaneously
+  const coachMarksSteps = [
     {
       target: ".dashboard-active-sessions",
-      content: "Monitor your active training sessions here.",
-      disableBeacon: true,
+      content: "Monitor your active training sessions here. Track how many federated learning sessions are currently running.",
+      placement: "bottom",
     },
     {
       target: ".dashboard-raw-datasets",
-      content: "Manage your raw datasets here.",
-      disableBeacon: true,
+      content: "View, manage and process the raw datasets you uploaded.",
+      placement: "bottom",
     },
     {
       target: ".dashboard-processed-datasets",
-      content: "Manage your pre-processed datasets here.",
-      disableBeacon: true,
-    },
-    {
-      target: ".dashboard-active-training-sessions",
-      content: "View your active training sessions here.",
-      disableBeacon: true,
-    },
-    {
-      target: ".dashboard-recent-datasets",
-      content: "View your recent uploaded datasets here.",
-      disableBeacon: true,
-    },
-    {
-      target: ".dashboard-recent-sessions",
-      content: "View your recent completed sessions here.",
-      disableBeacon: true,
+      content: "Access your processed datasets ready for federated learning tasks.",
+      placement: "bottom",
     },
     {
       target: ".dashboard-add-training",
-      content: "Add a new training session from here.",
-      disableBeacon: true,
+      content: "Click here to start a new federated learning training session.",
+      placement: "left",
     },
-  ]);
-
-  const handleJoyrideCallback = (data) => {
-    const { action, status } = data;
-    if (action === "close" || status === "finished" || action === "skip") {
-      stopWalkthrough();
-    }
-  };
-
-  // Reset walkthrough when it starts
-  useEffect(() => {
-    if (showWalkthrough) {
-      setWalkthroughKey((prev) => prev + 1);
-    }
-  }, [showWalkthrough]);
+  ];
 
 
   return (
     <>
-      <Joyride
-        key={walkthroughKey}
-        run={showWalkthrough}
-        steps={steps}
-        continuous
-        showSkipButton
-        callback={handleJoyrideCallback}
-        locale={{
-          last: "Finish",
-          back: "Prev",
-        }}
-        styles={{
-          tooltipContent: {
-            paddingBlock: 0,
-            textAlign: "left",
-            paddingRight: "25px",
-          },
-          tooltip: {
-            // backgroundColor: "red",
-            // paddingInline: "5px",
-          },
-          options: {
-            arrowColor: "#fff",
-            backgroundColor: "#fff",
-            overlayColor: "rgba(0, 0, 0, 0.5)",
-            primaryColor: "#000",
-            textColor: "#000",
-            zIndex: 1000,
-          },
-        }}
+      <CoachMarksOverlay
+        isVisible={showWalkthrough}
+        onDismiss={stopWalkthrough}
+        steps={coachMarksSteps}
+        title="Welcome to your Dashboard!"
+        subtitle="Here's a quick tour of the main features"
       />
       <div className="min-h-[calc(100vh-57px)] bg-gray-50 p-8">
         <div className="max-w-7xl mx-auto">
@@ -295,7 +218,7 @@ export default function Dashboard() {
 
           {/* Stats Grid */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div className="bg-white p-6 rounded-xl shadow-sm dashboard-active-sessions relative">
+            <div className="bg-white p-6 rounded-xl shadow-sm border-2 border-indigo-300 dashboard-active-sessions relative">
               <div className="flex items-center justify-between">
                 <div>
                   <div className="flex items-center gap-1">
@@ -341,7 +264,7 @@ export default function Dashboard() {
               </Link>
             </div>
 
-            <div className="bg-white p-6 rounded-xl shadow-sm dashboard-raw-datasets relative">
+            <div className="bg-white p-6 rounded-xl shadow-sm border-2 border-indigo-300 dashboard-raw-datasets relative">
               <div className="flex items-center justify-between">
                 <div>
                   <div className="flex items-center gap-1">
@@ -387,7 +310,7 @@ export default function Dashboard() {
               </Link>
             </div>
 
-            <div className="bg-white p-6 rounded-xl shadow-sm dashboard-processed-datasets relative">
+            <div className="bg-white p-6 rounded-xl shadow-sm border-2 border-indigo-300 dashboard-processed-datasets relative">
               <div className="flex items-center justify-between">
                 <div>
                   <div className="flex items-center gap-1">
@@ -437,7 +360,7 @@ export default function Dashboard() {
           </div>
 
           {/* Active Sessions Table */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden mb-8 dashboard-active-training-sessions relative">
+          <div className="bg-white rounded-xl shadow-sm border-2 border-indigo-300 overflow-hidden mb-8 dashboard-active-training-sessions relative">
             <div className="bg-gradient-to-r from-blue-50 to-indigo-50 px-6 py-4 border-b border-gray-100">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-3">
@@ -724,7 +647,7 @@ export default function Dashboard() {
           {/* Recent Data Section */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Recent Datasets */}
-            <div className="bg-white rounded-xl shadow-sm dashboard-recent-datasets relative">
+            <div className="bg-white rounded-xl shadow-sm border-2 border-indigo-300 dashboard-recent-datasets relative">
               <div className="bg-gradient-to-r from-blue-50 to-indigo-50 px-6 py-4 border-b rounded-t-xl border-gray-100">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-3">
@@ -899,7 +822,7 @@ export default function Dashboard() {
             </div>
 
             {/* Recent Sessions */}
-            <div className="bg-white rounded-xl shadow-sm dashboard-recent-sessions relative">
+            <div className="bg-white rounded-xl shadow-sm border-2 border-indigo-300 dashboard-recent-sessions relative">
               <div className="bg-gradient-to-r from-blue-50 to-indigo-50 px-6 py-4 border-b rounded-t-xl border-gray-100">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-3">

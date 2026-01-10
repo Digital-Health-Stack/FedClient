@@ -405,17 +405,19 @@ const SessionInfo = ({ data, setCurrentSection }) => {
             icon={<CurrencyRupeeIcon className="h-5 w-5 text-gray-400" />}
           />
           {console.log(data)}
-          <InfoItem
-            label="Number of Training Participants"
-            value={
-              data?.no_of_clients === 1
-                ? "Only you"
-                : data?.no_of_clients > 1
-                ? `You + ${data?.no_of_clients - 1} more`
-                : "N/A"
-            }
-            icon={<UserGroupIcon className="h-5 w-5 text-gray-400" />}
-          />
+          <div className="training-participants-info">
+            <InfoItem
+              label="Number of Training Participants"
+              value={
+                data?.no_of_clients === 1
+                  ? "Only you"
+                  : data?.no_of_clients > 1
+                  ? `You + ${data?.no_of_clients - 1} more`
+                  : "N/A"
+              }
+              icon={<UserGroupIcon className="h-5 w-5 text-gray-400" />}
+            />
+          </div>
           <StatusItem
             label="Training Status"
             statusConfig={TRAINING_STATUS[data?.training_status || "FAILED"]}

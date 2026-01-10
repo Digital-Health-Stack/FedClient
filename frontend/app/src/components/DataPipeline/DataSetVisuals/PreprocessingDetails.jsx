@@ -2,12 +2,13 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import {
   TrashIcon,
-  ArrowUpOnSquareIcon,
+  ArrowUpTrayIcon,
   CheckIcon,
   PlusIcon,
   CloudArrowUpIcon,
   Cog6ToothIcon,
   Bars3Icon,
+  InformationCircleIcon,
 } from "@heroicons/react/24/solid";
 import PreprocessingOptions from "./ProcessingComponents/PreprocessingOptions.jsx";
 import { preprocessDataset } from "../../../services/privateService";
@@ -298,10 +299,17 @@ const PreprocessingDetails = ({ columns, filename, directory }) => {
   return (
     <div className="bg-white rounded-xl p-2">
       <div className="p-4 border-b flex items-center justify-between bg-blue-50 rounded-t-xl">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 w-full">
           <WrenchIcon className="w-6 h-6 text-blue-600" />
-          <h2 className="text-xl font-semibold text-blue-800">
+          <h2 className="text-xl font-semibold text-blue-800 flex items-center justify-between w-full">
             Clean/Preprocess Data
+            <a
+              href="/preprocessing-docs"
+              className="manage-data-guidelines flex items-center gap-2 text-md"
+            >
+              <InformationCircleIcon className="h-5 w-5" />
+              Processing Guidelines
+            </a>
           </h2>
         </div>
       </div>
@@ -386,8 +394,8 @@ const PreprocessingDetails = ({ columns, filename, directory }) => {
         <div className="space-y-2">
           <label
             className={`text-sm font-medium text-gray-700 ${selectedMainOperation && getSubOptions().length > 0
-                ? ""
-                : "invisible"
+              ? ""
+              : "invisible"
               }`}
           >
             Select Sub-Category

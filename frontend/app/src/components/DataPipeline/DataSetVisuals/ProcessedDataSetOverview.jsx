@@ -30,11 +30,11 @@ const DataSetOverview = () => {
       title: "Overview",
       icon: <InformationCircleIcon className="w-5 h-5" />,
     },
-    // {
-    //   id: "head",
-    //   title: "Dataset Head",
-    //   icon: <TableCellsIcon className="w-5 h-5" />,
-    // },
+    {
+      id: "head",
+      title: "Dataset Head",
+      icon: <TableCellsIcon className="w-5 h-5" />,
+    },
     {
       id: "columns",
       title: "View Summary",

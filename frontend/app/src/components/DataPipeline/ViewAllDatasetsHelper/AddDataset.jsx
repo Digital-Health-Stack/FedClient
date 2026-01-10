@@ -233,7 +233,7 @@ const AddDataset = () => {
           {/* Centered File Upload UI with fixed height */}
           <div className="flex items-center justify-center w-full">
             <div
-              className={`add-dataset-upload-area bg-white p-8 rounded-2xl min-h-[350px] shadow-lg border-2 border-dashed flex flex-col items-center justify-center w-full transition-all duration-200 ${isDragOver ? "border-blue-400 bg-blue-50 shadow-blue-200" : "border-blue-600 hover:border-blue-800"
+              className={`manage-data-add-dataset add-dataset-upload-area bg-white p-8 rounded-2xl min-h-[350px] shadow-lg border-2 border-dashed flex flex-col items-center justify-center w-full transition-all duration-200 ${isDragOver ? "border-blue-400 bg-blue-50 shadow-blue-200" : "border-blue-600 hover:border-blue-800"
                 }`}
               onDragOver={handleDragOver}
               onDragLeave={handleDragLeave}
