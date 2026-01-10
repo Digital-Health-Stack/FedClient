@@ -18,6 +18,7 @@ import {
   CurrencyRupeeIcon,
 } from "@heroicons/react/24/outline";
 import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { ProgressBar, Step } from "react-step-progress-bar";
 import "react-step-progress-bar/styles.css";
 import { Link } from "react-router-dom";
@@ -114,17 +115,14 @@ const SessionInfo = ({ data, setCurrentSection }) => {
     const days = Math.floor(totalHours / 24);
 
     if (days > 0) {
-      return `${days} day${days > 1 ? "s" : ""} ${hours} hour${
-        hours !== 1 ? "s" : ""
-      }`;
+      return `${days} day${days > 1 ? "s" : ""} ${hours} hour${hours !== 1 ? "s" : ""
+        }`;
     } else if (hours > 0) {
-      return `${hours} hour${hours > 1 ? "s" : ""} ${minutes} minute${
-        minutes !== 1 ? "s" : ""
-      }`;
+      return `${hours} hour${hours > 1 ? "s" : ""} ${minutes} minute${minutes !== 1 ? "s" : ""
+        }`;
     } else if (minutes > 0) {
-      return `${minutes} minute${minutes > 1 ? "s" : ""} ${seconds} second${
-        seconds !== 1 ? "s" : ""
-      }`;
+      return `${minutes} minute${minutes > 1 ? "s" : ""} ${seconds} second${seconds !== 1 ? "s" : ""
+        }`;
     } else {
       return `${seconds} second${seconds !== 1 ? "s" : ""}`;
     }
@@ -252,19 +250,19 @@ const SessionInfo = ({ data, setCurrentSection }) => {
             </div>
           </div>
         )}
-        {currentStatus === 0  && (
+        {currentStatus === 0 && (
           <div className="absolute top-4 right-6 flex items-center gap-2 bg-blue-50 border border-blue-200 rounded-lg px-4 py-2">
             <UserGroupIcon className="h-5 w-5 text-blue-600" />
             <div className="flex flex-col">
               <span className="text-xs text-blue-600 font-medium">
                 Waiting for your price confirmation. Go to{" "}
-          <span
-            className="underline cursor-pointer"
-            onClick={() => setCurrentSection("actions")}
-          >
-            Actions
-          </span>
-          {" "}to confirm your price.
+                <span
+                  className="underline cursor-pointer"
+                  onClick={() => setCurrentSection("actions")}
+                >
+                  Actions
+                </span>
+                {" "}to confirm your price.
               </span>
             </div>
           </div>
@@ -298,10 +296,9 @@ const SessionInfo = ({ data, setCurrentSection }) => {
                       zIndex: 2,
                     }}
                     className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-extrabold mb-2 
-                      ${
-                        isFailed && idx === steps.length - 1
-                          ? "bg-red-500 text-white"
-                          : accomplished
+                      ${isFailed && idx === steps.length - 1
+                        ? "bg-red-500 text-white"
+                        : accomplished
                           ? "bg-green-500 text-white"
                           : "bg-gray-200 border-2 border-gray-400 text-gray-500"
                       }`}
@@ -412,8 +409,8 @@ const SessionInfo = ({ data, setCurrentSection }) => {
                 data?.no_of_clients === 1
                   ? "Only you"
                   : data?.no_of_clients > 1
-                  ? `You + ${data?.no_of_clients - 1} more`
-                  : "N/A"
+                    ? `You + ${data?.no_of_clients - 1} more`
+                    : "N/A"
               }
               icon={<UserGroupIcon className="h-5 w-5 text-gray-400" />}
             />
@@ -466,9 +463,8 @@ const StatusItem = ({ label, statusConfig, setCurrentSection }) => {
         <p className="text-sm font-medium text-gray-500">{label}</p>
         <span
           onClick={() => setCurrentSection("actions")}
-          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium cursor-pointer ${
-            variantClasses[statusConfig.variant]
-          }`}
+          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium cursor-pointer ${variantClasses[statusConfig.variant]
+            }`}
         >
           {statusConfig.label}
         </span>

@@ -327,150 +327,149 @@ export default function TrainingDetails() {
       <div className="flex bg-gray-50 min-h-screen">
         {/* Sidebar Navigation */}
         <div className="w-64 bg-white shadow-sm p-4 border-r border-gray-200">
-        <div className="flex items-center justify-between mb-6 p-2">
-          <h3 className="text-lg font-semibold text-gray-800">
-            Session Navigation
-          </h3>
-          <button
-            onClick={fetchFederatedSessionData}
-            disabled={isRefreshing}
-            className="p-1 text-gray-500 hover:text-gray-700 disabled:opacity-50"
-          >
-            <ArrowPathIcon
-              className={`h-5 w-5 ${isRefreshing ? "animate-spin" : ""}`}
-            />
-          </button>
+          <div className="flex items-center justify-between mb-6 p-2">
+            <h3 className="text-lg font-semibold text-gray-800">
+              Session Navigation
+            </h3>
+            <button
+              onClick={fetchFederatedSessionData}
+              disabled={isRefreshing}
+              className="p-1 text-gray-500 hover:text-gray-700 disabled:opacity-50"
+            >
+              <ArrowPathIcon
+                className={`h-5 w-5 ${isRefreshing ? "animate-spin" : ""}`}
+              />
+            </button>
+          </div>
+
+          <div className="mb-4 p-2">{renderStatusBadge()}</div>
+
+          <nav className="space-y-1">
+            {sections.map((section) => {
+              return (
+                <button
+                  key={section.id}
+                  onClick={() => handleSectionClick(section.id)}
+                  disabled={
+                    section.disabled &&
+                    section.disabled.includes(
+                      federatedSessionData?.training_status
+                    )
+                  }
+                  className={`training-nav-${section.id} w-full flex items-center px-3 py-2 text-sm font-medium rounded-md transition disabled:opacity-50 ${currentSection === section.id
+                      ? "bg-blue-100 text-blue-700"
+                      : "text-gray-600 hover:bg-gray-100"
+                    }`}
+                >
+                  <span className="mr-3">{section.icon}</span>
+                  {section.label}
+                </button>
+              );
+            })}
+          </nav>
         </div>
 
-        <div className="mb-4 p-2">{renderStatusBadge()}</div>
-
-        <nav className="space-y-1">
-          {sections.map((section) => {
-            return (
-              <button
-                key={section.id}
-                onClick={() => handleSectionClick(section.id)}
-                disabled={
-                  section.disabled &&
-                  section.disabled.includes(
-                    federatedSessionData?.training_status
-                  )
-                }
-                className={`training-nav-${section.id} w-full flex items-center px-3 py-2 text-sm font-medium rounded-md transition disabled:opacity-50 ${
-                  currentSection === section.id
-                    ? "bg-blue-100 text-blue-700"
-                    : "text-gray-600 hover:bg-gray-100"
-                }`}
-              >
-                <span className="mr-3">{section.icon}</span>
-                {section.label}
-              </button>
-            );
-          })}
-        </nav>
-      </div>
-
-      {/* Main Content */}
-      <div className="flex-1 p-6">
-        <div className="bg-white rounded-lg shadow-sm p-6 relative">
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-2">
-              <h2 className="text-xl font-semibold text-gray-900">
-                {sections.find((s) => s.id === currentSection)?.label ||
-                  "Section"}
-              </h2>
-              <div className="relative ml-2">
-                <button
-                  type="button"
-                  className="w-5 h-5 flex items-center justify-center rounded-full text-gray-500 hover:text-gray-700"
-                  onClick={() => setShowSectionInfo((prev) => !prev)}
-                  aria-label="Show info about this section"
-                >
-                  <span className="font-bold text-xs">
-                    <InformationCircleIcon className="h-5 w-5" />
-                  </span>
-                </button>
-                {showSectionInfo && (
-                  <div className="absolute left-1/2 -translate-x-1/2 mt-2 z-20 w-72 bg-white border border-gray-200 rounded-lg shadow-lg p-4 text-sm text-gray-700 animate-fade-in">
-                    <div className="flex justify-between items-center mb-2">
-                      <span className="font-semibold">
-                        {sections.find((s) => s.id === currentSection)?.label ||
-                          "Section"}
-                      </span>
-                      <button
-                        className="text-gray-400 hover:text-gray-600"
-                        onClick={() => setShowSectionInfo(false)}
-                        aria-label="Close info"
-                      >
-                        ×
-                      </button>
+        {/* Main Content */}
+        <div className="flex-1 p-6">
+          <div className="bg-white rounded-lg shadow-sm p-6 relative">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-2">
+                <h2 className="text-xl font-semibold text-gray-900">
+                  {sections.find((s) => s.id === currentSection)?.label ||
+                    "Section"}
+                </h2>
+                <div className="relative ml-2">
+                  <button
+                    type="button"
+                    className="w-5 h-5 flex items-center justify-center rounded-full text-gray-500 hover:text-gray-700"
+                    onClick={() => setShowSectionInfo((prev) => !prev)}
+                    aria-label="Show info about this section"
+                  >
+                    <span className="font-bold text-xs">
+                      <InformationCircleIcon className="h-5 w-5" />
+                    </span>
+                  </button>
+                  {showSectionInfo && (
+                    <div className="absolute left-1/2 -translate-x-1/2 mt-2 z-20 w-72 bg-white border border-gray-200 rounded-lg shadow-lg p-4 text-sm text-gray-700 animate-fade-in">
+                      <div className="flex justify-between items-center mb-2">
+                        <span className="font-semibold">
+                          {sections.find((s) => s.id === currentSection)?.label ||
+                            "Section"}
+                        </span>
+                        <button
+                          className="text-gray-400 hover:text-gray-600"
+                          onClick={() => setShowSectionInfo(false)}
+                          aria-label="Close info"
+                        >
+                          ×
+                        </button>
+                      </div>
+                      <div>
+                        {currentSection === "session-info" &&
+                          "Overview and metadata of the current federated training session."}
+                        {currentSection === "dataset-info" &&
+                          "Details about the dataset(s) used in this session."}
+                        {currentSection === "model-config" &&
+                          "Configuration and parameters of the selected machine learning model."}
+                        {currentSection === "session-logs" &&
+                          "Logs and events recorded during the training session."}
+                        {currentSection === "results" &&
+                          "Results and evaluation metrics from the completed training session."}
+                        {currentSection === "actions" &&
+                          "Actions you can perform on this session, such as retrain or stop."}
+                        {currentSection === "training-progress" &&
+                          "Progress and status of the ongoing training rounds."}
+                      </div>
                     </div>
-                    <div>
-                      {currentSection === "session-info" &&
-                        "Overview and metadata of the current federated training session."}
-                      {currentSection === "dataset-info" &&
-                        "Details about the dataset(s) used in this session."}
-                      {currentSection === "model-config" &&
-                        "Configuration and parameters of the selected machine learning model."}
-                      {currentSection === "session-logs" &&
-                        "Logs and events recorded during the training session."}
-                      {currentSection === "results" &&
-                        "Results and evaluation metrics from the completed training session."}
-                      {currentSection === "actions" &&
-                        "Actions you can perform on this session, such as retrain or stop."}
-                      {currentSection === "training-progress" &&
-                        "Progress and status of the ongoing training rounds."}
-                    </div>
-                  </div>
-                )}
+                  )}
+                </div>
               </div>
             </div>
-          </div>
-          {currentSection === "session-info" && (
-            <SessionInfo
-              data={federatedSessionData}
-              setCurrentSection={setCurrentSectionWithHash}
-            />
-          )}
-          {currentSection === "session-logs" && (
-            <FederatedSessionLogs sessionId={sessionId} />
-          )}
-          {currentSection === "dataset-info" && (
-            <DatasetInfo data={federatedSessionData.federated_info} />
-          )}
-          {currentSection === "model-config" && (
-            <ModelConfig data={federatedSessionData.federated_info} />
-          )}
-          {currentSection === "actions" && (
-            <ActionSection
-              data={federatedSessionData}
-              sessionId={sessionId}
-              onRefreshData={fetchFederatedSessionData}
-            />
-          )}
-          {currentSection === "results" && <Result sessionId={sessionId} />}
-          {/* {currentSection === "training-progress" && (
+            {currentSection === "session-info" && (
+              <SessionInfo
+                data={federatedSessionData}
+                setCurrentSection={setCurrentSectionWithHash}
+              />
+            )}
+            {currentSection === "session-logs" && (
+              <FederatedSessionLogs sessionId={sessionId} />
+            )}
+            {currentSection === "dataset-info" && (
+              <DatasetInfo data={federatedSessionData.federated_info} />
+            )}
+            {currentSection === "model-config" && (
+              <ModelConfig data={federatedSessionData.federated_info} />
+            )}
+            {currentSection === "actions" && (
+              <ActionSection
+                data={federatedSessionData}
+                sessionId={sessionId}
+                onRefreshData={fetchFederatedSessionData}
+              />
+            )}
+            {currentSection === "results" && <Result sessionId={sessionId} />}
+            {/* {currentSection === "training-progress" && (
             <TrainingProgress sessionId={sessionId} />
           )} */}
-          {currentSection === "retry" && (
-            <div className="text-center">
-              <button
-                onClick={handleRetryNavigation}
-                className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium"
-              >
-                Retry this training as new request
-              </button>
-              <p className="mt-3 text-sm text-gray-500">
-                You will be redirected to the new training page with the same
-                details. You can edit the training name, while dataset
-                information will be preserved. Model configuration and later
-                steps will be reset.
-              </p>
-            </div>
-          )}
+            {currentSection === "retry" && (
+              <div className="text-center">
+                <button
+                  onClick={handleRetryNavigation}
+                  className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium"
+                >
+                  Retry this training as new request
+                </button>
+                <p className="mt-3 text-sm text-gray-500">
+                  You will be redirected to the new training page with the same
+                  details. You can edit the training name, while dataset
+                  information will be preserved. Model configuration and later
+                  steps will be reset.
+                </p>
+              </div>
+            )}
+          </div>
         </div>
       </div>
-    </div>
     </>
   );
 }
