@@ -18,7 +18,6 @@ import {
   CurrencyRupeeIcon,
 } from "@heroicons/react/24/outline";
 import React, { useEffect, useState } from "react";
-import React, { useEffect, useState } from "react";
 import { ProgressBar, Step } from "react-step-progress-bar";
 import "react-step-progress-bar/styles.css";
 import { Link } from "react-router-dom";
