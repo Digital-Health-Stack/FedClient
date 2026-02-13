@@ -70,6 +70,13 @@ export const submitPriceAcceptanceResponse = (
   return api.post("/v2/submit-client-price-acceptance", data);
 };
 
+export const submitWaitTime = (
+  api: AxiosInstance,
+  data: { session_id: number; wait_time: number }
+) => {
+  return api.post("/v2/submit-wait-time", data);
+};
+
 // export const sendModelInitiation = (
 //   api: AxiosInstance,
 //   data: { session_id: number }

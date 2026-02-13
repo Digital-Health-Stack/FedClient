@@ -25,6 +25,7 @@ import {
 } from "@heroicons/react/24/outline";
 import ActionSection from "../components/Training/ActionSection";
 import Result from "../components/Training/Result";
+import WaitTimeModal from "../components/Training/WaitTimeModal";
 // import TrainingProgress from "../components/Training/TrainingProgress";
 
 const statusConfig = {
@@ -62,13 +63,14 @@ const statusConfig = {
 
 export default function TrainingDetails() {
   const { sessionId } = useParams();
-  const { api } = useAuth();
+  const { api, user } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   const [federatedSessionData, setFederatedSessionData] = useState({});
   const [currentSection, setCurrentSection] = useState("session-info");
   const [showSectionInfo, setShowSectionInfo] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [showWaitTimeModal, setShowWaitTimeModal] = useState(false);
   const { showWalkthrough, stopWalkthrough } = useHelp();
 
   // Coach marks steps for training details sidebar
@@ -131,6 +133,51 @@ export default function TrainingDetails() {
   useEffect(() => {
     fetchFederatedSessionData();
   }, [sessionId]);
+
+  // Check if wait_time modal should be shown
+  useEffect(() => {
+    if (!federatedSessionData || !user) return;
+
+    const trainingStatus = federatedSessionData.training_status;
+    const federatedInfo = federatedSessionData.federated_info || {};
+    const adminId = federatedSessionData.admin_id;
+    const isAdmin = user.id === adminId;
+    const priceAccepted = federatedInfo.price_accepted === true;
+    // Check if wait_time is set (can be 0, so check for undefined/null specifically)
+    const waitTimeSet =
+      federatedInfo.wait_time !== undefined && federatedInfo.wait_time !== null;
+
+    // Check localStorage for pending state
+    const pendingState = localStorage.getItem(`wait_time_pending_${sessionId}`);
+
+    // Show modal if:
+    // 1. Status is PRICE_NEGOTIATION
+    // 2. Price has been accepted
+    // 3. User is admin
+    // 4. Wait time is not set OR localStorage has pending state
+    // 5. Currently on session-info section
+    const shouldShowModal =
+      trainingStatus === "PRICE_NEGOTIATION" &&
+      priceAccepted &&
+      isAdmin &&
+      (!waitTimeSet || pendingState) &&
+      currentSection === "session-info";
+
+    setShowWaitTimeModal(shouldShowModal);
+
+    // Set pending state in localStorage when modal should be shown
+    if (shouldShowModal && !pendingState) {
+      localStorage.setItem(
+        `wait_time_pending_${sessionId}`,
+        JSON.stringify({ sessionId, timestamp: Date.now() })
+      );
+    }
+  }, [
+    federatedSessionData,
+    user,
+    sessionId,
+    currentSection,
+  ]);
 
   // Valid section IDs for hash navigation
   const validSectionIds = [
@@ -470,6 +517,19 @@ export default function TrainingDetails() {
           </div>
         </div>
       </div>
+
+      {/* Wait Time Modal */}
+      {showWaitTimeModal && (
+        <WaitTimeModal
+          sessionId={sessionId}
+          onClose={() => setShowWaitTimeModal(false)}
+          onSuccess={async () => {
+            // Refresh session data to get updated status
+            await fetchFederatedSessionData();
+            setShowWaitTimeModal(false);
+          }}
+        />
+      )}
     </>
   );
 }

@@ -213,7 +213,7 @@ const ActionSection = ({ data, sessionId, onRefreshData }) => {
         await onRefreshData();
       }
 
-      navigate(`/trainings/${sessionId}`);
+      navigate(`/trainings/${sessionId}#session-info`);
     } catch (error) {
       console.error("Error submitting price decision:", error);
       toast.error("Failed to submit price decision. Please try again.", {

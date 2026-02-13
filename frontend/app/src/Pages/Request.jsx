@@ -5,7 +5,6 @@ import TrainingDetailsStep from "../components/OnRequestPage/RequestComponents/T
 import SelectDatasetsStep from "../components/OnRequestPage/RequestComponents/SelectDatasetsStep";
 import StatisticalInfoStep from "../components/OnRequestPage/RequestComponents/StatisticalInfoStep";
 import ModelSelectionStep from "../components/OnRequestPage/RequestComponents/ModelSelectionStep";
-import HyperparametersInfoStep from "../components/OnRequestPage/RequestComponents/Hyperparameters";
 import LoaderButton from "../components/Common/LoaderButton";
 import { useAuth } from "../contexts/AuthContext";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -17,7 +16,6 @@ import {
   ChartBarIcon,
   ArrowRightIcon,
   ArrowLeftIcon,
-  WrenchScrewdriverIcon,
   InformationCircleIcon,
 } from "@heroicons/react/24/outline";
 import { toast } from "react-toastify";
@@ -27,7 +25,6 @@ const steps = [
   { id: 1, label: "Dataset Information", icon: FolderIcon },
   { id: 2, label: "Model Selection", icon: CpuChipIcon },
   { id: 3, label: "Target Value", icon: ChartBarIcon },
-  { id: 4, label: "Hyperparameters", icon: WrenchScrewdriverIcon },
 ];
 
 const REQUEST_FORM_STORAGE_KEY = "fedclient_request_form_data";
@@ -107,11 +104,9 @@ export default function Request() {
       input_columns: [],
       output_columns: [],
       model_name: "",
-      model_info: { test_metrics: [] },
+      model_info: { test_metrics: [], no_of_rounds: "" },
       expected_std_mean: "",
       expected_std_deviation: "",
-      wait_time: 0,
-      no_of_rounds: "",
       server_stats: null,
       server_stats_data: null, // Add this to persist full server stats data
       client_stats: null,
@@ -125,6 +120,15 @@ export default function Request() {
       methods.reset(retryState.prefill);
     }
   }, [isRetry, retryState, methods]);
+
+  // Migrate old form data: move no_of_rounds from top level to model_info if needed
+  useEffect(() => {
+    const currentData = methods.getValues();
+    if (currentData.no_of_rounds && !currentData.model_info?.no_of_rounds) {
+      methods.setValue("model_info.no_of_rounds", currentData.no_of_rounds);
+      // Don't remove top-level no_of_rounds yet to avoid breaking existing saved data
+    }
+  }, [methods]);
 
   const [showStepInfo, setShowStepInfo] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -208,9 +212,9 @@ export default function Request() {
       toast.error("Please provide expected results.");
       return setCurrentStep(3);
     }
-    if (!data.wait_time || !data.no_of_rounds) {
-      toast.error("Please provide hyperparameters.");
-      return setCurrentStep(4);
+    if (!data.model_info?.no_of_rounds) {
+      toast.error("Please provide number of rounds.");
+      return setCurrentStep(2);
     }
 
     if (
@@ -219,8 +223,15 @@ export default function Request() {
     ) {
       data.model_name = "DecisionTree";
     }
+
+    // Extract no_of_rounds from model_info and add to top level for backend compatibility
+    const submissionData = {
+      ...data,
+      no_of_rounds: data.model_info.no_of_rounds,
+    };
+
     const requestData = {
-      fed_info: data,
+      fed_info: submissionData,
       // client_token: api.getAccessToken(),
     };
 
@@ -271,8 +282,6 @@ export default function Request() {
                   "Choose the machine learning model architecture you want to use for this federated training session. Each model may have different configuration options."}
                 {currentStep === 3 &&
                   "Configure the expected accuracy and variation for your training. This will help us estimate data cost for training."}
-                {currentStep === 4 &&
-                  "Set the training hyperparameters such as waiting time and number of rounds. These control the training process for your federated learning session."}
               </p>
             </div>
 
@@ -288,7 +297,6 @@ export default function Request() {
               )}
               {currentStep === 2 && <ModelSelectionStep />}
               {currentStep === 3 && <StatisticalInfoStep />}
-              {currentStep === 4 && <HyperparametersInfoStep />}
             </div>
 
             <div className="mt-12 pt-8 border-t border-gray-100 flex justify-between">

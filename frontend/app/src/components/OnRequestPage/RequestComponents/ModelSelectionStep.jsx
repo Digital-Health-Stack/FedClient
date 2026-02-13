@@ -14,6 +14,14 @@ export default function ModelSelectionStep() {
     ? availableModels[selectedModel]?.component
     : null;
 
+  // Initialize no_of_rounds in model_info if it doesn't exist
+  useEffect(() => {
+    const currentModelInfo = watch("model_info") || {};
+    if (!currentModelInfo.no_of_rounds) {
+      setValue("model_info.no_of_rounds", "");
+    }
+  }, [setValue, watch]);
+
   return (
     <div className="space-y-6">
       {/* <div className="flex items-center space-x-2">
@@ -64,6 +72,30 @@ export default function ModelSelectionStep() {
           </option>
         ))}
       </select>
+
+      {/* Number of Rounds Input */}
+      <div>
+        <label
+          className="block text-sm font-medium mb-1"
+          htmlFor="model_info.no_of_rounds"
+          title="Number of rounds for which the training will run"
+        >
+          Number of Rounds
+        </label>
+        <input
+          type="number"
+          step="1"
+          min={1}
+          max={100}
+          {...register("model_info.no_of_rounds", {
+            required: "Number of rounds is required",
+            min: { value: 1, message: "Value must be at least 1" },
+            max: { value: 100, message: "Value must be at most 100" },
+          })}
+          className="w-full p-2 border rounded-md mt-1"
+          placeholder="Enter number of rounds"
+        />
+      </div>
 
       {ModelComponent && (
         <div className="mt-4 p-4 border rounded-md bg-gray-50">
