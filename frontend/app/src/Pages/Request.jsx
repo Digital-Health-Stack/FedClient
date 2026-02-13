@@ -26,7 +26,7 @@ const steps = [
   { id: 0, label: "Training Details", icon: BuildingOfficeIcon },
   { id: 1, label: "Dataset Information", icon: FolderIcon },
   { id: 2, label: "Model Selection", icon: CpuChipIcon },
-  { id: 3, label: "Statistical Info", icon: ChartBarIcon },
+  { id: 3, label: "Target Value", icon: ChartBarIcon },
   { id: 4, label: "Hyperparameters", icon: WrenchScrewdriverIcon },
 ];
 
@@ -317,11 +317,10 @@ export default function Request() {
                   type="submit"
                   isLoading={isSubmitting}
                   loadingText="Submitting..."
-                  className={`px-6 py-3 text-white rounded-lg font-medium ${
-                    isSubmitting
-                      ? "bg-green-400"
-                      : "bg-green-600 hover:bg-green-700"
-                  }`}
+                  className={`px-6 py-3 text-white rounded-lg font-medium ${isSubmitting
+                    ? "bg-green-400"
+                    : "bg-green-600 hover:bg-green-700"
+                    }`}
                 >
                   Submit Request
                 </LoaderButton>

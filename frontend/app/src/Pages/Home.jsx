@@ -24,14 +24,14 @@ export default function Home() {
             <div className="flex justify-center">
               <img
                 src={FedClientImage}
-                alt="FedClient Logo"
+                alt="Bodh.AI Logo"
                 className="w-32 h-32 rounded-full border-4 border-blue-100"
               />
             </div>
 
             {/* Heading */}
             <h1 className="text-3xl font-bold text-gray-800 text-center">
-              Welcome to FedClient
+              Welcome to Bodh.AI
             </h1>
 
             {/* Description */}

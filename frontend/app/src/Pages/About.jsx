@@ -9,7 +9,7 @@ export default function About() {
       <div className="flex flex-col items-center justify-center text-center">
         <img
           src={AboutIcon}
-          alt="FedClient"
+          alt="Bodh.AI"
           className="max-h-48 w-auto object-contain"
         />
         <h3 className="text-2xl font-semibold text-gray-700">How it Works</h3>

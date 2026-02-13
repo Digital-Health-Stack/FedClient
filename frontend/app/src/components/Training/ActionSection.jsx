@@ -242,20 +242,20 @@ const ActionSection = ({ data, sessionId, onRefreshData }) => {
       <h3 className="text-lg font-semibold text-gray-800 mb-4">
         Set Training Price
       </h3>
-      
+
       <div className="p-4 bg-gray-50 rounded-lg mb-3">
-          <div>
-            <h4 className="font-medium text-gray-700">Training Price (in Data Points)</h4>
-            <p className="text-2xl font-bold text-blue-600 mt-1">
-              {sessionPrice || 0} Data Points
-            </p>
-          </div>
+        <div>
+          <h4 className="font-medium text-gray-700">Training Price (in Data Points)</h4>
+          <p className="text-2xl font-bold text-blue-600 mt-1">
+            {sessionPrice || 0} Data Points
+          </p>
         </div>
+      </div>
       {/* Client Dataset Section */}
       <div className="bg-white rounded-lg mb-3 shadow-sm border-gray-200">
         <div className="space-y-2">
           <label className="block text-sm font-medium text-[1.1rem] text-gray-700">
-            For training you need to pay this much. Pick a dataset to pay with.
+            Pick a dataset to pay with:
           </label>
           <div className="flex space-x-2">
             <select
@@ -315,11 +315,10 @@ const ActionSection = ({ data, sessionId, onRefreshData }) => {
       {/* Column Matching Status */}
       {clientStats && serverStats && (
         <div
-          className={`p-3 mb-3 rounded-md border ${
-            columnsMatch()
-              ? "bg-green-50 border-green-200 text-green-800"
-              : "bg-yellow-50 border-yellow-200 text-yellow-800"
-          }`}
+          className={`p-3 mb-3 rounded-md border ${columnsMatch()
+            ? "bg-green-50 border-green-200 text-green-800"
+            : "bg-yellow-50 border-yellow-200 text-yellow-800"
+            }`}
         >
           <div className="flex items-start">
             {columnsMatch() ? (
@@ -362,14 +361,13 @@ const ActionSection = ({ data, sessionId, onRefreshData }) => {
               isLoading={isAcceptingPrice}
               loadingText="Accepting..."
               onClick={() => onSubmitPriceAcceptance({ decision: "accepted" })}
-              className={`px-6 py-1.5 border border-transparent rounded-md shadow-sm text-sm font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2 ${
-                !clientStats ||
+              className={`px-6 py-1.5 border border-transparent rounded-md shadow-sm text-sm font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2 ${!clientStats ||
                 !columnsMatch() ||
                 isAcceptingPrice ||
                 isRejectingPrice
-                  ? "bg-gray-400 cursor-not-allowed focus:ring-gray-500"
-                  : "bg-green-500 hover:bg-green-600 focus:ring-green-500"
-              }`}
+                ? "bg-gray-400 cursor-not-allowed focus:ring-gray-500"
+                : "bg-green-500 hover:bg-green-600 focus:ring-green-500"
+                }`}
             >
               Contribute and Accept
             </LoaderButton>
@@ -380,11 +378,10 @@ const ActionSection = ({ data, sessionId, onRefreshData }) => {
               isLoading={isRejectingPrice}
               loadingText="Rejecting..."
               onClick={() => onSubmitPriceAcceptance({ decision: "rejected" })}
-              className={`px-6 py-1.5 border border-transparent rounded-md shadow-sm text-sm font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2 ${
-                isAcceptingPrice || isRejectingPrice
-                  ? "bg-gray-400 cursor-not-allowed focus:ring-gray-500"
-                  : "bg-red-500 hover:bg-red-600 focus:ring-red-500"
-              }`}
+              className={`px-6 py-1.5 border border-transparent rounded-md shadow-sm text-sm font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2 ${isAcceptingPrice || isRejectingPrice
+                ? "bg-gray-400 cursor-not-allowed focus:ring-gray-500"
+                : "bg-red-500 hover:bg-red-600 focus:ring-red-500"
+                }`}
             >
               Reject
             </LoaderButton>
@@ -409,11 +406,10 @@ const ActionSection = ({ data, sessionId, onRefreshData }) => {
             isLoading={isAcceptingParticipation}
             loadingText="Accepting..."
             onClick={() => onSubmitParticipationDecision("accepted")}
-            className={`px-8 py-3 border border-transparent rounded-md shadow-sm text-sm font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2 ${
-              isAcceptingParticipation || isRejectingParticipation
-                ? "bg-gray-400 cursor-not-allowed focus:ring-gray-500"
-                : "bg-green-500 hover:bg-green-600 focus:ring-green-500"
-            }`}
+            className={`px-8 py-3 border border-transparent rounded-md shadow-sm text-sm font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2 ${isAcceptingParticipation || isRejectingParticipation
+              ? "bg-gray-400 cursor-not-allowed focus:ring-gray-500"
+              : "bg-green-500 hover:bg-green-600 focus:ring-green-500"
+              }`}
           >
             Accept Training
           </LoaderButton>
@@ -424,11 +420,10 @@ const ActionSection = ({ data, sessionId, onRefreshData }) => {
             isLoading={isRejectingParticipation}
             loadingText="Rejecting..."
             onClick={() => onSubmitParticipationDecision("rejected")}
-            className={`px-8 py-3 border border-transparent rounded-md shadow-sm text-sm font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2 ${
-              isAcceptingParticipation || isRejectingParticipation
-                ? "bg-gray-400 cursor-not-allowed focus:ring-gray-500"
-                : "bg-red-500 hover:bg-red-600 focus:ring-red-500"
-            }`}
+            className={`px-8 py-3 border border-transparent rounded-md shadow-sm text-sm font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2 ${isAcceptingParticipation || isRejectingParticipation
+              ? "bg-gray-400 cursor-not-allowed focus:ring-gray-500"
+              : "bg-red-500 hover:bg-red-600 focus:ring-red-500"
+              }`}
           >
             Reject Training
           </LoaderButton>
@@ -511,9 +506,8 @@ const ActionSection = ({ data, sessionId, onRefreshData }) => {
         <button
           onClick={handleDownload}
           disabled={isDownloading}
-          className={`inline-flex items-center px-3 py-1 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 ${
-            isDownloading ? "opacity-75 cursor-not-allowed" : ""
-          }`}
+          className={`inline-flex items-center px-3 py-1 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 ${isDownloading ? "opacity-75 cursor-not-allowed" : ""
+            }`}
         >
           {isDownloading ? (
             <>

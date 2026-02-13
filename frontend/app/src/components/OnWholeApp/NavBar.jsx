@@ -74,7 +74,7 @@ const NavBar = () => {
       <div className="container mx-auto flex justify-between items-center p-2 max-w-7xl">
         {/* Logo */}
         <a className="text-xl font-bold flex items-center text-white" href="/">
-          <span>FedClient</span>
+          <span>Bodh.AI</span>
         </a>
 
         {/* Mobile Menu Button */}
@@ -93,9 +93,8 @@ const NavBar = () => {
 
         {/* Navigation Links */}
         <div
-          className={`absolute md:static top-10 right-0 w-full md:w-auto bg-gray-900 md:bg-transparent md:flex md:items-center p-4 md:p-0 transition-all duration-300 ${
-            isNavbarOpen ? "block" : "hidden"
-          } md:ml-auto`}
+          className={`absolute md:static top-10 right-0 w-full md:w-auto bg-gray-900 md:bg-transparent md:flex md:items-center p-4 md:p-0 transition-all duration-300 ${isNavbarOpen ? "block" : "hidden"
+            } md:ml-auto`}
         >
           {user && (
             <ul className="md:flex justify-end items-center space-y-4 md:space-y-0 md:space-x-6 w-full">
