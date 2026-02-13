@@ -12,6 +12,7 @@ import {
   QuestionMarkCircleIcon,
   ArrowRightEndOnRectangleIcon,
   CircleStackIcon,
+  TrophyIcon,
 } from "@heroicons/react/24/solid";
 import { closeWebSocket, connectWebSocket } from "../../services/redisSocket";
 import { BellIcon } from "@heroicons/react/24/outline";
@@ -33,7 +34,8 @@ const NavBar = () => {
     location.pathname === "/trainings" ||
     location.pathname.startsWith("/trainings/") ||
     location.pathname.startsWith("/raw-dataset-overview/") ||
-    location.pathname.startsWith("/processed-dataset-overview/");
+    location.pathname.startsWith("/processed-dataset-overview/") ||
+    location.pathname === "/leaderboard-data";
   const handleToggle = () => {
     setIsNavbarOpen(!isNavbarOpen);
   };
@@ -144,6 +146,19 @@ const NavBar = () => {
                 {/* Hover Tooltip */}
                 <div className="absolute left-1/2 -translate-x-1/2 top-full mt-1 z-50 w-64 px-3 py-2 bg-gray-800 text-white text-xs rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">
                   View all your training sessions and their current status.
+                  <div className="absolute bottom-full left-1/2 -translate-x-1/2 border-4 border-transparent border-b-gray-800"></div>
+                </div>
+              </li>
+              <li className="relative group">
+                <NavLink
+                  className="navbar-leaderboard-data flex items-center gap-2 py-2 px-4 hover:text-gray-400"
+                  to="/leaderboard-data"
+                >
+                  <TrophyIcon className="w-5 h-5" /> Leaderboards
+                </NavLink>
+                {/* Hover Tooltip */}
+                <div className="absolute left-1/2 -translate-x-1/2 top-full mt-1 z-50 w-64 px-3 py-2 bg-gray-800 text-white text-xs rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">
+                  Select a dataset and task to view leaderboards.
                   <div className="absolute bottom-full left-1/2 -translate-x-1/2 border-4 border-transparent border-b-gray-800"></div>
                 </div>
               </li>

@@ -190,6 +190,7 @@ import PreprocessingDocs from "./components/DataPipeline/DataSetVisuals/Processi
 import Dashboard from "./Pages/Dashboard.jsx";
 import TestingDataSetOverview from "./components/DataPipeline/DataSetVisuals/TestingDataSetOverview.jsx";
 import Leaderboard from "./Pages/Leaderboard.jsx";
+import LeaderboardData from "./Pages/LeaderboardData.jsx";
 /*
 The App component is the main component of the application. It is the parent component of all the other components.
 It contains the NavBar component, which is a navigation bar that allows the user to navigate between different 
@@ -340,6 +341,14 @@ export default function App() {
                       element={
                         <PrivateRoute>
                           <PreprocessingDocs />
+                        </PrivateRoute>
+                      }
+                    />
+                    <Route
+                      path="/leaderboard-data"
+                      element={
+                        <PrivateRoute>
+                          <LeaderboardData />
                         </PrivateRoute>
                       }
                     />
