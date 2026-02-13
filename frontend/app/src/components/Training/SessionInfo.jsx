@@ -17,7 +17,7 @@ import {
   ChartBarIcon,
   CurrencyRupeeIcon,
 } from "@heroicons/react/24/outline";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { ProgressBar, Step } from "react-step-progress-bar";
 import "react-step-progress-bar/styles.css";
 import { Link } from "react-router-dom";
@@ -137,15 +137,19 @@ const SessionInfo = ({ data, setCurrentSection }) => {
     }
   };
 
-  // Calculate wait start and total wait time
-  const waitStart = data?.updatedAt ? formatTimestamp(data.updatedAt) : null;
-  const totalWait = data?.federated_info?.wait_time
-    ? Math.max(1, data?.federated_info?.wait_time * 60 * 1000)
-    : 1;
+  // Calculate wait start and total wait time - memoize to prevent infinite loops
+  const waitStart = useMemo(() => {
+    return data?.updatedAt ? formatTimestamp(data.updatedAt) : null;
+  }, [data?.updatedAt]);
+  
+  const totalWait = useMemo(() => {
+    return data?.federated_info?.wait_time
+      ? Math.max(1, data?.federated_info?.wait_time * 60 * 1000)
+      : 1;
+  }, [data?.federated_info?.wait_time]);
 
   // Real-time elapsed time state
   const [elapsed, setElapsed] = useState(0);
-  const [currentTime, setCurrentTime] = useState(new Date());
 
   // Update elapsed time every second
   useEffect(() => {
@@ -166,12 +170,9 @@ const SessionInfo = ({ data, setCurrentSection }) => {
 
     // Set initial elapsed time
     setElapsed(calculateElapsed());
-    setCurrentTime(new Date());
 
     // Update every second
     const interval = setInterval(() => {
-      const now = new Date();
-      setCurrentTime(now);
       const elapsedTime = calculateElapsed();
       setElapsed(elapsedTime);
 
@@ -400,7 +401,7 @@ const SessionInfo = ({ data, setCurrentSection }) => {
             value={data?.session_price + " Data Points"}
             icon={<CurrencyRupeeIcon className="h-5 w-5 text-gray-400" />}
           />
-          {console.log(data)}
+          {/* {console.log(data)} */}
           <div className="training-participants-info">
             <InfoItem
               label="Number of Training Participants"

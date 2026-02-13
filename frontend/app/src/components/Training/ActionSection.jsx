@@ -35,8 +35,10 @@ const ActionSection = ({ data, sessionId, onRefreshData }) => {
     client_status: clientStatus,
     session_price: sessionPrice,
     federated_info: fedInfo,
+    admin_id: adminId,
   } = data || {};
-  const { api } = useAuth();
+  const { api, user } = useAuth();
+  const isAdmin = user?.id === adminId;
   const navigate = useNavigate();
   const [isDownloading, setIsDownloading] = useState(false);
   const [error, setError] = useState(null);
@@ -581,7 +583,25 @@ const ActionSection = ({ data, sessionId, onRefreshData }) => {
   };
   switch (trainingStatus) {
     case "PRICE_NEGOTIATION":
-      return renderPriceAcceptanceForm();
+      // Only show price acceptance form to the admin/creator
+      if (isAdmin) {
+        return renderPriceAcceptanceForm();
+      } else {
+        return (
+          <div className="bg-blue-50 border-l-4 border-blue-400 p-4 rounded-lg">
+            <div className="flex items-center">
+              <InformationCircleIcon className="h-5 w-5 text-blue-500 mr-2" />
+              <h3 className="text-lg font-medium text-blue-800">
+                Waiting for Price Acceptance
+              </h3>
+            </div>
+            <p className="mt-2 text-sm text-blue-700">
+              The session creator is reviewing the training price. Please wait for
+              them to accept or reject the price.
+            </p>
+          </div>
+        );
+      }
 
     // CHANGE HERE FOR SHOWING PARTICIPATION DECISION FORM ON OTHER CLIENTS
     case "ACCEPTING_CLIENTS":
