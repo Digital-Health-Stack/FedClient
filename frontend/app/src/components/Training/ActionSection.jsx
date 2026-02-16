@@ -208,6 +208,14 @@ const ActionSection = ({ data, sessionId, onRefreshData }) => {
         autoClose: 4000,
       });
 
+      // Mark wait_time as pending so the modal shows after redirect
+      if (isAccepting) {
+        localStorage.setItem(
+          `wait_time_pending_${sessionId}`,
+          JSON.stringify({ sessionId, timestamp: Date.now() })
+        );
+      }
+
       // Refresh the data after successful submission
       if (onRefreshData) {
         await onRefreshData();

@@ -152,16 +152,16 @@ export default function TrainingDetails() {
 
     // Show modal if:
     // 1. Status is PRICE_NEGOTIATION
-    // 2. Price has been accepted
+    // 2. Price has been accepted (or we have pending state from redirect)
     // 3. User is admin
     // 4. Wait time is not set OR localStorage has pending state
-    // 5. Currently on session-info section
+    // 5. Currently on session-info section OR we have pending state (so modal shows right after redirect)
     const shouldShowModal =
       trainingStatus === "PRICE_NEGOTIATION" &&
-      priceAccepted &&
+      (priceAccepted || pendingState) &&
       isAdmin &&
       (!waitTimeSet || pendingState) &&
-      currentSection === "session-info";
+      (currentSection === "session-info" || pendingState);
 
     setShowWaitTimeModal(shouldShowModal);
 
