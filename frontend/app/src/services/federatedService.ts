@@ -60,7 +60,7 @@ export const submitTrainingAcceptanceResponse = (
   api: AxiosInstance,
   data: { session_id: number; decision: number }
 ) => {
-  return api.post("/v2/accept-training/", data);
+  return api.post("/v2/accept-training", data);
 };
 
 export const submitPriceAcceptanceResponse = (
