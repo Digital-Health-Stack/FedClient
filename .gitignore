@@ -50,3 +50,4 @@ data
 logs
 .vscode
 frontend/app/dist
+**/.vercel
