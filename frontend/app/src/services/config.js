@@ -8,6 +8,7 @@ export const HTTPService = axios.create({
   // timeout: 50000,
   headers: {
     "Content-Type": "application/json",
+    "ngrok-skip-browser-warning": "true",
   },
 });
 
@@ -16,6 +17,7 @@ export const PrivateHTTPService = axios.create({
   // timeout: 50000,
   headers: {
     "Content-Type": "application/json",
+    "ngrok-skip-browser-warning": "true",
   },
 });
 

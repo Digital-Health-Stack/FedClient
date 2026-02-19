@@ -494,7 +494,7 @@ export default function TrainingDetails() {
                 onRefreshData={fetchFederatedSessionData}
               />
             )}
-            {currentSection === "results" && <Result sessionId={sessionId} />}
+            {currentSection === "results" && <Result sessionId={sessionId} noOfClients={federatedSessionData?.no_of_clients} />}
             {/* {currentSection === "training-progress" && (
             <TrainingProgress sessionId={sessionId} />
           )} */}

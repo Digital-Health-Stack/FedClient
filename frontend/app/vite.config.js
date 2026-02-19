@@ -6,7 +6,7 @@ export default defineConfig(({ mode }) => {
   const processEnv = {};
   // Load only environment variables that start with REACT_APP_
   Object.keys(env).forEach((key) => {
-    if (key.startsWith('REACT_APP_')) {
+    if (key.startsWith("REACT_APP_")) {
       processEnv[key] = env[key];
     }
   });
@@ -19,7 +19,12 @@ export default defineConfig(({ mode }) => {
     server: {
       host: "0.0.0.0", // Allows external access from Docker
       port: 5174, // Change to the new port
-      allowedHosts: ["fedclient.abdm.gov.in"]
+      allowedHosts: [
+        "fed-client.vercel.app",
+        "fedclient.abdm.gov.in",
+        "zahra-nonparental-maisie.ngrok-free.dev",
+      ],
     },
+    base: "/",
   };
 });

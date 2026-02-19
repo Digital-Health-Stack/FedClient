@@ -108,6 +108,7 @@ const AddDataset = () => {
           const response = await axios.post(endpoints.upload.upload, formData, {
             headers: {
               "Content-Type": "multipart/form-data",
+              "ngrok-skip-browser-warning": "true",
             },
             onUploadProgress: (progressEvent) => {
               const progress = Math.round(

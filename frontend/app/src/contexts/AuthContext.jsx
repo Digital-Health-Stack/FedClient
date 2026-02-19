@@ -57,7 +57,7 @@ export const AuthProvider = ({ children }) => {
     const initializeEventSource = async () => {
       if (user && user.access_token) {
         const user = JSON.parse(localStorage.getItem("user"));
-        const headers = {};
+        const headers = { "ngrok-skip-browser-warning": "true", "Content-Type": "application/json", };
 
         if (user && user.access_token) {
           headers["Authorization"] = `Bearer ${user.access_token}`;
@@ -66,7 +66,13 @@ export const AuthProvider = ({ children }) => {
         const response = await fetch(`${BASE_URL}/notifications/stream`, {
           method: "GET",
           headers: headers,
-        });
+        },
+          {
+            headers: {
+              "ngrok-skip-browser-warning": "true",
+            },
+          }
+        );
 
         const reader = response.body.getReader();
         const decoder = new TextDecoder("utf-8");
@@ -92,7 +98,7 @@ export const AuthProvider = ({ children }) => {
                 for (let notification of notifications) {
                   handleNotification(notification);
                 }
-              } catch (exception) {}
+              } catch (exception) { }
             }
           }
 
@@ -188,6 +194,7 @@ export const AuthProvider = ({ children }) => {
     timeout: 50000,
     headers: {
       "Content-Type": "application/json",
+      "ngrok-skip-browser-warning": "true",
       // 'Authorization': `Bearer ${user ? user.access_token : ''}` // Add the token
     },
   });
@@ -262,6 +269,9 @@ export const AuthProvider = ({ children }) => {
   const sseApi = axios.create({
     baseURL: BASE_URL,
     responseType: "stream",
+    headers: {
+      "ngrok-skip-browser-warning": "true",
+    },
     timeout: 2 * 24 * 60 * 60 * 1000,
   });
 

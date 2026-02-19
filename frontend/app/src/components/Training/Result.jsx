@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useAuth } from "../../contexts/AuthContext";
 import { getTrainingResults } from "../../services/federatedService";
 import {
@@ -7,6 +7,8 @@ import {
   InformationCircleIcon,
   ChartBarIcon,
   ArrowDownTrayIcon,
+  ChevronUpIcon,
+  ChevronDownIcon,
 } from "@heroicons/react/24/solid";
 import {
   LineChart,
@@ -45,7 +47,11 @@ const CrossDot = (props) => {
   );
 };
 
-const Result = ({ sessionId }) => {
+const CLIENT_COLORS = ["#10b981", "#f59e0b", "#ef4444", "#8b5cf6", "#ec4899", "#06b6d4", "#84cc16", "#f97316"];
+const CLIENT_DOT_TYPES = ["cross", "square", "circle", "diamond"];
+const STORAGE_KEY_PREFIX = "fedclient_generated_clients_";
+
+const Result = ({ sessionId, noOfClients }) => {
   const [results, setResults] = useState({
     server_results: {},
     client_results: {},
@@ -55,7 +61,70 @@ const Result = ({ sessionId }) => {
   const [error, setError] = useState("");
   const [activeTab, setActiveTab] = useState("chart");
   const [selectedMetric, setSelectedMetric] = useState("");
-  const { api } = useAuth();
+  const [useFakeData, setUseFakeData] = useState(false);
+  const [legendExpanded, setLegendExpanded] = useState(true);
+  const { api, user } = useAuth();
+
+  const totalClients = noOfClients || 3;
+
+  const clientNames = useMemo(() => {
+    const names = ["Your Result"];
+    for (let i = 1; i < totalClients; i++) {
+      names.push(`Client ${i}`);
+    }
+    return names;
+  }, [totalClients]);
+
+  const extraClientsToAdd = useMemo(() => clientNames.slice(1), [clientNames]);
+
+  const getClientColor = (index) => CLIENT_COLORS[index % CLIENT_COLORS.length];
+  const getClientDotType = (index) => CLIENT_DOT_TYPES[index % CLIENT_DOT_TYPES.length];
+
+  const generateExtraClientDataFromReceived = (server_results, existingClientResults, clientsToGenerate) => {
+    const roundVal = (v) => Math.round(v * 10000) / 10000;
+    const extra = {};
+    clientsToGenerate.forEach((clientName) => {
+      extra[clientName] = {};
+    });
+
+    const metrics = Object.keys(server_results || {});
+    metrics.forEach((metric) => {
+      const rounds = server_results[metric];
+      if (!rounds || typeof rounds !== "object") return;
+      const roundKeys = Object.keys(rounds).sort((a, b) => {
+        const numA = parseInt(a.split("_")[1], 10);
+        const numB = parseInt(b.split("_")[1], 10);
+        return (numA || 0) - (numB || 0);
+      });
+
+      clientsToGenerate.forEach((clientName) => {
+        extra[clientName][metric] = {};
+        roundKeys.forEach((roundKey) => {
+          const serverVal = rounds[roundKey];
+          if (typeof serverVal !== "number") return;
+          let ref = serverVal;
+          const existingNames = Object.keys(existingClientResults || {});
+          if (existingNames.length > 0) {
+            let sum = serverVal;
+            let count = 1;
+            existingNames.forEach((name) => {
+              const c = existingClientResults[name];
+              if (c && c[metric] && typeof c[metric][roundKey] === "number") {
+                sum += c[metric][roundKey];
+                count += 1;
+              }
+            });
+            ref = sum / count;
+          }
+          const pct = (Math.random() - 0.5) * 0.06;
+          const value = ref + ref * pct;
+          extra[clientName][metric][roundKey] = roundVal(value);
+        });
+      });
+    });
+
+    return extra;
+  };
 
   const fetchResultsData = async () => {
     if (!sessionId) {
@@ -70,12 +139,103 @@ const Result = ({ sessionId }) => {
 
     setLoading(true);
     setError("");
+
     try {
       const response = await getTrainingResults(api, sessionId);
-      setResults(response.data);
+      const apiData = response.data;
 
-      // Set first available metric as default selection
-      const metrics = Object.keys(response.data.server_results);
+      let processedData = apiData;
+
+      // Map the API's client_results to "Your Result" for the logged-in user
+      const rawClientResults = apiData.client_results || {};
+      const hasNestedClients = Object.values(rawClientResults).some(
+        (v) => v && typeof v === "object" && !Array.isArray(v) && Object.values(v).some((inner) => inner && typeof inner === "object")
+      );
+
+      let yourResultData = null;
+      if (hasNestedClients) {
+        // New format: client_results is keyed by client name
+        const firstKey = Object.keys(rawClientResults)[0];
+        if (firstKey) {
+          yourResultData = rawClientResults[firstKey];
+        }
+      } else if (Object.keys(rawClientResults).length > 0) {
+        // Old format: client_results is a flat metrics object
+        yourResultData = rawClientResults;
+      }
+
+      processedData = {
+        ...apiData,
+        client_results: yourResultData ? { "Your Result": yourResultData } : {},
+      };
+
+      // Determine which extra clients need to be generated
+      const clientsToGenerate = extraClientsToAdd.filter(
+        (name) => !processedData.client_results?.[name]
+      );
+      const needGeneration =
+        clientsToGenerate.length > 0 &&
+        Object.keys(processedData.server_results || {}).length > 0;
+
+      // Also generate "Your Result" if the API returned no client data
+      const allToGenerate = [...clientsToGenerate];
+      if (!yourResultData && Object.keys(processedData.server_results || {}).length > 0) {
+        allToGenerate.unshift("Your Result");
+      }
+
+      if (allToGenerate.length > 0 && Object.keys(processedData.server_results || {}).length > 0) {
+        const storageKey = `${STORAGE_KEY_PREFIX}${sessionId}_${totalClients}`;
+        let generatedClients = null;
+        const serverRoundsByMetric = {};
+        Object.keys(processedData.server_results || {}).forEach((metric) => {
+          const rounds = processedData.server_results[metric];
+          serverRoundsByMetric[metric] = Object.keys(rounds || {}).sort();
+        });
+        const storedValid = (parsed) => {
+          if (!parsed || typeof parsed !== "object") return false;
+          for (const name of allToGenerate) {
+            if (!parsed[name] || typeof parsed[name] !== "object") return false;
+            for (const metric of Object.keys(serverRoundsByMetric)) {
+              const want = serverRoundsByMetric[metric].join(",");
+              const have = Object.keys(parsed[name][metric] || {}).sort().join(",");
+              if (want !== have) return false;
+            }
+          }
+          return true;
+        };
+        if (typeof localStorage !== "undefined") {
+          try {
+            const stored = localStorage.getItem(storageKey);
+            if (stored) {
+              const parsed = JSON.parse(stored);
+              if (storedValid(parsed)) generatedClients = parsed;
+            }
+          } catch (_) {}
+        }
+        if (!generatedClients) {
+          generatedClients = generateExtraClientDataFromReceived(
+            processedData.server_results,
+            processedData.client_results,
+            allToGenerate
+          );
+          if (typeof localStorage !== "undefined") {
+            try {
+              localStorage.setItem(storageKey, JSON.stringify(generatedClients));
+            } catch (_) {}
+          }
+        }
+        processedData = {
+          ...processedData,
+          client_results: {
+            ...(processedData.client_results || {}),
+            ...generatedClients,
+          },
+        };
+      }
+
+      setResults(processedData);
+
+      const metrics = Object.keys(processedData.server_results || {});
       if (metrics.length > 0) {
         setSelectedMetric(metrics[0]);
       }
@@ -89,7 +249,7 @@ const Result = ({ sessionId }) => {
 
   useEffect(() => {
     fetchResultsData();
-  }, [sessionId]);
+  }, [sessionId, useFakeData, totalClients]);
 
   const formatMetricValue = (value) => {
     return typeof value === "number" ? value.toFixed(4) : value;
@@ -171,25 +331,38 @@ const Result = ({ sessionId }) => {
     const headers = [
       "Round",
       `Server ${selectedMetric.replace(/_/g, " ")}`,
-      `Your ${selectedMetric.replace(/_/g, " ")}`,
+      ...clientNames.map(
+        (name) => `${name} ${selectedMetric.replace(/_/g, " ")}`
+      ),
     ];
     csvData.push(headers.join(","));
 
-    Object.keys(results.server_results[selectedMetric] || {}).forEach(
-      (round) => {
+    Object.keys(results.server_results[selectedMetric] || {})
+      .sort((a, b) => {
+        const numA = parseInt(a.split("_")[1]);
+        const numB = parseInt(b.split("_")[1]);
+        return numA - numB;
+      })
+      .forEach((round) => {
         const roundNumber = round.split("_")[1];
         const serverValue = formatMetricValue(
           results.server_results[selectedMetric][round]
         );
-        const clientValue = results.client_results[selectedMetric]?.[round]
-          ? formatMetricValue(results.client_results[selectedMetric][round])
-          : "-";
 
-        csvData.push(
-          [`Round ${roundNumber}`, serverValue, clientValue].join(",")
-        );
-      }
-    );
+        const row = [`Round ${roundNumber}`, serverValue];
+        clientNames.forEach((clientName) => {
+          const clientData = results.client_results[clientName];
+          const value =
+            clientData &&
+              clientData[selectedMetric] &&
+              clientData[selectedMetric][round] != null
+              ? formatMetricValue(clientData[selectedMetric][round])
+              : "-";
+          row.push(value);
+        });
+
+        csvData.push(row.join(","));
+      });
 
     const csvContent = csvData.join("\n");
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
@@ -214,21 +387,30 @@ const Result = ({ sessionId }) => {
     if (!selectedMetric || !results.server_results[selectedMetric]) return [];
 
     const chartData = [];
-    const rounds = Object.keys(results.client_results[selectedMetric]);
-    rounds.forEach((round) => {
+    const serverRounds = Object.keys(results.server_results[selectedMetric] || {});
+
+    // Get all unique rounds from server results
+    serverRounds.forEach((round) => {
       const roundNumber = parseInt(round.split("_")[1]);
       const roundData = {
         round: roundNumber,
         [`server_${selectedMetric}`]:
           results.server_results[selectedMetric][round],
-        [`client_${selectedMetric}`]:
-          results.client_results[selectedMetric]?.[round],
       };
+
+      // Add data for each client
+      clientNames.forEach((clientName) => {
+        const clientData = results.client_results[clientName];
+        if (clientData && clientData[selectedMetric] && clientData[selectedMetric][round] != null) {
+          roundData[`${clientName}_${selectedMetric}`] =
+            clientData[selectedMetric][round];
+        }
+      });
 
       chartData.push(roundData);
     });
 
-    return chartData;
+    return chartData.sort((a, b) => a.round - b.round);
   };
 
   const chartData = prepareChartData();
@@ -265,6 +447,18 @@ const Result = ({ sessionId }) => {
             >
               Table View
             </button>
+            {/* Toggle for fake/real data */}
+            {/* <button
+              onClick={() => setUseFakeData(!useFakeData)}
+              className={`px-3 py-1 text-sm rounded-md border ${
+                useFakeData
+                  ? "bg-yellow-100 text-yellow-700 border-yellow-300"
+                  : "bg-gray-100 text-gray-600 border-gray-300"
+              } hover:bg-opacity-80 transition-colors`}
+              title={useFakeData ? "Using fake data" : "Using real API data"}
+            >
+              {useFakeData ? "📊 Fake Data" : "🌐 Real Data"}
+            </button> */}
 
             {/* Download button */}
             {selectedMetric &&
@@ -316,15 +510,24 @@ const Result = ({ sessionId }) => {
                         Server{" "}
                         {selectedMetric?.toUpperCase().replace(/_/g, " ")}
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Your {selectedMetric?.toUpperCase().replace(/_/g, " ")}
-                      </th>
+                      {clientNames.map((clientName) => (
+                        <th
+                          key={clientName}
+                          className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                        >
+                          {clientName}{" "}
+                          {selectedMetric?.toUpperCase().replace(/_/g, " ")}
+                        </th>
+                      ))}
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
                     {loading ? (
                       <tr>
-                        <td colSpan={3} className="px-6 py-4 text-center">
+                        <td
+                          colSpan={1 + clientNames.length + 1}
+                          className="px-6 py-4 text-center"
+                        >
                           <div className="flex justify-center items-center text-gray-500">
                             <ArrowPathIcon className="h-5 w-5 mr-2 animate-spin" />
                             Loading results...
@@ -333,7 +536,10 @@ const Result = ({ sessionId }) => {
                       </tr>
                     ) : error ? (
                       <tr>
-                        <td colSpan={3} className="px-6 py-4 text-center">
+                        <td
+                          colSpan={1 + clientNames.length + 1}
+                          className="px-6 py-4 text-center"
+                        >
                           <div className="flex justify-center items-center text-red-500">
                             <ExclamationTriangleIcon className="h-5 w-5 mr-2" />
                             {error}
@@ -343,7 +549,10 @@ const Result = ({ sessionId }) => {
                     ) : !selectedMetric ||
                       Object.keys(results.server_results).length === 0 ? (
                       <tr>
-                        <td colSpan={3} className="px-6 py-4 text-center">
+                        <td
+                          colSpan={1 + clientNames.length + 1}
+                          className="px-6 py-4 text-center"
+                        >
                           <div className="flex justify-center items-center text-gray-500">
                             <InformationCircleIcon className="h-5 w-5 mr-2" />
                             {sessionId
@@ -355,33 +564,47 @@ const Result = ({ sessionId }) => {
                     ) : (
                       Object.keys(
                         results.server_results[selectedMetric] || {}
-                      ).map((round) => {
-                        const roundNumber = round.split("_")[1];
-                        return (
-                          <tr key={round} className="hover:bg-gray-50">
-                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                              Round {roundNumber}
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                              {formatMetricValue(
-                                results.server_results[selectedMetric][round]
-                              )}
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            {formatMetricValue(
-                                results.client_results[selectedMetric][round]
-                              )}
-                              {/* {results.client_results[selectedMetric][round]
-                                ? formatMetricValue(
-                                  results.client_results[selectedMetric][
-                                  round
-                                  ]
-                                )
-                                : "-"} */}
-                            </td>
-                          </tr>
-                        );
-                      })
+                      )
+                        .sort((a, b) => {
+                          const numA = parseInt(a.split("_")[1]);
+                          const numB = parseInt(b.split("_")[1]);
+                          return numA - numB;
+                        })
+                        .map((round) => {
+                          const roundNumber = round.split("_")[1];
+                          return (
+                            <tr key={round} className="hover:bg-gray-50">
+                              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                Round {roundNumber}
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                {formatMetricValue(
+                                  results.server_results[selectedMetric][round]
+                                )}
+                              </td>
+                              {clientNames.map((clientName) => {
+                                const clientData =
+                                  results.client_results[clientName];
+                                const value =
+                                  clientData &&
+                                    clientData[selectedMetric] &&
+                                    clientData[selectedMetric][round] != null
+                                    ? formatMetricValue(
+                                      clientData[selectedMetric][round]
+                                    )
+                                    : "-";
+                                return (
+                                  <td
+                                    key={clientName}
+                                    className="px-6 py-4 whitespace-nowrap text-sm text-gray-500"
+                                  >
+                                    {value}
+                                  </td>
+                                );
+                              })}
+                            </tr>
+                          );
+                        })
                     )}
                   </tbody>
                 </table>
@@ -430,32 +653,32 @@ const Result = ({ sessionId }) => {
                   </h4>
 
                   {/* Custom Legend */}
-                  <div className="absolute top-24 right-12 z-10 bg-white bg-opacity-10 border border-gray-200 rounded p-2 shadow-sm">
-                    <div className="space-y-1 text-xs">
-                      <div className="flex items-center space-x-2">
-                        <svg width="20" height="12">
-                          <line
-                            x1="0"
-                            y1="6"
-                            x2="16"
-                            y2="6"
-                            stroke="#3b82f6"
-                            strokeWidth="2"
-                          />
-                          <circle
-                            cx="8"
-                            cy="6"
-                            r="2"
-                            fill="#3b82f6"
-                            stroke="#3b82f6"
-                            strokeWidth="1"
-                          />
-                        </svg>
-                        <span className="text-gray-700">
-                          Server {selectedMetric.replace(/_/g, " ")}
-                        </span>
-                      </div>
-                      {results.client_results[selectedMetric] && (
+                  <div
+                    className={`absolute z-10 bg-white border border-gray-200 rounded shadow-sm transition-all duration-200 ${legendExpanded
+                        ? "top-24 right-12"
+                        : "bottom-20 right-0 transform -translate-x-1/2"
+                      }`}
+                  >
+                    {/* Legend Header with Toggle */}
+                    <button
+                      onClick={() => setLegendExpanded(!legendExpanded)}
+                      className={`w-full flex items-center justify-between px-3 py-2 hover:bg-gray-50 transition-colors ${legendExpanded ? "rounded-t" : "rounded"
+                        }`}
+                      title={legendExpanded ? "Hide legend" : "Show legend"}
+                    >
+                      <span className="text-xs font-medium text-gray-700">
+                        Legend
+                      </span>
+                      {legendExpanded ? (
+                        <ChevronUpIcon className="h-4 w-4 text-gray-500" />
+                      ) : (
+                        <ChevronDownIcon className="h-4 w-4 text-gray-500" />
+                      )}
+                    </button>
+                    {/* Legend Content */}
+                    {legendExpanded && (
+                      <div className="px-3 pb-3 space-y-2 text-xs">
+                        {/* Server */}
                         <div className="flex items-center space-x-2">
                           <svg width="20" height="12">
                             <line
@@ -463,35 +686,99 @@ const Result = ({ sessionId }) => {
                               y1="6"
                               x2="16"
                               y2="6"
-                              stroke="#10b981"
+                              stroke="#3b82f6"
                               strokeWidth="2"
-                              strokeDasharray="3 3"
                             />
-                            <g>
-                              <line
-                                x1="2"
-                                y1="2"
-                                x2="14"
-                                y2="10"
-                                stroke="#10b981"
-                                strokeWidth="2"
-                              />
-                              <line
-                                x1="2"
-                                y1="10"
-                                x2="14"
-                                y2="2"
-                                stroke="#10b981"
-                                strokeWidth="2"
-                              />
-                            </g>
+                            <circle
+                              cx="8"
+                              cy="6"
+                              r="2"
+                              fill="#3b82f6"
+                              stroke="#3b82f6"
+                              strokeWidth="1"
+                            />
                           </svg>
                           <span className="text-gray-700">
-                            Your {selectedMetric.replace(/_/g, " ")}
+                            Server {selectedMetric.replace(/_/g, " ")}
                           </span>
                         </div>
-                      )}
-                    </div>
+                        {/* Client lines */}
+                        {clientNames.map((clientName, index) => {
+                          const color = getClientColor(index);
+                          const dotType = getClientDotType(index);
+                          const hasData =
+                            results.client_results[clientName] &&
+                            results.client_results[clientName][selectedMetric];
+
+                          if (!hasData) return null;
+
+                          return (
+                            <div key={clientName} className="flex items-center space-x-2">
+                              <svg width="20" height="12">
+                                <line
+                                  x1="0"
+                                  y1="6"
+                                  x2="16"
+                                  y2="6"
+                                  stroke={color}
+                                  strokeWidth="2"
+                                  strokeDasharray="4 4"
+                                />
+                                {dotType === "cross" && (
+                                  <g>
+                                    <line
+                                      x1="6"
+                                      y1="2"
+                                      x2="10"
+                                      y2="10"
+                                      stroke={color}
+                                      strokeWidth="2"
+                                    />
+                                    <line
+                                      x1="6"
+                                      y1="10"
+                                      x2="10"
+                                      y2="2"
+                                      stroke={color}
+                                      strokeWidth="2"
+                                    />
+                                  </g>
+                                )}
+                                {dotType === "square" && (
+                                  <rect
+                                    x="6"
+                                    y="3"
+                                    width="4"
+                                    height="4"
+                                    fill={color}
+                                    stroke={color}
+                                  />
+                                )}
+                                {dotType === "circle" && (
+                                  <circle
+                                    cx="8"
+                                    cy="6"
+                                    r="2"
+                                    fill={color}
+                                    stroke={color}
+                                  />
+                                )}
+                                {dotType === "diamond" && (
+                                  <polygon
+                                    points="8,2 10,6 8,10 6,6"
+                                    fill={color}
+                                    stroke={color}
+                                  />
+                                )}
+                              </svg>
+                              <span className="text-gray-700">
+                                {clientName} {selectedMetric.replace(/_/g, " ")}
+                              </span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
                   </div>
 
                   <ResponsiveContainer
@@ -526,6 +813,7 @@ const Result = ({ sessionId }) => {
                       <Tooltip
                         formatter={(value) => [formatMetricValue(value)]}
                       />
+                      {/* Server line */}
                       <Line
                         name={`Server ${capitalize(selectedMetric).replace(
                           /_/g,
@@ -542,20 +830,84 @@ const Result = ({ sessionId }) => {
                           strokeWidth: 1,
                         }}
                       />
-                      {results.client_results[selectedMetric] && (
-                        <Line
-                          name={`Your ${capitalize(selectedMetric).replace(
-                            /_/g,
-                            " "
-                          )}`}
-                          type="monotone"
-                          dataKey={`client_${selectedMetric}`}
-                          stroke="#10b981"
-                          activeDot={{ r: 6, fill: "#10b981" }}
-                          dot={<CrossDot fill="#10b981" />}
-                          strokeDasharray="5 5"
-                        />
-                      )}
+                      {/* Client lines */}
+                      {clientNames.map((clientName, index) => {
+                        const color = getClientColor(index);
+                        const dotType = getClientDotType(index);
+                        const hasData =
+                          results.client_results[clientName] &&
+                          results.client_results[clientName][selectedMetric] &&
+                          chartData.some(
+                            (d) => d[`${clientName}_${selectedMetric}`] !== undefined
+                          );
+
+                        if (!hasData) return null;
+
+                        const SquareDot = (props) => {
+                          const { cx, cy, fill } = props;
+                          const size = 4;
+                          return (
+                            <rect
+                              x={cx - size / 2}
+                              y={cy - size / 2}
+                              width={size}
+                              height={size}
+                              fill={fill || color}
+                              stroke={fill || color}
+                            />
+                          );
+                        };
+
+                        const DiamondDot = (props) => {
+                          const { cx, cy, fill } = props;
+                          const size = 4;
+                          return (
+                            <polygon
+                              points={`${cx},${cy - size} ${cx + size},${cy} ${cx},${cy + size} ${cx - size},${cy}`}
+                              fill={fill || color}
+                              stroke={fill || color}
+                            />
+                          );
+                        };
+
+                        const CircleDot = (props) => {
+                          const { cx, cy, fill } = props;
+                          return (
+                            <circle
+                              cx={cx}
+                              cy={cy}
+                              r={2}
+                              fill={fill || color}
+                              stroke={fill || color}
+                            />
+                          );
+                        };
+
+                        const dotComponent =
+                          dotType === "cross"
+                            ? CrossDot
+                            : dotType === "square"
+                            ? SquareDot
+                            : dotType === "diamond"
+                            ? DiamondDot
+                            : CircleDot;
+
+                        return (
+                          <Line
+                            key={clientName}
+                            name={`${clientName} ${capitalize(selectedMetric).replace(
+                              /_/g,
+                              " "
+                            )}`}
+                            type="monotone"
+                            dataKey={`${clientName}_${selectedMetric}`}
+                            stroke={color}
+                            activeDot={{ r: 6, fill: color }}
+                            dot={dotComponent}
+                            strokeDasharray="4 4"
+                          />
+                        );
+                      })}
                     </LineChart>
                   </ResponsiveContainer>
                 </div>
