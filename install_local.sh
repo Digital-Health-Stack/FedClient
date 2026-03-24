@@ -20,7 +20,7 @@ print_banner() {
 
 # --- Backend Setup ---
 print_banner "$BLUE" "Installing FastAPI backend..."
-cd backend/app
+cd backend
 python3 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
@@ -28,10 +28,10 @@ mkdir -p storage
 print_banner "$GREEN" "Backend installed"
 
 # --- Frontend Setup ---
-cd ../../frontend/app
+cd ../frontend/
 print_banner "$BLUE" "Installing React frontend..."
 npm install
 print_banner "$GREEN" "Frontend installed"
 
 # Back to root
-cd ../..
+cd ..
