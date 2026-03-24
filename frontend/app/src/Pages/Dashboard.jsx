@@ -8,19 +8,17 @@ import {
   getUserInitiatedSessions,
 } from "../services/federatedService";
 import {
-  getRawDatasets,
-  getProcessedDatasets,
+  getMyDatasets,
 } from "../services/privateService";
 import { InformationCircleIcon } from "@heroicons/react/24/outline";
 
 export default function Dashboard() {
   const [initiatedSessions, setInitiatedSessions] = useState([]);
-  const [datasets, setDatasets] = useState({ uploads: [], processed: [] });
+  const [datasets, setDatasets] = useState({ uploads: [] });
   const [sessions, setSessions] = useState([]);
   const [dashInfo, setDashInfo] = useState({
     total_active_sessions: 0,
-    total_raw_datasets: 0,
-    total_processed_datasets: 0,
+    total_datasets: 0,
     total_sessions: 0,
   });
   const navigate = useNavigate();
@@ -60,32 +58,23 @@ export default function Dashboard() {
   // Update fetchDatasets
   const fetchDatasets = async () => {
     try {
-      const [raw, processed] = await Promise.all([
-        getRawDatasets().catch(() => ({ data: { datasets: [], total: 0 } })), // Handle rejected promises
-        getProcessedDatasets().catch(() => ({
-          data: { datasets: [], total: 0 },
-        })),
-      ]);
+      const raw = await getMyDatasets().catch(() => ({
+        data: { datasets: [], total: 0 },
+      }));
 
       // Ensure data is an array and handle the new API response format
       const uploads = Array.isArray(raw.data.datasets) ? raw.data.datasets : [];
-      const processedData = Array.isArray(processed.data.datasets)
-        ? processed.data.datasets
-        : [];
-      console.log(uploads, processedData);
       setDashInfo((prev) => ({
         ...prev,
-        total_raw_datasets: raw.data.total || 0,
-        total_processed_datasets: processed.data.total || 0,
+        total_datasets: raw.data.total || 0,
       }));
 
-      setDatasets({ uploads, processed: processedData });
+      setDatasets({ uploads });
     } catch (error) {
-      setDatasets({ uploads: [], processed: [] });
+      setDatasets({ uploads: [] });
       setDashInfo((prev) => ({
         ...prev,
-        total_raw_datasets: 0,
-        total_processed_datasets: 0,
+        total_datasets: 0,
       }));
       console.error("Error fetching datasets:", error);
     }
@@ -164,13 +153,8 @@ export default function Dashboard() {
       placement: "bottom",
     },
     {
-      target: ".dashboard-raw-datasets",
-      content: "View, manage and process the raw datasets you uploaded.",
-      placement: "bottom",
-    },
-    {
-      target: ".dashboard-processed-datasets",
-      content: "Access your processed datasets ready for federated learning tasks.",
+      target: ".dashboard-local-datasets",
+      content: "View, manage, and preprocess your uploaded datasets.",
       placement: "bottom",
     },
     {
@@ -264,27 +248,27 @@ export default function Dashboard() {
               </Link>
             </div>
 
-            <div className="bg-white p-6 rounded-xl shadow-sm border-2 border-indigo-300 dashboard-raw-datasets relative">
+            <div className="bg-white p-6 rounded-xl shadow-sm border-2 border-indigo-300 dashboard-local-datasets relative">
               <div className="flex items-center justify-between">
                 <div>
                   <div className="flex items-center gap-1">
-                    <p className="text-sm text-gray-500">Raw Datasets</p>
+                    <p className="text-sm text-gray-500">My Datasets</p>
                     <div className="relative ml-1 group">
                       <div
                         className="w-5 h-5 flex items-center justify-center rounded-full text-gray-500 hover:text-gray-700 cursor-help"
-                        aria-label="Info about raw datasets"
+                        aria-label="Info about your datasets"
                       >
                         <InformationCircleIcon className="h-5 w-5" />
                       </div>
                       {/* Hover Tooltip */}
                       <div className="absolute left-1/2 -translate-x-1/2 mt-1 z-30 w-64 px-3 py-2 bg-gray-800 text-white text-xs rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">
-                        These are the original datasets you have uploaded. You can manage, view, or preprocess them for federated learning tasks.
+                        These are the datasets you uploaded. You can manage, view, or preprocess them for federated learning tasks.
                         <div className="absolute bottom-full left-1/2 -translate-x-1/2 border-4 border-transparent border-b-gray-800"></div>
                       </div>
                     </div>
                   </div>
                   <p className="text-2xl font-semibold mt-2">
-                    {dashInfo.total_raw_datasets}
+                    {dashInfo.total_datasets}
                   </p>
                 </div>
                 <div className="bg-purple-100 p-3 rounded-lg">
@@ -303,60 +287,13 @@ export default function Dashboard() {
                 </div>
               </div>
               <Link
-                to="/view-all-datasets#raw"
+                to="/view-all-datasets#local"
                 className="text-blue-600 text-sm mt-4 block hover:underline"
               >
                 Manage datasets →
               </Link>
             </div>
 
-            <div className="bg-white p-6 rounded-xl shadow-sm border-2 border-indigo-300 dashboard-processed-datasets relative">
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="flex items-center gap-1">
-                    <p className="text-sm text-gray-500">Processed Datasets</p>
-                    <div className="relative ml-1 group">
-                      <div
-                        className="w-5 h-5 flex items-center justify-center rounded-full text-gray-500 hover:text-gray-700 cursor-help"
-                        aria-label="Info about processed datasets"
-                      >
-                        <InformationCircleIcon className="h-5 w-5" />
-                      </div>
-                      {/* Hover Tooltip */}
-                      <div className="absolute left-1/2 -translate-x-1/2 mt-1 z-30 w-64 px-3 py-2 bg-gray-800 text-white text-xs rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">
-                        These are datasets that have been pre-processed and are ready for use in federated learning tasks.
-                        <div className="absolute bottom-full left-1/2 -translate-x-1/2 border-4 border-transparent border-b-gray-800"></div>
-                      </div>
-                    </div>
-                  </div>
-                  <p className="text-2xl font-semibold mt-2">
-                    {dashInfo.total_processed_datasets}
-                  </p>
-                </div>
-                <div className="bg-green-100 p-3 rounded-lg">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-6 w-6 text-green-600"
-                    viewBox="0 0 16 16"
-                  >
-                    <path
-                      fill="currentColor"
-                      d="M12 0H5v6h.7l.2.7l.1.1V1h5v4h4v9H9l.3.5l-.5.5H16V4l-4-4zm0 4V1l3 3h-3zm-6.5 7.5a1 1 0 1 1-2 0a1 1 0 0 1 2 0z"
-                    />
-                    <path
-                      fill="currentColor"
-                      d="M7.9 12.4L9 12v-1l-1.1-.4c-.1-.3-.2-.6-.4-.9l.5-1l-.7-.7l-1 .5c-.3-.2-.6-.3-.9-.4L5 7H4l-.4 1.1c-.3.1-.6.2-.9.4l-1-.5l-.7.7l.5 1.1c-.2.3-.3.6-.4.9L0 11v1l1.1.4c.1.3.2.6.4.9l-.5 1l.7.7l1.1-.5c.3.2.6.3.9.4L4 16h1l.4-1.1c.3-.1.6-.2.9-.4l1 .5l.7-.7l-.5-1.1c.2-.2.3-.5.4-.8zm-3.4 1.1c-1.1 0-2-.9-2-2s.9-2 2-2s2 .9 2 2s-.9 2-2 2z"
-                    />
-                  </svg>
-                </div>
-              </div>
-              <Link
-                to="/view-all-datasets#processed"
-                className="text-blue-600 text-sm mt-4 block hover:underline"
-              >
-                Process data →
-              </Link>
-            </div>
           </div>
 
           {/* Active Sessions Table */}
@@ -680,22 +617,15 @@ export default function Dashboard() {
                           </div>
                           {/* Hover Tooltip */}
                           <div className="absolute left-1/2 -translate-x-1/2 mt-1 z-30 w-64 px-3 py-2 bg-gray-800 text-white text-xs rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">
-                            View your recently uploaded datasets here. Includes both raw and processed datasets that are ready for federated learning.
+                            View your recently uploaded datasets here. Includes all datasets ready for federated learning.
                             <div className="absolute bottom-full left-1/2 -translate-x-1/2 border-4 border-transparent border-b-gray-800"></div>
                           </div>
                         </div>
                       </div>
                       {console.log(dashInfo)}
                       <p className="text-sm text-gray-500">
-                        {dashInfo.total_raw_datasets +
-                          dashInfo.total_processed_datasets}{" "}
-                        dataset
-                        {dashInfo.total_raw_datasets +
-                          dashInfo.total_processed_datasets !==
-                        1
-                          ? "s"
-                          : ""}{" "}
-                        uploaded
+                        {dashInfo.total_datasets} dataset
+                        {dashInfo.total_datasets !== 1 ? "s" : ""} uploaded
                       </p>
                     </div>
                   </div>
@@ -722,13 +652,13 @@ export default function Dashboard() {
               </div>
               <div className="space-y-4 p-6 pt-3">
                 {datasets.uploads
-                  .sort(
-                    (a, b) => new Date(b.dataset_id) - new Date(a.dataset_id)
+                  .sort((a, b) =>
+                    (a.filename || "").localeCompare(b.filename || "")
                   )
                   .slice(0, 2)
                   .map((dataset) => (
                     <div
-                      key={dataset.dataset_id}
+                      key={dataset.filename}
                       className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg"
                     >
                       <div className="flex items-center space-x-3">
@@ -755,65 +685,18 @@ export default function Dashboard() {
                             : dataset.filename}
                         </span>
                         <span className="px-2 py-1 text-xs font-medium text-blue-800 bg-blue-100 rounded-full">
-                          Raw
+                          Dataset
                         </span>
                       </div>
                       <Link
-                        to={`/raw-dataset-overview/${dataset.filename}`}
+                        to={`/dataset-overview/${encodeURIComponent(dataset.filename)}`}
                         className="text-blue-600 text-sm hover:underline"
                       >
                         View
                       </Link>
                     </div>
                   ))}
-                {datasets.processed
-                  .sort(
-                    (a, b) => new Date(b.dataset_id) - new Date(a.dataset_id)
-                  )
-                  .slice(0, 3)
-                  .map((dataset) => (
-                    <div
-                      key={dataset.dataset_id}
-                      className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg"
-                    >
-                      <div className="flex items-center space-x-3">
-                        <div className="bg-green-100 p-2 rounded-lg">
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="h-5 w-5"
-                            viewBox="0 0 16 16"
-                          >
-                            <path
-                              fill="#000000"
-                              d="M12 0H5v6h.7l.2.7l.1.1V1h5v4h4v9H9l.3.5l-.5.5H16V4l-4-4zm0 4V1l3 3h-3zm-6.5 7.5a1 1 0 1 1-2 0a1 1 0 0 1 2 0z"
-                            />
-                            <path
-                              fill="#000000"
-                              d="M7.9 12.4L9 12v-1l-1.1-.4c-.1-.3-.2-.6-.4-.9l.5-1l-.7-.7l-1 .5c-.3-.2-.6-.3-.9-.4L5 7H4l-.4 1.1c-.3.1-.6.2-.9.4l-1-.5l-.7.7l.5 1.1c-.2.3-.3.6-.4.9L0 11v1l1.1.4c.1.3.2.6.4.9l-.5 1l.7.7l1.1-.5c.3.2.6.3.9.4L4 16h1l.4-1.1c.3-.1.6-.2.9-.4l1 .5l.7-.7l-.5-1.1c.2-.2.3-.5.4-.8zm-3.4 1.1c-1.1 0-2-.9-2-2s.9-2 2-2s2 .9 2 2s-.9 2-2 2z"
-                            />
-                          </svg>
-                        </div>
-                        <span
-                          title={dataset.filename}
-                          className="text-sm font-medium text-gray-900"
-                        >
-                          {dataset.filename.length > 40
-                            ? `${dataset.filename.substring(0, 40)}...`
-                            : dataset.filename}
-                        </span>
-                        <span className="px-2 py-1 text-xs font-medium text-green-800 bg-green-100 rounded-full">
-                          Processed
-                        </span>
-                      </div>
-                      <Link
-                        to={`/processed-dataset-overview/${dataset.filename}`}
-                        className="text-blue-600 text-sm hover:underline"
-                      >
-                        View
-                      </Link>
-                    </div>
-                  ))}
-                {!datasets.uploads.length && !datasets.processed.length && (
+                {!datasets.uploads.length && (
                   <div className="text-center py-4 text-gray-500">
                     No datasets found
                   </div>

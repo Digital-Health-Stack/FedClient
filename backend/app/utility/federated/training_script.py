@@ -5,9 +5,6 @@ import numpy as np
 import math
 from .model_builder import model_instance_from_config
 import argparse
-from .db import get_db
-from sqlalchemy.orm import Session
-from models.Trainings import CurrentTrainings
 from dotenv import load_dotenv
 import tensorflow as tf
 import traceback
@@ -70,22 +67,16 @@ def sanitize_history(history):
 
 
 def get_model_config(session_id: int, client_token: str):
-    db: Session = next(get_db())
-    try:
-        record = db.query(CurrentTrainings).filter_by(session_id=session_id).first()
-        response = requests.get(
-            f"{BASE_URL}/v2/get-federated-session/{session_id}",
-            headers={"Authorization": f"Bearer {client_token}"},
-        )
-        response.raise_for_status()
-        result = response.json()
-        federated_info = result.get("federated_info")
-        # record = type("Record", (), {"training_details": federated_info})()
-        if not federated_info:
-            raise ValueError(f"No training config found for session_id {session_id}")
-        return federated_info
-    finally:
-        db.close()
+    response = requests.get(
+        f"{BASE_URL}/v2/get-federated-session/{session_id}",
+        headers={"Authorization": f"Bearer {client_token}"},
+    )
+    response.raise_for_status()
+    result = response.json()
+    federated_info = result.get("federated_info")
+    if not federated_info:
+        raise ValueError(f"No training config found for session_id {session_id}")
+    return federated_info
 
 
 def receive_global_parameters(url, session_id, client_token):

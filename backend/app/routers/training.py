@@ -1,7 +1,6 @@
-from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
-from sqlalchemy.orm import Session
-from utility.db import get_db
-from crud.trainings_crud import create_training
+"""Federated model initiation, training rounds, process status, Redis client filename."""
+
+from fastapi import APIRouter, BackgroundTasks, HTTPException
 from schemas.trainings import InitiateModelRequest, AcceptClientFilenameTrainingRequest
 import requests
 import subprocess
@@ -13,8 +12,8 @@ import sys
 from typing import Dict
 import uuid
 from datetime import datetime
-from utility.federated_services import process_parquet_and_save_xy
-from utility.redis import redis_client
+from utility.federated.services import process_parquet_and_save_xy
+from utility.infra.redis import redis_client
 
 model_router = APIRouter(tags=["Model Training"])
 BASE_URL = os.getenv("REACT_APP_SERVER_BASE_URL")
@@ -27,11 +26,8 @@ process_store: Dict[str, dict] = {}
 
 
 @model_router.post("/initiate-model")
-def initiate_model(request: InitiateModelRequest, db: Session = Depends(get_db)):
+def initiate_model(request: InitiateModelRequest):
     try:
-        # ------------------------------------------
-        # Fetch client_data from hdfs to data folder
-        # ------------------------------------------
         session_id = request.session_id
         client_token = request.client_token
 
@@ -54,17 +50,6 @@ def initiate_model(request: InitiateModelRequest, db: Session = Depends(get_db))
         process_parquet_and_save_xy(
             client_filename, session_id, output_columns, client_token
         )
-
-        training_details = {
-            "session_id": session_id,
-            "training_details": federated_info,
-        }
-
-        # Store in DB
-        db_training = create_training(db, training_details)
-
-        if isinstance(db_training, dict) and "error" in db_training:
-            raise HTTPException(status_code=400, detail=db_training["error"])
 
         return {"message": "Model initiation successful"}
 
@@ -90,7 +75,7 @@ def _run_script(process_id: str, session_id: int, client_token: str):
             [
                 sys.executable,
                 "-m",
-                "utility.training_script",
+                "utility.federated.training_script",
                 "--session_id",
                 str(session_id),
                 "--client_token",

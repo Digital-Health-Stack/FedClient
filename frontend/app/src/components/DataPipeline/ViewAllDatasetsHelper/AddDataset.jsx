@@ -28,7 +28,7 @@ const AddDataset = () => {
     },
   };
 
-  // Fetch uploaded files from HDFS (to check if summarization is complete)
+  // Fetch uploaded files from server (to check if summarization is complete)
   const fetchUploadedFiles = async () => {
     try {
       const response = await axios.get(endpoints.upload.list);
@@ -49,7 +49,7 @@ const AddDataset = () => {
         fetchUploadedFiles();
       } else if (success && success.includes("uploaded") && !uploading) {
         // Summarization complete, redirect to raw datasets
-        navigate("/view-all-datasets#raw");
+        navigate("/view-all-datasets#local");
       }
     }, 5000); // Check every 5 seconds
 
@@ -278,7 +278,7 @@ const AddDataset = () => {
                 ) : (
                   <>
                     <FilePlus className="h-5 w-5" />
-                    Upload to HDFS
+                    Upload
                   </>
                 )}
               </button>

@@ -33,8 +33,8 @@ const NavBar = () => {
     location.pathname === "/view-all-datasets" ||
     location.pathname === "/trainings" ||
     location.pathname.startsWith("/trainings/") ||
+    location.pathname.startsWith("/dataset-overview/") ||
     location.pathname.startsWith("/raw-dataset-overview/") ||
-    location.pathname.startsWith("/processed-dataset-overview/") ||
     location.pathname === "/leaderboard-data";
   const handleToggle = () => {
     setIsNavbarOpen(!isNavbarOpen);

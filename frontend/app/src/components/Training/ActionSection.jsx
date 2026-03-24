@@ -22,8 +22,8 @@ import {
 import {
   acceptClientFilenameTraining,
   createQPDataset,
+  getMyDatasets,
   getDatasetDetails,
-  getProcessedDatasets,
 } from "../../services/privateService";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
@@ -46,7 +46,7 @@ const ActionSection = ({ data, sessionId, onRefreshData }) => {
   const [errorClient, setErrorClient] = useState(null);
   const [clientStats, setClientStats] = useState(null);
   const [loadingClient, setLoadingClient] = useState(false);
-  const [processedDatasets, setProcessedDatasets] = useState([]);
+  const [myDatasets, setMyDatasets] = useState([]);
   const [loadingDatasets, setLoadingDatasets] = useState(false);
   const [isAcceptingPrice, setIsAcceptingPrice] = useState(false);
   const [isRejectingPrice, setIsRejectingPrice] = useState(false);
@@ -56,15 +56,15 @@ const ActionSection = ({ data, sessionId, onRefreshData }) => {
     useState(false);
   const [serverStats, _] = useState(fedInfo?.server_stats || null);
 
-  // Fetch processed datasets
-  const fetchProcessedDatasets = async () => {
+  // Fetch my datasets
+  const fetchMyDatasets = async () => {
     setLoadingDatasets(true);
     try {
-      const response = await getProcessedDatasets(0, 100); // Fetch up to 100 datasets
-      setProcessedDatasets(response.data.datasets || []);
+      const response = await getMyDatasets(0, 100); // Fetch up to 100 datasets
+      setMyDatasets(response.data.datasets || []);
     } catch (error) {
-      console.error("Error fetching processed datasets:", error);
-      setProcessedDatasets([]);
+      console.error("Error fetching datasets:", error);
+      setMyDatasets([]);
     } finally {
       setLoadingDatasets(false);
     }
@@ -72,7 +72,7 @@ const ActionSection = ({ data, sessionId, onRefreshData }) => {
 
   // Fetch datasets when component mounts
   React.useEffect(() => {
-    fetchProcessedDatasets();
+    fetchMyDatasets();
   }, []);
 
   const onSubmitParticipationDecision = async (decision) => {
@@ -273,11 +273,9 @@ const ActionSection = ({ data, sessionId, onRefreshData }) => {
               className="flex-1 p-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <option value="">
-                {loadingDatasets
-                  ? "Loading datasets..."
-                  : "Select a processed dataset"}
+                {loadingDatasets ? "Loading datasets..." : "Select a dataset"}
               </option>
-              {processedDatasets.map((dataset) => (
+              {myDatasets.map((dataset) => (
                 <option
                   key={dataset.filename || dataset.name}
                   value={dataset.filename || dataset.name}

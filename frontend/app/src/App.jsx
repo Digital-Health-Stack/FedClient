@@ -1,4 +1,4 @@
-// import { Route, Routes } from "react-router-dom";
+// import { Navigate, Route, Routes, useParams } from "react-router-dom";
 // import Home from "./Pages/Home";
 // import Request from "./Pages/Request";
 // import Register from "./Pages/Register";
@@ -162,7 +162,7 @@
 // }
 
 // // later "change" (don't uncommetn above) all the paths for PrivateRoute authentication
-import { Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes, useParams } from "react-router-dom";
 import Request from "./Pages/Request";
 import Login from "./Pages/Login.jsx";
 import Trainings from "./Pages/Trainings.jsx";
@@ -185,12 +185,26 @@ import "react-toastify/dist/ReactToastify.min.css";
 import ViewRecentUploads from "./components/DataPipeline/ViewRecentUploads";
 import ViewAllDatasets from "./components/DataPipeline/ViewAllDatasets";
 import RawDataSetOverview from "./components/DataPipeline/DataSetVisuals/RawDataSetOverview";
-import ProcessedDataSetOverview from "./components/DataPipeline/DataSetVisuals/ProcessedDataSetOverview";
 import PreprocessingDocs from "./components/DataPipeline/DataSetVisuals/ProcessingComponents/PreprocessingDocs.jsx";
 import Dashboard from "./Pages/Dashboard.jsx";
 import TestingDataSetOverview from "./components/DataPipeline/DataSetVisuals/TestingDataSetOverview.jsx";
 import Leaderboard from "./Pages/Leaderboard.jsx";
 import LeaderboardData from "./Pages/LeaderboardData.jsx";
+
+/** Old bookmarks / links; sends users to the canonical overview URL. */
+function LegacyRawDatasetOverviewRedirect() {
+  const { filename } = useParams();
+  if (!filename) {
+    return <Navigate to="/view-all-datasets" replace />;
+  }
+  return (
+    <Navigate
+      to={`/dataset-overview/${encodeURIComponent(filename)}`}
+      replace
+    />
+  );
+}
+
 /*
 The App component is the main component of the application. It is the parent component of all the other components.
 It contains the NavBar component, which is a navigation bar that allows the user to navigate between different 
@@ -313,7 +327,7 @@ export default function App() {
                       }
                     />
                     <Route
-                      path="/raw-dataset-overview/:filename"
+                      path="/dataset-overview/:filename"
                       element={
                         <PrivateRoute>
                           <RawDataSetOverview />
@@ -321,10 +335,10 @@ export default function App() {
                       }
                     />
                     <Route
-                      path="/processed-dataset-overview/:filename"
+                      path="/raw-dataset-overview/:filename"
                       element={
                         <PrivateRoute>
-                          <ProcessedDataSetOverview />
+                          <LegacyRawDatasetOverviewRedirect />
                         </PrivateRoute>
                       }
                     />

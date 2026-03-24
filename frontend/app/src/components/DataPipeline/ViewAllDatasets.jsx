@@ -32,11 +32,12 @@ const ViewAllDatasets = () => {
 
   useEffect(() => {
     const hash = window.location.hash.replace("#", "");
-    if (["add", "raw", "processed", "datasets"].includes(hash)) {
-      setSelectedFolder(hash);
+    const normalizedHash =
+      hash === "processed" || hash === "raw" ? "local" : hash;
+    if (["add", "local", "datasets"].includes(normalizedHash)) {
+      setSelectedFolder(normalizedHash);
 
-      // Check for highlighted datasets when navigating to raw
-      if (hash === "raw") {
+      if (normalizedHash === "local") {
         const stored = localStorage.getItem('highlightDatasets');
         if (stored) {
           try {
@@ -64,17 +65,10 @@ const ViewAllDatasets = () => {
 
   const PAGE_SIZE = 20; // Number of datasets per page
   const endpoints = {
-    raw: {
-      fetch: `${process.env.REACT_APP_PRIVATE_SERVER_BASE_URL}/list-raw-datasets`,
-      // fetch: `${process.env.REACT_APP_PRIVATE_SERVER_BASE_URL}/file-upload/list-files`,
-      delete: `${process.env.REACT_APP_PRIVATE_SERVER_BASE_URL}/delete-raw-dataset-file`,
-      // delete: `${process.env.REACT_APP_PRIVATE_SERVER_BASE_URL}/file-upload/delete`,
-      overview: "/raw-dataset-overview",
-    },
-    processed: {
+    local: {
       fetch: `${process.env.REACT_APP_PRIVATE_SERVER_BASE_URL}/list-datasets`,
       delete: `${process.env.REACT_APP_PRIVATE_SERVER_BASE_URL}/delete-dataset-file`,
-      overview: "/processed-dataset-overview",
+      overview: "/dataset-overview",
     },
     datasets: {
       fetch: `${process.env.REACT_APP_SERVER_BASE_URL}/list-datasets`,
@@ -115,8 +109,8 @@ const ViewAllDatasets = () => {
       placement: "top",
     },
     {
-      target: ".manage-data-raw-datasets",
-      content: "View your raw and processed datasets here.",
+      target: ".manage-data-local-datasets",
+      content: "View and manage your datasets here.",
       placement: "top",
     },
     {
@@ -126,19 +120,25 @@ const ViewAllDatasets = () => {
     },
   ];
 
-  const handleDelete = async (datasetId) => {
+  const handleDelete = async (identifier, isLocalDataset) => {
     if (!window.confirm("Permanently delete this dataset?")) return;
     try {
-      await axios.delete(endpoints[selectedFolder].delete, {
-        params: { dataset_id: datasetId },
-      });
+      if (isLocalDataset) {
+        await axios.delete(endpoints.local.delete, {
+          params: { filename: identifier },
+        });
+      } else {
+        await axios.delete(endpoints.datasets.delete, {
+          params: { dataset_id: identifier },
+        });
+      }
       fetchData();
     } catch (err) {
       setError("Deletion failed");
     }
   };
 
-  // Fetch uploaded files from HDFS
+  // Fetch uploaded files from server
   const fetchUploadedFiles = async () => {
     setFetchingFiles(true);
     try {
@@ -222,50 +222,29 @@ const ViewAllDatasets = () => {
               <FilePlus className="h-5 w-5" />
               Add New Dataset
             </button>
-            <div className="manage-data-raw-datasets space-y-3">
-            {["raw", "processed"].map((folder) => (
+            <div className="manage-data-local-datasets space-y-3">
               <button
-                key={folder}
-                onClick={() => handleTabClick(folder)}
+                onClick={() => handleTabClick("local")}
                 className={` w-full flex items-center gap-3 p-3 rounded-xl text-left
-                ${selectedFolder === folder
+                ${selectedFolder === "local"
                     ? "bg-blue-50 text-blue-700"
                     : "hover:bg-gray-100"
                   }`}
               >
-                {folder === "raw" && (
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5"
-                    viewBox="0 0 16 16"
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5"
+                  viewBox="0 0 16 16"
+                  fill="#000000"
+                >
+                  <path
                     fill="#000000"
-                  >
-                    <path
-                      fill="#000000"
-                      fillRule="evenodd"
-                      d="M14 4.5V14a2 2 0 0 1-2 2v-1a1 1 0 0 0 1-1V4.5h-2A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v9H2V2a2 2 0 0 1 2-2h5.5L14 4.5ZM1.597 11.85H0v3.999h.782v-1.491h.71l.7 1.491h1.651l.313-1.028h1.336l.314 1.028h.84L5.31 11.85h-.925l-1.329 3.96l-.783-1.572A1.18 1.18 0 0 0 3 13.116c0-.256-.056-.479-.167-.668a1.098 1.098 0 0 0-.478-.44a1.669 1.669 0 0 0-.758-.158Zm-.815 1.913v-1.292h.7a.74.74 0 0 1 .507.17c.13.113.194.276.194.49c0 .21-.065.368-.194.474c-.127.105-.3.158-.518.158H.782Zm4.063-1.148l.489 1.617H4.32l.49-1.617h.035Zm4.006.445l-.74 2.789h-.73L6.326 11.85h.855l.601 2.903h.038l.706-2.903h.683l.706 2.903h.04l.596-2.903h.858l-1.055 3.999h-.73l-.74-2.789H8.85Z"
-                    />
-                  </svg>
-                )}
-                {folder === "processed" && (
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5"
-                    viewBox="0 0 16 16"
-                  >
-                    <path
-                      fill="#000000"
-                      d="M12 0H5v6h.7l.2.7l.1.1V1h5v4h4v9H9l.3.5l-.5.5H16V4l-4-4zm0 4V1l3 3h-3zm-6.5 7.5a1 1 0 1 1-2 0a1 1 0 0 1 2 0z"
-                    />
-                    <path
-                      fill="#000000"
-                      d="M7.9 12.4L9 12v-1l-1.1-.4c-.1-.3-.2-.6-.4-.9l.5-1l-.7-.7l-1 .5c-.3-.2-.6-.3-.9-.4L5 7H4l-.4 1.1c-.3.1-.6.2-.9.4l-1-.5l-.7.7l.5 1.1c-.2.3-.3.6-.4.9L0 11v1l1.1.4c.1.3.2.6.4.9l-.5 1l.7.7l1.1-.5c.3.2.6.3.9.4L4 16h1l.4-1.1c.3-.1.6-.2.9-.4l1 .5l.7-.7l-.5-1.1c.2-.2.3-.5.4-.8zm-3.4 1.1c-1.1 0-2-.9-2-2s.9-2 2-2s2 .9 2 2s-.9 2-2 2z"
-                    />
-                  </svg>
-                )}
-                {folder.charAt(0).toUpperCase() + folder.slice(1)} Datasets
-                </button>
-              ))}
+                    fillRule="evenodd"
+                    d="M14 4.5V14a2 2 0 0 1-2 2v-1a1 1 0 0 0 1-1V4.5h-2A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v9H2V2a2 2 0 0 1 2-2h5.5L14 4.5ZM1.597 11.85H0v3.999h.782v-1.491h.71l.7 1.491h1.651l.313-1.028h1.336l.314 1.028h.84L5.31 11.85h-.925l-1.329 3.96l-.783-1.572A1.18 1.18 0 0 0 3 13.116c0-.256-.056-.479-.167-.668a1.098 1.098 0 0 0-.478-.44a1.669 1.669 0 0 0-.758-.158Zm-.815 1.913v-1.292h.7a.74.74 0 0 1 .507.17c.13.113.194.276.194.49c0 .21-.065.368-.194.474c-.127.105-.3.158-.518.158H.782Zm4.063-1.148l.489 1.617H4.32l.49-1.617h.035Zm4.006.445l-.74 2.789h-.73L6.326 11.85h.855l.601 2.903h.038l.706-2.903h.683l.706 2.903h.04l.596-2.903h.858l-1.055 3.999h-.73l-.74-2.789H8.85Z"
+                  />
+                </svg>
+                My Datasets
+              </button>
             </div>
             <button
               onClick={() => handleTabClick("datasets")}
@@ -289,7 +268,7 @@ const ViewAllDatasets = () => {
                 <div className="flex items-center justify-between">
                   <h1 className="manage-data-header text-2xl font-bold flex items-center gap-3">
                     {/* <DocumentTextIcon className="h-8 w-8 text-blue-500" /> */}
-                    {selectedFolder === "raw" ? (
+                    {selectedFolder === "local" ? (
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         className="h-8 w-8"
@@ -300,21 +279,6 @@ const ViewAllDatasets = () => {
                           fill="currentColor"
                           // fillRule="evenodd"
                           d="M14 4.5V14a2 2 0 0 1-2 2v-1a1 1 0 0 0 1-1V4.5h-2A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v9H2V2a2 2 0 0 1 2-2h5.5L14 4.5ZM1.597 11.85H0v3.999h.782v-1.491h.71l.7 1.491h1.651l.313-1.028h1.336l.314 1.028h.84L5.31 11.85h-.925l-1.329 3.96l-.783-1.572A1.18 1.18 0 0 0 3 13.116c0-.256-.056-.479-.167-.668a1.098 1.098 0 0 0-.478-.44a1.669 1.669 0 0 0-.758-.158Zm-.815 1.913v-1.292h.7a.74.74 0 0 1 .507.17c.13.113.194.276.194.49c0 .21-.065.368-.194.474c-.127.105-.3.158-.518.158H.782Zm4.063-1.148l.489 1.617H4.32l.49-1.617h.035Zm4.006.445l-.74 2.789h-.73L6.326 11.85h.855l.601 2.903h.038l.706-2.903h.683l.706 2.903h.04l.596-2.903h.858l-1.055 3.999h-.73l-.74-2.789H8.85Z"
-                        />
-                      </svg>
-                    ) : selectedFolder === "processed" ? (
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-8 w-8"
-                        viewBox="0 0 16 16"
-                      >
-                        <path
-                          fill="#000000"
-                          d="M12 0H5v6h.7l.2.7l.1.1V1h5v4h4v9H9l.3.5l-.5.5H16V4l-4-4zm0 4V1l3 3h-3zm-6.5 7.5a1 1 0 1 1-2 0a1 1 0 0 1 2 0z"
-                        />
-                        <path
-                          fill="#000000"
-                          d="M7.9 12.4L9 12v-1l-1.1-.4c-.1-.3-.2-.6-.4-.9l.5-1l-.7-.7l-1 .5c-.3-.2-.6-.3-.9-.4L5 7H4l-.4 1.1c-.3.1-.6.2-.9.4l-1-.5l-.7.7l.5 1.1c-.2.3-.3.6-.4.9L0 11v1l1.1.4c.1.3.2.6.4.9l-.5 1l.7.7l1.1-.5c.3.2.6.3.9.4L4 16h1l.4-1.1c.3-.1.6-.2.9-.4l1 .5l.7-.7l-.5-1.1c.2-.2.3-.5.4-.8zm-3.4 1.1c-1.1 0-2-.9-2-2s.9-2 2-2s2 .9 2 2s-.9 2-2 2z"
                         />
                       </svg>
                     ) : (
@@ -329,11 +293,11 @@ const ViewAllDatasets = () => {
                         />
                       </svg>
                     )}
-                    {selectedFolder === "raw"
-                      ? "Raw Datasets"
+                    {selectedFolder === "local"
+                      ? "My Datasets"
                       : selectedFolder == "datasets"
                         ? "Server Benchmarks"
-                        : "Processed Datasets"}
+                        : "My Datasets"}
                   </h1>
                   <a
 
@@ -364,20 +328,24 @@ const ViewAllDatasets = () => {
                 <>
                   <div className="manage-data-dataset-grid grid grid-cols-2 md:grid-cols-3 gap-4">
                     {datasets
-                      .sort(
-                        (a, b) =>
-                          new Date(b.dataset_id) - new Date(a.dataset_id)
-                      )
+                      .sort((a, b) => {
+                        if (selectedFolder === "datasets") {
+                          const ai = a.dataset_id ?? 0;
+                          const bi = b.dataset_id ?? 0;
+                          return bi - ai;
+                        }
+                        return (a.filename || "").localeCompare(b.filename || "");
+                      })
                       .map((dataset) => (
                         <FileCard
-                          key={dataset.dataset_id}
+                          key={dataset.filename || dataset.dataset_id}
                           dataset={dataset}
-                          isRaw={selectedFolder === "raw"}
+                          isLocal={selectedFolder === "local"}
                           selectedFolder={selectedFolder}
                           onDelete={handleDelete}
                           onClick={() =>
                             navigate(
-                              `${endpoints[selectedFolder].overview}/${dataset.filename}`
+                              `${endpoints[selectedFolder].overview}/${encodeURIComponent(dataset.filename)}`
                             )
                           }
                           onEditSuccess={fetchData}
@@ -389,13 +357,19 @@ const ViewAllDatasets = () => {
                         />
                       ))}
                   </div>
-
-                  <Pagination
-                    currentPage={currentPage}
-                    totalCount={totalCount}
-                    pageSize={PAGE_SIZE}
-                    onPageChange={setCurrentPage}
-                  />
+                  {totalCount === 0 && (
+                    <div className="text-center text-gray-500">
+                      No datasets found
+                    </div>
+                  )}
+                  {totalCount > 0 && (
+                    <Pagination
+                      currentPage={currentPage}
+                      totalCount={totalCount}
+                      pageSize={PAGE_SIZE}
+                      onPageChange={setCurrentPage}
+                    />
+                  )}
                 </>
               )}
             </div>

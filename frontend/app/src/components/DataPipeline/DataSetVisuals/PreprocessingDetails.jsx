@@ -276,17 +276,13 @@ const PreprocessingDetails = ({ columns, filename, directory }) => {
       await preprocessDataset(payload);
 
       // Show success message
-      toast.success("Will be added to Processed Datasets", {
+      toast.success("Will be added to My Datasets", {
         position: "bottom-center",
         autoClose: 3000,
       });
 
       // Navigate to appropriate view
-      if (location.pathname.includes("raw")) {
-        navigate("/view-all-datasets#raw");
-      } else {
-        navigate("/view-all-datasets#processed");
-      }
+      navigate("/view-all-datasets#local");
     } catch (error) {
       console.error("Error in submitting data for preprocessing:", error);
       setIsSubmitted(false);

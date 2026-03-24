@@ -28,14 +28,10 @@ Client/*.local
 
 /backend/app/__pycache__
 /backend/app/_pycache_
-/backend/app/alembic/_pycache_
-/backend/app/api/__pycache__
-/backend/app/models/__pycache__
+/backend/app/routers/__pycache__
 /backend/app/schemas/__pycache__
-/backend/app/services/__pycache__
-/backend/app/utils/__pycache__
-/backend/app/utils/CustomModels/__pycache__
-/backend/app/CustomModels/__pycache__
+/backend/app/utility/__pycache__
+/backend/app/utility/federated/custom_models/__pycache__
 /backend/app/stderr_output.txt
 /backend/app/stdout_output.txt
 /backend/app/updated_parameters.txt

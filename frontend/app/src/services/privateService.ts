@@ -1,5 +1,7 @@
 import { PrivateHTTPService } from "./config";
 
+const enc = (filename: string) => encodeURIComponent(filename);
+
 export const initializeModel = (data: {
   session_id: number;
   client_token: any;
@@ -14,14 +16,15 @@ export const trainModelService = (data: {
   return PrivateHTTPService.get(`/execute-round`, { params: data });
 };
 
-export const getRawDatasets = (skip = 0, limit = 5) => {
+/** List datasets from the private server (parquet-backed). */
+export const listLocalDatasets = (skip = 0, limit = 5) => {
   return PrivateHTTPService.get(
-    `/list-raw-datasets?skip=${skip}&limit=${limit}`
+    `/list-datasets?skip=${skip}&limit=${limit}`
   );
 };
 
-export const getProcessedDatasets = (skip = 0, limit = 5) => {
-  return PrivateHTTPService.get(`/list-datasets?skip=${skip}&limit=${limit}`);
+export const getMyDatasets = (skip = 0, limit = 5) => {
+  return listLocalDatasets(skip, limit);
 };
 
 export const createQPDataset = (data: {
@@ -32,12 +35,15 @@ export const createQPDataset = (data: {
   return PrivateHTTPService.post("/create-qpdataset", data);
 };
 
-export const getRawDatasetDetails = (datasetId: string) => {
-  return PrivateHTTPService.get(`/raw-dataset-details/${datasetId}`);
+/** Dataset overview from the private server (same storage as list-datasets). */
+export const getDatasetDetails = (filename: string) => {
+  return PrivateHTTPService.get(`/dataset-details/${enc(filename)}`);
 };
 
-export const getDatasetDetails = (datasetId: string) => {
-  return PrivateHTTPService.get(`/dataset-details/${datasetId}`);
+export const getDatasetPreview = (filename: string, n = 5) => {
+  return PrivateHTTPService.get(`/dataset-preview/${enc(filename)}`, {
+    params: { n },
+  });
 };
 
 export const createNewDataset = (data: { filename: string }) => {
@@ -48,17 +54,13 @@ export const preprocessDataset = (data: any) => {
   return PrivateHTTPService.post("/preprocess-dataset", data);
 };
 
-export const listRecentUploads = () => {
-  return PrivateHTTPService.get("/list-recent-uploads");
+/** Flat storage listing (uploads + dataset folders). Use GET /file-upload/list-files. */
+export const listStorageFiles = () => {
+  return PrivateHTTPService.get("/file-upload/list-files");
 };
 
-export const deleteRecentUpload = (data: {
-  directory: string;
-  filename: string;
-}) => {
-  return PrivateHTTPService.delete("/delete-recent-uploaded-file", {
-    params: data,
-  });
+export const deleteStorageFile = (filename: string) => {
+  return PrivateHTTPService.delete(`/file-upload/delete/${enc(filename)}`);
 };
 
 export const saveToken = (token: string) => {
@@ -69,22 +71,12 @@ export const removeToken = () => {
   return PrivateHTTPService.delete("/remove-token");
 };
 
-export const updateColumnDescriptionRaw = (
+export const updateColumnDescription = (
   filename: string,
   descriptions: any
 ) => {
   return PrivateHTTPService.put(
-    `/update-column-description-raw/${filename}`,
-    descriptions
-  );
-};
-
-export const updateColumnDescriptionProcessed = (
-  filename: string,
-  descriptions: any
-) => {
-  return PrivateHTTPService.put(
-    `/update-column-description-processed/${filename}`,
+    `/update-column-description/${enc(filename)}`,
     descriptions
   );
 };

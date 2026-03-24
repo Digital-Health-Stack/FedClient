@@ -12,8 +12,9 @@ import {
   WrenchIcon,
 } from "@heroicons/react/24/outline";
 import {
-  getRawDatasetDetails,
-  updateColumnDescriptionRaw,
+  getDatasetDetails,
+  getDatasetPreview,
+  updateColumnDescription,
 } from "../../../services/privateService";
 import DatasetHead from "./DatasetHead.jsx";
 
@@ -21,6 +22,8 @@ import DatasetHead from "./DatasetHead.jsx";
 
 const DataSetOverview = () => {
   const [data, setData] = useState(null);
+  const [previewRows, setPreviewRows] = useState(null);
+  const [previewLoading, setPreviewLoading] = useState(true);
   const [selectedColumnIndex, setSelectedColumnIndex] = useState(0);
   const headRef = useRef(null);
   const columnsRef = useRef(null);
@@ -48,14 +51,31 @@ const DataSetOverview = () => {
     },
   ];
   useEffect(() => {
+    if (!filename) return;
+
     const loadData = async () => {
-      const overview = await getRawDatasetDetails(filename);
-      setData(overview.data.datastats);
-      // console.log("filename:", overview.data.datastats.filename);
+      setPreviewLoading(true);
+      setPreviewRows(null);
+      try {
+        const overview = await getDatasetDetails(filename);
+        setData(overview.data.datastats);
+      } catch (e) {
+        console.error(e);
+        setData({ error: "Failed to load dataset details" });
+      }
+      try {
+        const prev = await getDatasetPreview(filename, 5);
+        setPreviewRows(prev.data?.datasetHead ?? []);
+      } catch (e) {
+        console.error(e);
+        setPreviewRows([]);
+      } finally {
+        setPreviewLoading(false);
+      }
     };
 
     loadData();
-  }, []);
+  }, [filename]);
 
   if (!data) return <p>Loading...</p>;
   if (data.error) return <p>{data.error}</p>;
@@ -78,7 +98,7 @@ const DataSetOverview = () => {
   };
 
   const sendToBackend = (editedDescriptions) => {
-    updateColumnDescriptionRaw(data.filename, editedDescriptions);
+    updateColumnDescription(data.filename, editedDescriptions);
   };
 
   return (
@@ -92,7 +112,8 @@ const DataSetOverview = () => {
       </section>
       <section id="head" className="scroll-mt-20 mt-12" ref={headRef}>
         <DatasetHead
-          datasetHead={data.datasetHead}
+          datasetHead={previewRows}
+          previewLoading={previewLoading}
           onColumnHeaderClick={handleColumnHeaderClick}
           selectedColumnIndex={selectedColumnIndex}
           columnDescriptions={Object.fromEntries(
@@ -113,7 +134,7 @@ const DataSetOverview = () => {
         <PreprocessingDetails
           columns={columnDetails}
           filename={filename}
-          directory={process.env.REACT_APP_HDFS_RAW_DATASETS_DIR}
+          directory="raw"
         />
       </section>
     </DatasetLayout>

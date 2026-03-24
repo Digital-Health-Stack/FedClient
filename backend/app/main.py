@@ -6,15 +6,8 @@ import uvicorn
 import requests
 from contextlib import asynccontextmanager
 import asyncio
-from api import preprocessing_routes
-from api import model_training_routes
-from api import confidential_routers
-from api import qpd_routers
-from api import testing_routers
-from api import utils
-from api import Notification
-from api import file_upload_routes
-from api.Notification import redis_listener, redis_round_listener
+from routers import dataset, training, qpd, notification
+from utility.infra.redis import redis_listener, redis_round_listener
 
 """
   Don't start this server from terminal without specifying port (9000 or something unused) in the command,
@@ -34,7 +27,7 @@ environment = os.getenv("ENVIRONMENT")
 async def lifespan(app: FastAPI):
     # Startup
     print("Starting Redis listeners")
-    session_task = asyncio.create_task(redis_listener())
+    session_task = asyncio.create_task(redis_listener(notification.connected_websockets))
     round_task = asyncio.create_task(redis_round_listener())
     yield
     # Shutdown
@@ -62,15 +55,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Including routers
-app.include_router(preprocessing_routes.dataset_router)
-app.include_router(model_training_routes.model_router)
-app.include_router(confidential_routers.confidential_router)
-app.include_router(qpd_routers.qpd_router)
-app.include_router(testing_routers.test_router)
-app.include_router(file_upload_routes.file_upload_router)
-app.include_router(Notification.notification_router)
-app.include_router(utils.utils_router)
+app.include_router(dataset.dataset_router)
+app.include_router(dataset.file_upload_router)
+app.include_router(training.model_router)
+app.include_router(qpd.qpd_router)
+app.include_router(notification.notification_router)
 
 
 # Temporary testing endpoints

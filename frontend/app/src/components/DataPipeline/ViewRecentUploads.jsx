@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
 import {
   ArrowRightCircleIcon,
   TrashIcon,
@@ -8,8 +7,8 @@ import {
 } from "@heroicons/react/24/solid";
 import {
   createNewDataset,
-  listRecentUploads,
-  deleteRecentUpload,
+  listStorageFiles,
+  deleteStorageFile,
 } from "../../services/privateService";
 
 const ViewRecentUploads = () => {
@@ -19,7 +18,7 @@ const ViewRecentUploads = () => {
   useEffect(() => {
     const fetchFiles = async () => {
       try {
-        const response = await listRecentUploads();
+        const response = await listStorageFiles();
         const key = Object.keys(response.data.contents)[0];
         setContents(response.data.contents[key] || []);
       } catch (err) {
@@ -53,25 +52,21 @@ const ViewRecentUploads = () => {
       setTimeout(() => window.location.reload(), 1000);
     } catch (err) {
       setError("Error processing the file. Please try again later.");
-      console.error("Error in processing the file: ", err);
+      console.error("Error processing the file: ", err);
     }
   };
 
-  const handleDelete = async (dir, file) => {
+  const handleDelete = async (_dir, file) => {
     const confirmDelete = window.confirm(
       `Are you sure you want to delete '${file}'? This action cannot be undone.`
     );
     if (!confirmDelete) return;
 
     try {
-      deleteRecentUpload({ directory: dir, filename: file });
-      // await axios.delete(REACT_APP_DELETE_DATAFILE_URL, {
-      //   params: { directory: dir, fileName: file },
-      // });
+      await deleteStorageFile(file);
       setContents((prevContents) =>
         prevContents.filter((f) => f.filename !== file)
       );
-      //   refresh the page
       window.location.reload();
     } catch (err) {
       setError("Error deleting the file. Please try again later.");
@@ -100,14 +95,12 @@ const ViewRecentUploads = () => {
                       : filename}
                   </span>
                 </p>
-                {/* If file name ends with __COPYING__, show 'Uploading' with cloud upload icon */}
                 {filename.endsWith("_COPYING_") && (
                   <div className="text-sm text-blue-500 mt-1 flex items-center">
                     <span>Uploading</span>
                     <ArrowPathIcon className="h-5 w-5 ml-2 text-blue-500 animate-spin" />
                   </div>
                 )}
-                {/* If file name ends with __PROCESSING__, show 'Processing' with refresh icon */}
                 {filename.endsWith("__PROCESSING__") && (
                   <div className="text-sm text-yellow-500 mt-1 flex items-center">
                     <span>Processing</span>

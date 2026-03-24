@@ -120,7 +120,24 @@ const DatasetHead = ({
   onColumnHeaderClick,
   selectedColumnIndex,
   columnDescriptions = {},
+  previewLoading = false,
 }) => {
+  if (previewLoading) {
+    return (
+      <div className="bg-white rounded-xl shadow-sm p-8 mt-4 text-center text-gray-500">
+        Loading preview rows…
+      </div>
+    );
+  }
+
+  if (!datasetHead || !datasetHead.length) {
+    return (
+      <div className="bg-white rounded-xl shadow-sm p-8 mt-4 text-center text-gray-500">
+        No preview rows available (empty dataset or preview could not be loaded).
+      </div>
+    );
+  }
+
   // Get column names from the first row
   const columns = Object.keys(datasetHead[0]);
 

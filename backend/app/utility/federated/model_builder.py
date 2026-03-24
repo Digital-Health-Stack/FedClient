@@ -1,14 +1,14 @@
-from .CustomModels.CustomLSTM import CustomLSTM
-from .CustomModels.LandMarkSVM import LandMarkSVM
-from .CustomModels.CustomSVM import CustomSVM
-from .CustomModels.LinearRegression import LinearRegression
-from .CustomModels.MultiLayerPerceptron import MultiLayerPerceptron
-from .CustomModels.CustomCNN import CustomCNN
-from .CustomModels.LogisticRegression import LogisticRegression
-from .CustomModels.DecisionTree import DecisionTree
-from .CustomModels.RandomForest import RandomForest
-from .CustomModels.XGBoostRegressor import XGBoostRegressor
-from .CustomModels.CustomSVR import CustomSVR
+from .custom_models.CustomLSTM import CustomLSTM
+from .custom_models.LandMarkSVM import LandMarkSVM
+from .custom_models.CustomSVM import CustomSVM
+from .custom_models.LinearRegression import LinearRegression
+from .custom_models.MultiLayerPerceptron import MultiLayerPerceptron
+from .custom_models.CustomCNN import CustomCNN
+from .custom_models.LogisticRegression import LogisticRegression
+from .custom_models.DecisionTree import DecisionTree
+from .custom_models.RandomForest import RandomForest
+from .custom_models.XGBoostRegressor import XGBoostRegressor
+from .custom_models.CustomSVR import CustomSVR
 import json
 
 model_classes = {

@@ -25,7 +25,6 @@ python3 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
 mkdir -p storage
-alembic upgrade head
 print_banner "$GREEN" "Backend installed"
 
 # --- Frontend Setup ---

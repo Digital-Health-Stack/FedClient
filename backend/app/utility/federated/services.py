@@ -1,12 +1,12 @@
 import os
-from utility.hdfs_services import HDFSServiceManager
+from utility.dataset.storage import LocalStorageManager
 import pandas as pd
 import shutil
 import numpy as np
 import requests
 
-HDFS_PROCESSED_DATASETS_DIR = os.getenv("HDFS_PROCESSED_DATASETS_DIR")
 REACT_APP_SERVER_BASE_URL = os.getenv("REACT_APP_SERVER_BASE_URL")
+storage_client = LocalStorageManager()
 
 
 def send_client_initialize_model_signal(session_id: int, client_token: str) -> bool:
@@ -48,11 +48,11 @@ def process_parquet_and_save_xy(
     client_token: str,
 ):
     """
-    Download and combine multiple parquet files from HDFS,
+    Copy and combine multiple parquet files from local storage,
     extract X and Y arrays, save them, and return metadata.
 
     Args:
-        filename: HDFS folder name containing parquet files
+        filename: local filename or key in local storage containing parquet files
         session_id: Unique session ID for temp file management
         output_column: Column to be treated as output (target)
 
@@ -61,7 +61,6 @@ def process_parquet_and_save_xy(
     """
 
     # Create paths
-    hdfs_path = os.path.join(HDFS_PROCESSED_DATASETS_DIR, filename)
     local_dir = os.path.join(os.getcwd(), "data")
     os.makedirs(local_dir, exist_ok=True)
 
@@ -69,9 +68,8 @@ def process_parquet_and_save_xy(
     temp_download_dir = os.path.join(local_dir, f"temp_{session_id}")
     os.makedirs(temp_download_dir, exist_ok=True)
 
-    # Download from HDFS
-    hdfs_service = HDFSServiceManager()
-    hdfs_service.download_folder_from_hdfs(hdfs_path, temp_download_dir)
+    # Copy from local storage
+    storage_client.copy_to_local(filename, temp_download_dir)
 
     # Find and combine parquet files
     combined_df = None

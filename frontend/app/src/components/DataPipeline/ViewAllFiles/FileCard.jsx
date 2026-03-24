@@ -8,14 +8,12 @@ import {
 } from "@heroicons/react/24/solid";
 import EditDatasetModal from "./EditDatasetModal";
 
-const RAW_DATASET_RENAME_URL =
-  process.env.REACT_APP_PRIVATE_SERVER_BASE_URL + "/edit-raw-dataset-details";
-const PROCESSED_DATASET_RENAME_URL =
+const EDIT_DATASET_DETAILS_URL =
   process.env.REACT_APP_PRIVATE_SERVER_BASE_URL + "/edit-dataset-details";
 
 const FileCard = ({
   dataset,
-  isRaw,
+  isLocal,
   onDelete,
   onClick,
   onEditSuccess,
@@ -23,17 +21,16 @@ const FileCard = ({
   isHighlighted = false,
 }) => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [isProcessing] = useState(dataset.filename.endsWith("__PROCESSING__"));
-  const displayName = dataset.filename.replace(/__PROCESSING__$/, "");
+  const stem = (dataset.filename || "").replace(/\.parquet$/i, "");
+  const isProcessing = stem.endsWith("__PROCESSING__");
+  const displayName = isProcessing
+    ? `${stem.replace(/__PROCESSING__$/, "")}.parquet`
+    : dataset.filename;
 
   const handleEdit = async (newFilename, newDescription) => {
     try {
-      const endpoint = isRaw
-        ? RAW_DATASET_RENAME_URL
-        : PROCESSED_DATASET_RENAME_URL;
-
-      await axios.put(endpoint, {
-        dataset_id: dataset.dataset_id,
+      await axios.put(EDIT_DATASET_DETAILS_URL, {
+        old_filename: dataset.filename ?? dataset.name,
         filename: newFilename,
         description: newDescription,
       });
@@ -64,7 +61,6 @@ const FileCard = ({
         <div className="flex-col flex gap-1 items-start min-w-0 flex-1">
           <div className="flex items-center gap-2">
             <h3 className="text-lg font-semibold text-gray-800 truncate">
-              {console.log(displayName.split(".parquet")[0])}
               {displayName.split(".parquet")[0].length > 30
                 ? `${displayName.split(".parquet")[0].slice(0, 30)}...`
                 : displayName.split(".parquet")[0]}
@@ -92,7 +88,10 @@ const FileCard = ({
               className="p-1.5 text-red-400 hover:text-red-600 hover:bg-red-100 rounded-full transition-colors"
               onClick={(e) => {
                 e.stopPropagation();
-                onDelete(dataset.dataset_id, isRaw);
+                onDelete(
+                  isLocal ? dataset.filename : dataset.dataset_id,
+                  isLocal
+                );
               }}
             >
               <TrashIcon className="h-5 w-5" />
@@ -120,7 +119,7 @@ const FileCard = ({
               onClick();
             }}
           >
-            {isRaw ? "View Summary / Preprocess" : "View Summary"}
+            {isLocal ? "View Summary / Preprocess" : "View Summary"}
             <ArrowRightIcon className="h-4 w-4" />
           </button>
         </div>

@@ -9,34 +9,24 @@ class DatasetCreate(BaseModel):
 
 
 class DatasetResponse(DatasetCreate):
-    dataset_id: int
+    pass
 
 
 class DatasetUpdate(BaseModel):
-    dataset_id: int
+    """Rename/edit: provide current file name as old_filename when changing name."""
+
+    old_filename: str
     filename: str
     description: Optional[str] = None
 
 
-class RawDatasetListResponse(BaseModel):
-    dataset_id: int
-    filename: str
-    description: Optional[str] = None
-
-
-class RawDatasetListWithCountResponse(BaseModel):
-    datasets: List[RawDatasetListResponse]
-    total: int
-
-
-class DatasetListResponse(BaseModel):
-    dataset_id: int
+class DatasetListItem(BaseModel):
     filename: str
     description: Optional[str] = None
 
 
 class DatasetListWithCountResponse(BaseModel):
-    datasets: List[DatasetListResponse]
+    datasets: List[DatasetListItem]
     total: int
 
 

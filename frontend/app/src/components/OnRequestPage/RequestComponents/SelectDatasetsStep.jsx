@@ -15,7 +15,6 @@ import {
   getDatasetTasksById,
   getServerDatasets,
 } from "../../../services/fedServerService";
-import { getDatasetDetails } from "../../../services/privateService";
 
 // Environment variables
 // const CLIENT_DATASET_OVERVIEW = process.env.REACT_APP_PROCESSED_OVERVIEW_PATH;
@@ -208,7 +207,7 @@ export default function SelectDatasetsStep({
     return task ? task.metric : null;
   };
 
-  // Fetch uploaded files from HDFS with caching
+  // Fetch uploaded files from server with caching
   const fetchUploadedFiles = async () => {
     // Check if we have cached data that's still valid
     const now = Date.now();
