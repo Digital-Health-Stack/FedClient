@@ -68,7 +68,7 @@ def sanitize_history(history):
 
 def get_model_config(session_id: int, client_token: str):
     response = requests.get(
-        f"{BASE_URL}/v2/get-federated-session/{session_id}",
+        f"{BASE_URL}/get-federated-session/{session_id}",
         headers={"Authorization": f"Bearer {client_token}"},
     )
     response.raise_for_status()
@@ -389,7 +389,7 @@ def main(session_id, client_token):
 
         print("Starting training script...")
         get_url = f"{BASE_URL}/get-model-parameters"
-        post_url = f"{BASE_URL}/v2/send-weights"
+        post_url = f"{BASE_URL}/send-weights"
 
         model_config = get_model_config(session_id, client_token)
         # print("Model Config : ", model_config)

@@ -84,12 +84,16 @@ const ViewAllDatasets = () => {
       const response = await axios.get(endpoints[selectedFolder].fetch, {
         params: { skip: (currentPage - 1) * PAGE_SIZE, limit: PAGE_SIZE },
       });
-      if (selectedFolder == "datasets") {
-        setDatasets(response.data);
-      } else {
-        setDatasets(response.data.datasets);
-        setTotalCount(response.data.total);
-      }
+      const data = response.data;
+      const list = Array.isArray(data)
+        ? data
+        : Array.isArray(data?.datasets)
+          ? data.datasets
+          : [];
+      setDatasets(list);
+      setTotalCount(
+        typeof data?.total === "number" ? data.total : list.length
+      );
     } catch (err) {
       setError("Failed to load datasets");
     } finally {
@@ -327,7 +331,8 @@ const ViewAllDatasets = () => {
               ) : (
                 <>
                   <div className="manage-data-dataset-grid grid grid-cols-2 md:grid-cols-3 gap-4">
-                    {datasets
+                    {(Array.isArray(datasets) ? datasets : [])
+                      .slice()
                       .sort((a, b) => {
                         if (selectedFolder === "datasets") {
                           const ai = a.dataset_id ?? 0;

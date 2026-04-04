@@ -84,7 +84,7 @@ async def redis_round_listener() -> None:
             client_token = await redis_client.get("client_token")
 
             session = requests.get(
-                f"{BASE_URL}/v2/get-federated-session/{session_id}",
+                f"{BASE_URL}/get-federated-session/{session_id}",
                 headers={"Authorization": f"Bearer {client_token}"},
             )
             session.raise_for_status()
