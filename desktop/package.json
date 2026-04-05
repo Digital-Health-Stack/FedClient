@@ -1,0 +1,74 @@
+{
+  "name": "fedclient-desktop",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Electron shell for FedClient (FastAPI + Vite React)",
+  "main": "main.cjs",
+  "scripts": {
+    "start": "electron .",
+    "dev": "concurrently -k \"npm run dev:backend\" \"npm run dev:frontend\" \"npm run dev:electron\"",
+    "dev:backend": "cd ../backend && sh -c 'if [ -x venv/bin/python ]; then exec venv/bin/python -m uvicorn main:app --host 127.0.0.1 --port 9090; else exec python3 -m uvicorn main:app --host 127.0.0.1 --port 9090; fi'",
+    "dev:frontend": "cd ../frontend && npm run dev",
+    "dev:electron": "wait-on -t 120000 http://127.0.0.1:9090/docs http://127.0.0.1:5174 && cross-env NODE_ENV=development ELECTRON_SKIP_BACKEND=1 ELECTRON_START_URL=http://127.0.0.1:5174 electron .",
+    "build:frontend": "cd ../frontend && cross-env REACT_APP_SERVER_BASE_URL=http://127.0.0.1:9090 REACT_APP_PRIVATE_SERVER_BASE_URL=http://127.0.0.1:9090 npm run build",
+    "start:packaged": "cross-env NODE_ENV=production npm run build:frontend && electron .",
+    "dist": "npm run build:frontend && electron-builder",
+    "dist:win": "npm run build:frontend && electron-builder --win"
+  },
+  "build": {
+    "appId": "com.fedclient.desktop",
+    "productName": "FedClient",
+    "directories": {
+      "output": "out"
+    },
+    "files": [
+      "**/*",
+      "!out/**"
+    ],
+    "asar": true,
+    "extraResources": [
+      {
+        "from": "../frontend/dist",
+        "to": "frontend/dist"
+      },
+      {
+        "from": "../backend",
+        "to": "backend",
+        "filter": [
+          "**/*",
+          "!**/venv/**",
+          "!**/.venv/**",
+          "!**/__pycache__/**",
+          "!**/*.pyc",
+          "!**/*.pyo"
+        ]
+      }
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "artifactName": "${productName}-${version}-win-${arch}.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true
+    }
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.0",
+    "cross-env": "^7.0.3",
+    "electron": "^33.2.0",
+    "electron-builder": "^25.1.8",
+    "wait-on": "^8.0.1"
+  },
+  "dependencies": {
+    "express": "^4.21.0"
+  }
+}

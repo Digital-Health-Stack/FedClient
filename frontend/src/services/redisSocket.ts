@@ -1,7 +1,14 @@
 let socket;
 
+function notificationWsUrl(): string {
+  if (window.electronAPI?.wsUrl) {
+    return `${window.electronAPI.wsUrl()}/ws`;
+  }
+  return "ws://127.0.0.1:9090/ws";
+}
+
 export function connectWebSocket(onMessage) {
-  socket = new WebSocket("http://localhost:9090/ws");
+  socket = new WebSocket(notificationWsUrl());
 
   socket.onopen = () => {
     console.log("WebSocket connected");
