@@ -101,7 +101,7 @@ export default function StatisticalInfoStep() {
           htmlFor="expected_std_mean"
           title="Expected value of the target metric"
         >
-          Expected Accuracy of your training
+          Expected {test_parameter} of your training
         </label>
         <div className="flex items-center gap-3">
           <div className="flex-1">

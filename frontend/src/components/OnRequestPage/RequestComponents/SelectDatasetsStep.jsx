@@ -225,9 +225,10 @@ export default function SelectDatasetsStep({
       const response = await getServerDatasets();
       if (response.data && response.status == 200) {
         // Cache the files and timestamp
-        uploadedFilesCache = response.data;
+        console.log("Uploaded files received: ", response.data);
+        uploadedFilesCache = response.data.datasets;
         filesCacheTimestamp = now;
-        setUploadedFiles(response.data);
+        setUploadedFiles(response.data.datasets);
       }
     } catch (err) {
       console.error("Error fetching uploaded files:", err);
