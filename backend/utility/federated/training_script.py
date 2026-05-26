@@ -388,7 +388,7 @@ def main(session_id, client_token):
         # ==== HARDCODED CONFIGURATION ====
 
         print("Starting training script...")
-        get_url = f"{BASE_URL}/get-model-parameters"
+        get_url = f"{BASE_URL}/get-weights"
         post_url = f"{BASE_URL}/send-weights"
 
         model_config = get_model_config(session_id, client_token)
