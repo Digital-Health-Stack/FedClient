@@ -9,6 +9,9 @@ import LogisticRegression from "../CustomModels/LogisticRegression";
 import DecisionTree from "../CustomModels/DecisionTree";
 import RandomForest from "../CustomModels/RandomForest";
 import XGBoostRegressor from "../CustomModels/XGBoostRegressor";
+import LassoRegression from "../CustomModels/LassoRegression";
+import RidgeRegression from "../CustomModels/RidgeRegression";
+import KNNClassifier from "../CustomModels/KNNClassifier";
 export const availableModels = {
   LinearRegression: {
     label: "Linear Regression",
@@ -54,5 +57,17 @@ export const availableModels = {
   XGBoostRegressor: {
     label: "XGBoost Regressor",
     component: XGBoostRegressor,
+  },
+  LassoRegression: {
+    label: "Lasso Regression",
+    component: LassoRegression,
+  },
+  RidgeRegression: {
+    label: "Ridge Regression",
+    component: RidgeRegression,
+  },
+  KNNClassifier: {
+    label: "KNN Classifier",
+    component: KNNClassifier,
   },
 };

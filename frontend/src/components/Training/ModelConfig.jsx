@@ -580,6 +580,39 @@ const ModelConfig = ({ data }) => {
           </div>
         );
 
+      case "LassoRegression":
+        return (
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-gray-700">
+              <InfoItem label="Alpha (L1 Regularization)" value={modelInfo?.alpha} />
+              <InfoItem label="Learning Rate" value={modelInfo?.lr} />
+              <InfoItem label="Number of Iterations" value={modelInfo?.n_iters} />
+            </div>
+          </div>
+        );
+
+      case "RidgeRegression":
+        return (
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-gray-700">
+              <InfoItem label="Alpha (L2 Regularization)" value={modelInfo?.alpha} />
+              <InfoItem label="Learning Rate" value={modelInfo?.lr} />
+              <InfoItem label="Number of Iterations" value={modelInfo?.n_iters} />
+            </div>
+          </div>
+        );
+
+      case "KNNClassifier":
+        return (
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-gray-700">
+              <InfoItem label="Neighbors (k)" value={modelInfo?.n_neighbors} />
+              <InfoItem label="Weight Function" value={modelInfo?.weights} />
+              <InfoItem label="Distance Metric" value={modelInfo?.metric} />
+            </div>
+          </div>
+        );
+
       default:
         // Fallback to original display for unknown models
         return (
