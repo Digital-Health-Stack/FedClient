@@ -223,8 +223,8 @@ export default function Request() {
     ) {
       data.model_name = "DecisionTree";
     }
+    data.wait_time = null;
 
-    // Extract no_of_rounds from model_info and add to top level for backend compatibility
     const submissionData = {
       ...data,
       no_of_rounds: data.model_info.no_of_rounds,
