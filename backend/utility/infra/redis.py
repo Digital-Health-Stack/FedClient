@@ -14,25 +14,25 @@ load_dotenv()
 
 # Redis connection for get/set operations (key-value storage)
 redis_client = redis.Redis(
-    host=os.environ.get("REDIS_URL", "localhost"),
-    port=int(os.environ.get("REDIS_PORT", 6380)),
-    password=os.environ.get("REDIS_PASSWORD", "123456"),
+    host=os.environ.get("REDIS_URL"),
+    port=int(os.environ.get("REDIS_PORT")),
+    password=os.environ.get("REDIS_PASSWORD"),
     decode_responses=True,
     db=0,
 )
 
 # Dedicated connections for concurrent pub/sub listen loops
 redis_pubsub = redis.Redis(
-    host=os.environ.get("REDIS_URL", "localhost"),
-    port=int(os.environ.get("REDIS_PORT", 6380)),
-    password=os.environ.get("REDIS_PASSWORD", "123456"),
+    host=os.environ.get("REDIS_URL"),
+    port=int(os.environ.get("REDIS_PORT")),
+    password=os.environ.get("REDIS_PASSWORD"),
     decode_responses=True,
     db=0,
 )
 redis_pubsub2 = redis.Redis(
-    host=os.environ.get("REDIS_URL", "localhost"),
-    port=int(os.environ.get("REDIS_PORT", 6380)),
-    password=os.environ.get("REDIS_PASSWORD", "123456"),
+    host=os.environ.get("REDIS_URL"),
+    port=int(os.environ.get("REDIS_PORT")),
+    password=os.environ.get("REDIS_PASSWORD"),
     decode_responses=True,
     db=0,
 )
@@ -75,6 +75,7 @@ async def redis_round_listener() -> None:
         async for message in round_pubsub.listen():
             if message is None or message["type"] != "message":
                 continue
+            print("maine sunn liya")
             message_data = json.loads(message["data"])
             print(f"Message data: {message_data}")
             session_id = message_data.get("session_id")
