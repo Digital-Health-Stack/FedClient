@@ -12,6 +12,13 @@ from .custom_models.CustomSVR import CustomSVR
 from .custom_models.LassoRegression import LassoRegression
 from .custom_models.RidgeRegression import RidgeRegression
 from .custom_models.KNNClassifier import KNNClassifier
+from .custom_models.knn_regressor import KNNRegressor
+from .custom_models.adaboost import AdaBoost
+from .custom_models.lightgbm_regressor import LightGBMRegressor
+from .custom_models.lightgbm_classifier import LightGBMClassifier
+from .custom_models.naive_bayes import NaiveBayes
+from .custom_models.random_forest_regressor import RandomForestRegressor
+from .custom_models.xgboost_classifier import XGBoostClassifier
 import json
 
 model_classes = {
@@ -29,6 +36,13 @@ model_classes = {
     "LassoRegression": LassoRegression,
     "RidgeRegression": RidgeRegression,
     "KNNClassifier": KNNClassifier,
+    "KNNRegressor": KNNRegressor,
+    "AdaBoost": AdaBoost,
+    "LightGBMRegressor": LightGBMRegressor,
+    "LightGBMClassifier": LightGBMClassifier,
+    "NaiveBayes": NaiveBayes,
+    "RandomForestRegressor": RandomForestRegressor,
+    "XGBoostClassifier": XGBoostClassifier,
 }
 
 

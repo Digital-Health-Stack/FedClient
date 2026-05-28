@@ -12,6 +12,13 @@ import XGBoostRegressor from "../CustomModels/XGBoostRegressor";
 import LassoRegression from "../CustomModels/LassoRegression";
 import RidgeRegression from "../CustomModels/RidgeRegression";
 import KNNClassifier from "../CustomModels/KNNClassifier";
+import KNNRegressor from "../CustomModels/KNNRegressor";
+import AdaBoost from "../CustomModels/AdaBoost";
+import LightGBMRegressor from "../CustomModels/LightGBMRegressor";
+import LightGBMClassifier from "../CustomModels/LightGBMClassifier";
+import NaiveBayes from "../CustomModels/NaiveBayes";
+import RandomForestRegressor from "../CustomModels/RandomForestRegressor";
+import XGBoostClassifier from "../CustomModels/XGBoostClassifier";
 export const availableModels = {
   LinearRegression: {
     label: "Linear Regression",
@@ -69,5 +76,33 @@ export const availableModels = {
   KNNClassifier: {
     label: "KNN Classifier",
     component: KNNClassifier,
+  },
+  KNNRegressor: {
+    label: "KNN Regressor",
+    component: KNNRegressor,
+  },
+  AdaBoost: {
+    label: "AdaBoost Classifier",
+    component: AdaBoost,
+  },
+  LightGBMRegressor: {
+    label: "LightGBM Regressor",
+    component: LightGBMRegressor,
+  },
+  LightGBMClassifier: {
+    label: "LightGBM Classifier",
+    component: LightGBMClassifier,
+  },
+  NaiveBayes: {
+    label: "Naive Bayes (Gaussian)",
+    component: NaiveBayes,
+  },
+  RandomForestRegressor: {
+    label: "Random Forest Regressor",
+    component: RandomForestRegressor,
+  },
+  XGBoostClassifier: {
+    label: "XGBoost Classifier",
+    component: XGBoostClassifier,
   },
 };

@@ -613,7 +613,74 @@ const ModelConfig = ({ data }) => {
           </div>
         );
 
+      case "KNNRegressor":
+        return (
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-gray-700">
+              <InfoItem label="Neighbors (k)" value={modelInfo?.n_neighbors} />
+              <InfoItem label="Weight Function" value={modelInfo?.weights} />
+              <InfoItem label="Distance Metric" value={modelInfo?.metric} />
+            </div>
+          </div>
+        );
+
+      case "AdaBoost":
+        return (
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-gray-700">
+              <InfoItem label="Estimators" value={modelInfo?.n_estimators} />
+              <InfoItem label="Learning Rate" value={modelInfo?.learning_rate} />
+            </div>
+          </div>
+        );
+
+      case "LightGBMRegressor":
+      case "LightGBMClassifier":
+        return (
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-gray-700">
+              <InfoItem label="Estimators" value={modelInfo?.n_estimators} />
+              <InfoItem label="Learning Rate" value={modelInfo?.learning_rate} />
+              <InfoItem label="Max Depth" value={modelInfo?.max_depth} />
+              <InfoItem label="Num Leaves" value={modelInfo?.num_leaves} />
+            </div>
+          </div>
+        );
+
+      case "NaiveBayes":
+        return (
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-gray-700">
+              <InfoItem label="Variance Smoothing" value={modelInfo?.var_smoothing} />
+            </div>
+          </div>
+        );
+
+      case "RandomForestRegressor":
+        return (
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-gray-700">
+              <InfoItem label="Estimators" value={modelInfo?.n_estimators} />
+              <InfoItem label="Max Depth" value={modelInfo?.max_depth ?? "Unlimited"} />
+              <InfoItem label="Min Samples Split" value={modelInfo?.min_samples_split} />
+              <InfoItem label="Max Features" value={modelInfo?.max_features} />
+            </div>
+          </div>
+        );
+
+      case "XGBoostClassifier":
+        return (
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-gray-700">
+              <InfoItem label="Estimators" value={modelInfo?.n_estimators} />
+              <InfoItem label="Learning Rate" value={modelInfo?.learning_rate} />
+              <InfoItem label="Max Depth" value={modelInfo?.max_depth} />
+            </div>
+          </div>
+        );
+
       default:
+
         // Fallback to original display for unknown models
         return (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-gray-700">
