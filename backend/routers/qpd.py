@@ -61,7 +61,7 @@ async def create_qpd_dataset_from_client_data(
 
 
 @qpd_router.post("/create-qpdataset", status_code=201)
-def create_qpd_dataset_endpoint(request: SubmitPrice):
+async def create_qpd_dataset_endpoint(request: SubmitPrice):
     # -------------------------------------------------------------------
     # Create a remote Dataset and updates the status to the server DB.
     # -------------------------------------------------------------------
@@ -70,6 +70,12 @@ def create_qpd_dataset_endpoint(request: SubmitPrice):
     session_id = request.session_id
     num_points = request.session_price
     client_token = request.client_token
+
+    # Proactively save client token to Redis
+    try:
+        await redis_client.set("client_token", client_token)
+    except Exception as redis_err:
+        print(f"Error saving client token to Redis in create-qpdataset: {redis_err}")
 
     headers = {
         "Authorization": f"Bearer {client_token}",

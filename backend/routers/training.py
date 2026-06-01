@@ -26,10 +26,16 @@ process_store: Dict[str, dict] = {}
 
 
 @model_router.post("/initiate-model")
-def initiate_model(request: InitiateModelRequest):
+async def initiate_model(request: InitiateModelRequest):
     try:
         session_id = request.session_id
         client_token = request.client_token
+
+        # Proactively save client token to Redis
+        try:
+            await redis_client.set("client_token", client_token)
+        except Exception as redis_err:
+            print(f"Error saving client token to Redis in initiate-model: {redis_err}")
 
         headers = {
             "Authorization": f"Bearer {client_token}",
@@ -42,13 +48,24 @@ def initiate_model(request: InitiateModelRequest):
 
         result = response.json()
 
-        # Read output column from it
-        federated_info = result.get("federated_info")
-        dataset_info = federated_info.get("dataset_info")
-        client_filename = dataset_info.get("client_filename")
-        output_columns = dataset_info.get("output_columns")
+        # Read input and output columns directly from federated_info
+        federated_info = result.get("federated_info", {})
+        input_columns = federated_info.get("input_columns", [])
+        output_columns = federated_info.get("output_columns", [])
+        
+        # Retrieve client_filename from Redis
+        redis_key = f"client_filename:{session_id}"
+        client_filename = await redis_client.get(redis_key)
+        
+        if not client_filename:
+            raise HTTPException(status_code=400, detail="Client filename not found in Redis for this session")
+
+        # Decode if redis returned bytes
+        if isinstance(client_filename, bytes):
+            client_filename = client_filename.decode("utf-8")
+
         process_parquet_and_save_xy(
-            client_filename, session_id, output_columns, client_token
+            client_filename, str(session_id), input_columns, output_columns, client_token
         )
 
         return {"message": "Model initiation successful"}

@@ -45,18 +45,22 @@ BASE_URL = os.getenv("REACT_APP_SERVER_BASE_URL")
 
 async def redis_listener(connected_websockets: Set[WebSocket]):
     await session_pubsub.subscribe("new-session")
-    try:
-        async for message in session_pubsub.listen():
-            if message is None or message["type"] != "message":
-                continue
+    while True:
+        try:
+            async for message in session_pubsub.listen():
+                if message is None or message["type"] != "message":
+                    continue
 
-            for ws in list(connected_websockets):
-                try:
-                    await ws.send_text(message["data"])
-                except WebSocketDisconnect:
-                    connected_websockets.discard(ws)
-    except Exception as e:
-        print(f"Error in redis_listener: {e}")
+                for ws in list(connected_websockets):
+                    try:
+                        await ws.send_text(message["data"])
+                    except WebSocketDisconnect:
+                        connected_websockets.discard(ws)
+                    except Exception as ws_err:
+                        print(f"Error sending message to websocket: {ws_err}")
+        except Exception as e:
+            print(f"Error in redis_listener loop: {e}")
+            await asyncio.sleep(1)
 
 
 async def _run_script_async(process_id: str, session_id: int, client_token: str) -> None:
@@ -71,41 +75,53 @@ async def redis_round_listener() -> None:
 
     await round_pubsub.subscribe("new-round")
     print("Subscribed to new-round")
-    try:
-        async for message in round_pubsub.listen():
-            if message is None or message["type"] != "message":
-                continue
-            print("maine sunn liya")
-            message_data = json.loads(message["data"])
-            print(f"Message data: {message_data}")
-            session_id = message_data.get("session_id")
-            redis_key = f"client_filename:{session_id}"
-            client_filename = await redis_client.get(redis_key)
-            round_number = message_data.get("round_number")
-            client_token = await redis_client.get("client_token")
+    while True:
+        try:
+            async for message in round_pubsub.listen():
+                try:
+                    if message is None or message["type"] != "message":
+                        continue
+                    print("maine sunn liya")
+                    message_data = json.loads(message["data"])
+                    print(f"Message data: {message_data}")
+                    session_id = message_data.get("session_id")
+                    redis_key = f"client_filename:{session_id}"
+                    client_filename = await redis_client.get(redis_key)
+                    if not client_filename:
+                        print(f"No client filename found for session {session_id}")
+                        continue
+                    
+                    round_number = message_data.get("round_number")
+                    client_token = await redis_client.get("client_token")
+                    if not client_token:
+                        print("No client token found in Redis")
+                        continue
 
-            session = requests.get(
-                f"{BASE_URL}/get-federated-session/{session_id}",
-                headers={"Authorization": f"Bearer {client_token}"},
-            )
-            session.raise_for_status()
-            session = session.json()
+                    session = requests.get(
+                        f"{BASE_URL}/get-federated-session/{session_id}",
+                        headers={"Authorization": f"Bearer {client_token}"},
+                    )
+                    session.raise_for_status()
+                    session = session.json()
 
-            if round_number == 1:
-                process_parquet_and_save_xy(
-                    client_filename,
-                    str(session_id),
-                    session["federated_info"]["input_columns"],
-                    session["federated_info"]["output_columns"],
-                    client_token,
-                )
-            process_id = str(uuid.uuid4())
-            asyncio.create_task(
-                _run_script_async(
-                    process_id=process_id,
-                    session_id=session_id,
-                    client_token=client_token,
-                )
-            )
-    except Exception as e:
-        print(f"Error in redis_round_listener: {e}")
+                    if round_number == 1:
+                        process_parquet_and_save_xy(
+                            client_filename,
+                            str(session_id),
+                            session["federated_info"]["input_columns"],
+                            session["federated_info"]["output_columns"],
+                            client_token,
+                        )
+                    process_id = str(uuid.uuid4())
+                    asyncio.create_task(
+                        _run_script_async(
+                            process_id=process_id,
+                            session_id=session_id,
+                            client_token=client_token,
+                        )
+                    )
+                except Exception as inner_e:
+                    print(f"Error processing round message: {inner_e}")
+        except Exception as e:
+            print(f"Error in redis_round_listener loop: {e}")
+            await asyncio.sleep(1)

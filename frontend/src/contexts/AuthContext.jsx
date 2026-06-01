@@ -38,6 +38,7 @@ export const AuthProvider = ({ children }) => {
     const savedUser = JSON.parse(localStorage.getItem("user"));
     if (savedUser) {
       setUser(savedUser);
+      saveToken(savedUser.access_token);
       scheduleTokenRefresh();
 
       // If the user object doesn't have a name field, add it from username
