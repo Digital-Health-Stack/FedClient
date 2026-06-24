@@ -94,6 +94,7 @@ export default function ModelSelectionStep() {
           })}
           className="w-full p-2 border rounded-md mt-1"
           placeholder="Enter number of rounds"
+          onWheel={(e) => e.target.blur()}
         />
       </div>
 

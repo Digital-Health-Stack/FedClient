@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   FolderIcon,
   ArrowPathIcon,
@@ -51,6 +51,8 @@ export default function SelectDatasetsStep({
   const [fetchingFiles, setFetchingFiles] = useState(false);
   const [showInfo, setShowInfo] = useState(false);
 
+  const initializedDatasetRef = useRef(null);
+
   const clientFilename = watch("client_filename");
   const serverFilename = watch("server_filename");
   const selectedTaskId = watch("task_id");
@@ -83,6 +85,37 @@ export default function SelectDatasetsStep({
       setValue("output_columns", [outputColumns]);
     }
   }, [outputColumns, setValue]);
+
+  // Auto-select all columns except the output column by default
+  useEffect(() => {
+    if (!serverStats) return;
+
+    const datasetId = serverStats.dataset_id;
+    const allCols = serverStats.datastats?.columnStats?.map((c) => c.name) || [];
+    if (allCols.length === 0) return;
+
+    // Check if the current inputColumns belong to this dataset
+    const belongsToDataset = inputColumns.length > 0 && inputColumns.every(col => allCols.includes(col));
+
+    if (initializedDatasetRef.current !== datasetId) {
+      // If we haven't initialized defaults for this dataset yet:
+      // If the restored input columns are valid for this dataset, keep them
+      if (inputColumns.length > 0 && belongsToDataset) {
+        initializedDatasetRef.current = datasetId;
+      } else {
+        // Otherwise, initialize to all columns except the output column
+        const defaultInputCols = allCols.filter((col) => col !== outputColumns);
+        setInputColumns(defaultInputCols);
+        initializedDatasetRef.current = datasetId;
+      }
+    } else {
+      // If already initialized for this dataset, but output column changed, filter it out
+      if (outputColumns && inputColumns.includes(outputColumns)) {
+        const filtered = inputColumns.filter((col) => col !== outputColumns);
+        setInputColumns(filtered);
+      }
+    }
+  }, [serverStats, outputColumns, inputColumns]);
 
   useEffect(() => {
     const fetchTasks = async () => {

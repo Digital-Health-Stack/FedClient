@@ -128,8 +128,12 @@ export default function Dashboard() {
   };
   const formatTimestamp = (timestamp) => {
     try {
-      const utcTimestamp = timestamp + "Z";
-      const date = new Date(utcTimestamp);
+      if (!timestamp) return "";
+      let isoStr = timestamp.replace(" ", "T");
+      if (!isoStr.includes("Z") && !isoStr.includes("+") && !isoStr.includes("-")) {
+        isoStr = isoStr + "+05:30";
+      }
+      const date = new Date(isoStr);
       return date.toLocaleString("en-IN", {
         dateStyle: "medium",
         timeStyle: "short",
@@ -389,11 +393,16 @@ export default function Dashboard() {
                 <tbody className="divide-y divide-gray-100 bg-white">
                   {initiatedSessions.length > 0 &&
                     initiatedSessions.map((session, index) => {
-                      const progressPercentage = Math.round(
-                        ((session.curr_round - 1) / session.total_rounds) * 100
-                      );
                       const isCompleted =
-                        session.curr_round === session.total_rounds;
+                        session.training_status === "COMPLETED";
+                      const progressPercentage = isCompleted
+                        ? 100
+                        : Math.min(
+                            100,
+                            Math.round(
+                              ((session.curr_round - 1) / session.total_rounds) * 100
+                            )
+                          );
                       const isStarting = session.curr_round === 0;
 
                       return (
@@ -451,8 +460,14 @@ export default function Dashboard() {
                               <div className="w-96">
                                 <div className="flex items-center justify-between mb-1">
                                   <span className="text-xs font-medium text-gray-700">
-                                    On round {session.curr_round} of{" "}
-                                    {session.total_rounds}
+                                    {isCompleted ? (
+                                      `Completed (${session.total_rounds} rounds)`
+                                    ) : (
+                                      `On round ${Math.min(
+                                        session.curr_round,
+                                        session.total_rounds
+                                      )} of ${session.total_rounds}`
+                                    )}
                                   </span>
                                   <span className="text-xs font-bold text-gray-900">
                                     {/* {progressPercentage}% */}

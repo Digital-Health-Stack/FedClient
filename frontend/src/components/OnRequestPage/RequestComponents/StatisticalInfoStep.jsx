@@ -124,6 +124,7 @@ export default function StatisticalInfoStep() {
               })}
               className="w-full p-2 border rounded-md"
               placeholder="0.00"
+              onWheel={(e) => e.target.blur()}
             />
           </div>
           <span className="text-lg font-medium text-gray-600">±</span>
@@ -151,6 +152,7 @@ export default function StatisticalInfoStep() {
               })}
               className="w-full p-2 border rounded-md"
               placeholder="0.00"
+              onWheel={(e) => e.target.blur()}
             />
           </div>
         </div>

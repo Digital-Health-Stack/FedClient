@@ -24,6 +24,9 @@ import {
   createQPDataset,
   getMyDatasets,
   getDatasetDetails,
+  getClientFilenameTraining,
+  initializeModel,
+  trainModelService,
 } from "../../services/privateService";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
@@ -54,7 +57,8 @@ const ActionSection = ({ data, sessionId, onRefreshData }) => {
     useState(false);
   const [isRejectingParticipation, setIsRejectingParticipation] =
     useState(false);
-  const [serverStats, _] = useState(fedInfo?.server_stats || null);
+  const [isTraining, setIsTraining] = useState(false);
+  const serverStats = fedInfo?.server_stats || null;
 
   // Fetch my datasets
   const fetchMyDatasets = async () => {
@@ -75,6 +79,35 @@ const ActionSection = ({ data, sessionId, onRefreshData }) => {
     fetchMyDatasets();
   }, []);
 
+  // Fetch saved dataset filename from Redis on mount
+  React.useEffect(() => {
+    const fetchSavedFilename = async () => {
+      if (!sessionId) return;
+      try {
+        const response = await getClientFilenameTraining(sessionId, user?.username);
+        if (response.data && response.data.client_filename) {
+          const filename = response.data.client_filename;
+          setClientFilename(filename);
+          // Auto fetch stats for the loaded dataset
+          setLoadingClient(true);
+          try {
+            const statsRes = await getDatasetDetails(filename);
+            if (statsRes.data && !statsRes.data.details) {
+              setClientStats(statsRes.data);
+            }
+          } catch (err) {
+            console.error("Error fetching stats for saved dataset:", err);
+          } finally {
+            setLoadingClient(false);
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching saved client filename:", error);
+      }
+    };
+    fetchSavedFilename();
+  }, [sessionId]);
+
   const onSubmitParticipationDecision = async (decision) => {
     const isAccepting = decision === "accepted";
 
@@ -85,12 +118,29 @@ const ActionSection = ({ data, sessionId, onRefreshData }) => {
       setIsRejectingParticipation(true);
     }
 
-    const requestData = {
-      session_id: sessionId,
-      decision: isAccepting ? 1 : 0,
-    };
-
     try {
+      // Save client filename to Redis before accepting participation
+      if (isAccepting) {
+        if (!clientFilename) {
+          toast.error("Please pick a dataset to participate with.", {
+            position: "bottom-center",
+            autoClose: 4000,
+          });
+          setIsAcceptingParticipation(false);
+          return;
+        }
+        await acceptClientFilenameTraining({
+          session_id: sessionId,
+          client_filename: clientFilename,
+          username: user?.username,
+        });
+      }
+
+      const requestData = {
+        session_id: sessionId,
+        decision: isAccepting ? 1 : 0,
+      };
+
       const response = await submitTrainingAcceptanceResponse(api, requestData);
       toast.success(response?.data?.message, {
         position: "bottom-center",
@@ -196,6 +246,7 @@ const ActionSection = ({ data, sessionId, onRefreshData }) => {
         const responseFilename = await acceptClientFilenameTraining({
           session_id: sessionId,
           client_filename: clientFilename,
+          username: user?.username,
         });
         toast.success(responseFilename?.data?.message, {
           position: "bottom-center",
@@ -404,20 +455,119 @@ const ActionSection = ({ data, sessionId, onRefreshData }) => {
         Join Training Session
       </h3>
 
+      {/* Client Dataset Section */}
+      <div className="bg-white rounded-lg mb-4 shadow-sm border-gray-200">
+        <div className="space-y-2">
+          <label className="block text-sm font-medium text-[1.1rem] text-gray-700">
+            Pick a dataset to participate with:
+          </label>
+          <div className="flex space-x-2">
+            <select
+              value={clientFilename}
+              onChange={(e) => setClientFilename(e.target.value)}
+              disabled={loadingDatasets}
+              className="flex-1 p-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <option value="">
+                {loadingDatasets ? "Loading datasets..." : "Select a dataset"}
+              </option>
+              {myDatasets.map((dataset) => (
+                <option
+                  key={dataset.filename || dataset.name}
+                  value={dataset.filename || dataset.name}
+                >
+                  {dataset.filename || dataset.name}
+                </option>
+              ))}
+            </select>
+            <button
+              type="button"
+              onClick={fetchClientDatasetStats}
+              disabled={loadingClient || !clientFilename}
+              className="px-4 py-2.5 bg-blue-600 text-white rounded-md hover:bg-blue-700 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              {loadingClient ? (
+                <ArrowPathIcon className="h-4 w-4 animate-spin" />
+              ) : (
+                <ArrowPathIcon className="h-4 w-4" />
+              )}
+              <span className="ml-2">Fetch</span>
+            </button>
+          </div>
+
+          {errorClient && (
+            <div className="mt-2 p-2 bg-red-50 text-red-600 text-sm rounded-md flex items-start">
+              <ExclamationTriangleIcon className="h-4 w-4 mt-0.5 mr-2 flex-shrink-0" />
+              {errorClient}
+            </div>
+          )}
+
+          {clientStats && (
+            <div className="mt-2 p-2 bg-green-50 text-green-700 text-sm rounded-md flex items-start">
+              <CheckCircleIcon className="h-4 w-4 mt-0.5 mr-2 flex-shrink-0" />
+              <span>
+                Successfully loaded dataset with {clientStats.datastats.numRows}{" "}
+                rows and {clientStats.datastats.numColumns} columns
+              </span>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Column Matching Status */}
+      {clientStats && serverStats && (
+        <div
+          className={`p-3 mb-4 rounded-md border ${columnsMatch()
+            ? "bg-green-50 border-green-200 text-green-800"
+            : "bg-yellow-50 border-yellow-200 text-yellow-800"
+            }`}
+        >
+          <div className="flex items-start">
+            {columnsMatch() ? (
+              <CheckCircleIcon className="h-5 w-5 mr-2 mt-0.5 flex-shrink-0" />
+            ) : (
+              <ExclamationTriangleIcon className="h-5 w-5 mr-2 mt-0.5 flex-shrink-0" />
+            )}
+            <div>
+              <p className="font-medium">
+                {columnsMatch()
+                  ? "Column names match between client and server datasets"
+                  : "Column names do not match between client and server datasets"}
+              </p>
+              {!columnsMatch() && (
+                <p className="text-sm mt-1">
+                  statistics for client and server datasets are different.
+                  <br />
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="space-y-4">
         <div className="flex space-x-4 justify-center">
           <LoaderButton
             type="button"
-            disabled={isAcceptingParticipation || isRejectingParticipation}
+            disabled={
+              !clientStats ||
+              !columnsMatch() ||
+              isAcceptingParticipation ||
+              isRejectingParticipation
+            }
             isLoading={isAcceptingParticipation}
             loadingText="Accepting..."
             onClick={() => onSubmitParticipationDecision("accepted")}
-            className={`px-8 py-3 border border-transparent rounded-md shadow-sm text-sm font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2 ${isAcceptingParticipation || isRejectingParticipation
-              ? "bg-gray-400 cursor-not-allowed focus:ring-gray-500"
-              : "bg-green-500 hover:bg-green-600 focus:ring-green-500"
-              }`}
+            className={`px-8 py-3 border border-transparent rounded-md shadow-sm text-sm font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2 ${
+              !clientStats ||
+              !columnsMatch() ||
+              isAcceptingParticipation ||
+              isRejectingParticipation
+                ? "bg-gray-400 cursor-not-allowed focus:ring-gray-500"
+                : "bg-green-500 hover:bg-green-600 focus:ring-green-500"
+            }`}
           >
-            Accept Training
+            Accept and Join Training
           </LoaderButton>
 
           <LoaderButton
@@ -567,6 +717,11 @@ const ActionSection = ({ data, sessionId, onRefreshData }) => {
                 Thank you for confirming your participation in this training
                 session. Your spot has been secured.
               </p>
+              {clientFilename && (
+                <p className="mt-1 font-medium text-green-800">
+                  Selected Dataset: <span className="underline">{clientFilename}</span>
+                </p>
+              )}
               <div className="mt-3 bg-green-100 border border-green-200 rounded-md p-3">
                 <p className="text-sm text-green-700 font-medium">
                   <InformationCircleIcon className="h-5 w-5 inline mr-1.5 text-green-600" />

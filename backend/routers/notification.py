@@ -15,6 +15,14 @@ connected_websockets = set()
 async def save_token_endpoint(request: SaveToken):
     client_token = request.client_token
     await redis_client.set("client_token", client_token)
+
+    # Save token for this username
+    from utility.infra.redis import get_username_from_jwt
+    username = get_username_from_jwt(client_token)
+    if username:
+        await redis_client.set(f"client_token:{username}", client_token)
+        await redis_client.sadd("client_usernames", username)
+
     return {"message": "Token saved successfully."}
 
 

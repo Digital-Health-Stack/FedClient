@@ -118,21 +118,36 @@ export default function TrainingDetails() {
     },
   ];
 
-  const fetchFederatedSessionData = async () => {
+  const fetchFederatedSessionData = async (silent = false) => {
     try {
-      setIsRefreshing(true);
+      if (!silent) setIsRefreshing(true);
       const response = await getFederatedSession(api, sessionId);
       setFederatedSessionData(response.data);
     } catch (error) {
       console.error("Error fetching session data:", error);
     } finally {
-      setIsRefreshing(false);
+      if (!silent) setIsRefreshing(false);
     }
   };
 
   useEffect(() => {
     fetchFederatedSessionData();
   }, [sessionId]);
+
+  // Auto-refresh / polling for active sessions
+  useEffect(() => {
+    const status = federatedSessionData?.training_status;
+    const isTerminal = ["COMPLETED", "FAILED", "CANCELLED"].includes(status);
+
+    if (!sessionId || isTerminal) return;
+
+    // Poll every 3 seconds
+    const interval = setInterval(() => {
+      fetchFederatedSessionData(true);
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, [sessionId, federatedSessionData?.training_status]);
 
   // Check if wait_time modal should be shown
   useEffect(() => {
@@ -479,7 +494,10 @@ export default function TrainingDetails() {
               />
             )}
             {currentSection === "session-logs" && (
-              <FederatedSessionLogs sessionId={sessionId} />
+              <FederatedSessionLogs
+                sessionId={sessionId}
+                trainingStatus={federatedSessionData?.training_status}
+              />
             )}
             {currentSection === "dataset-info" && (
               <DatasetInfo data={federatedSessionData.federated_info} />

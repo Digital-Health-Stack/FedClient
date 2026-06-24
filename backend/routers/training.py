@@ -224,10 +224,37 @@ async def accept_client_filename_training(request: AcceptClientFilenameTrainingR
     try:
         session_id = request.session_id
         client_filename = request.client_filename
+        username = request.username
 
         redis_key = f"client_filename:{session_id}"
         await redis_client.set(redis_key, client_filename)
+
+        if username:
+            redis_user_key = f"client_filename:{session_id}:{username}"
+            await redis_client.set(redis_user_key, client_filename)
+
         return {"message": "Client filename saved successfully"}
     except Exception as e:
         print(f"Error accepting client filename training: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error")
+
+
+@model_router.get("/get-client-filename-training/{session_id}")
+async def get_client_filename_training(session_id: int, username: str | None = None):
+    try:
+        redis_key = f"client_filename:{session_id}"
+        if username:
+            redis_user_key = f"client_filename:{session_id}:{username}"
+            client_filename = await redis_client.get(redis_user_key)
+            if client_filename:
+                if isinstance(client_filename, bytes):
+                    client_filename = client_filename.decode("utf-8")
+                return {"client_filename": client_filename}
+
+        client_filename = await redis_client.get(redis_key)
+        if isinstance(client_filename, bytes):
+            client_filename = client_filename.decode("utf-8")
+        return {"client_filename": client_filename}
+    except Exception as e:
+        print(f"Error getting client filename training: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")

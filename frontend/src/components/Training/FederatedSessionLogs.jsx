@@ -7,7 +7,7 @@ import {
   InformationCircleIcon,
 } from "@heroicons/react/24/solid";
 
-const FederatedSessionLogs = ({ sessionId }) => {
+const FederatedSessionLogs = ({ sessionId, trainingStatus }) => {
   const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -16,6 +16,8 @@ const FederatedSessionLogs = ({ sessionId }) => {
   const { api } = useAuth();
   const logsEndRef = useRef(null);
   const logsTopRef = useRef(null); // <-- New ref for top
+  const scrollContainerRef = useRef(null);
+  const isFirstLoadRef = useRef(true);
 
   // Available tags
   const availableTags = [
@@ -33,14 +35,14 @@ const FederatedSessionLogs = ({ sessionId }) => {
     "PRICE_NEGOTIATION"
   ];
 
-  const fetchLogsSessionData = async () => {
+  const fetchLogsSessionData = async (silent = false) => {
     if (!sessionId) {
       setLogs([]);
       setLoading(false);
       return;
     }
 
-    setLoading(true);
+    if (!silent) setLoading(true);
     setError("");
     try {
       const response = await getLogsSession(api, sessionId);
@@ -50,7 +52,7 @@ const FederatedSessionLogs = ({ sessionId }) => {
       console.error("Error fetching logs:", err);
       setError("Failed to fetch logs. Please try again.");
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
   };
 
@@ -58,10 +60,36 @@ const FederatedSessionLogs = ({ sessionId }) => {
     fetchLogsSessionData();
   }, [sessionId]);
 
-  // Auto-scroll to bottom when new logs are added
+  // Auto-refresh logs for active sessions
   useEffect(() => {
-    if (logs.length > 0 && !loading) {
-      logsEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    const isTerminal = ["COMPLETED", "FAILED", "CANCELLED"].includes(trainingStatus);
+    if (!sessionId || isTerminal) return;
+
+    const interval = setInterval(() => {
+      fetchLogsSessionData(true);
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, [sessionId, trainingStatus]);
+
+  useEffect(() => {
+    if (loading) {
+      isFirstLoadRef.current = true;
+    }
+  }, [loading]);
+
+  // Smart auto-scroll to bottom when new logs are added
+  useEffect(() => {
+    if (logs.length > 0 && !loading && scrollContainerRef.current) {
+      const container = scrollContainerRef.current;
+      const threshold = 150; // pixels from bottom threshold
+      const isNearBottom =
+        container.scrollHeight - container.scrollTop - container.clientHeight <= threshold;
+
+      if (isFirstLoadRef.current || isNearBottom) {
+        logsEndRef.current?.scrollIntoView({ behavior: "smooth" });
+        isFirstLoadRef.current = false;
+      }
     }
   }, [logs, loading]);
 
@@ -301,7 +329,7 @@ const FederatedSessionLogs = ({ sessionId }) => {
                 </tr>
               </thead>
             </table>
-            <div className="max-h-[500px] overflow-y-auto relative">
+            <div ref={scrollContainerRef} className="max-h-[500px] overflow-y-auto relative">
               {" "}
               {/* Make relative for absolute buttons */}
               <table className="min-w-full divide-y divide-gray-200">

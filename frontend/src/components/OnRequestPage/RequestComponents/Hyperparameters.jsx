@@ -142,6 +142,7 @@ export default function HyperparametersInfoStep() {
                     className=" py-2 text-center no-spinner focus:outline-none focus:border-b border-black"
                     placeholder="Days"
                     aria-label="Days"
+                    onWheel={(e) => e.target.blur()}
                   />
                   <span className="ml-1 text-md">Days</span>
                 </div>
@@ -156,6 +157,7 @@ export default function HyperparametersInfoStep() {
                     className=" py-2 text-center no-spinner focus:outline-none focus:border-b border-black"
                     placeholder="Hours"
                     aria-label="Hours"
+                    onWheel={(e) => e.target.blur()}
                   />
                   <span className="ml-1 text-md">Hrs</span>
                 </div>
@@ -170,6 +172,7 @@ export default function HyperparametersInfoStep() {
                     className=" py-2 text-center no-spinner focus:outline-none focus:border-b border-black"
                     placeholder="Minutes"
                     aria-label="Minutes"
+                    onWheel={(e) => e.target.blur()}
                   />
                   <span className="ml-1 text-md">Mins</span>
                 </div>
@@ -219,6 +222,7 @@ export default function HyperparametersInfoStep() {
                 min: { value: 0, message: "Value must be greater than 0" },
               })}
               className="w-full p-2 border rounded-md mt-1"
+              onWheel={(e) => e.target.blur()}
             />
           </label>
         </div>

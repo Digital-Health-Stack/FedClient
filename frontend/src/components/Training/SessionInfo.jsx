@@ -129,11 +129,14 @@ const SessionInfo = ({ data, setCurrentSection }) => {
 
   const formatTimestamp = (timestamp) => {
     try {
-      const utcTimestamp = timestamp + "Z";
-      const date = new Date(utcTimestamp);
-      return date;
+      if (!timestamp) return null;
+      let isoStr = timestamp.replace(" ", "T");
+      if (!isoStr.includes("Z") && !isoStr.includes("+") && !isoStr.includes("-")) {
+        isoStr = isoStr + "+05:30";
+      }
+      return new Date(isoStr);
     } catch (e) {
-      return timestamp;
+      return timestamp ? new Date(timestamp) : null;
     }
   };
 
@@ -215,19 +218,30 @@ const SessionInfo = ({ data, setCurrentSection }) => {
           Waiting for clients. <br /> {formatTimeLeft(remainingTime)} left.
         </p>
       );
-    else if (idx === 2)
+    else if (idx === 2) {
+      const totalRounds = data?.federated_info?.no_of_rounds || 0;
+      const currentRound = Math.min(data?.curr_round || 1, totalRounds);
       return (
         <p>
-          Training in progress. <br /> On round {data?.curr_round}/{" "}
-          {data?.federated_info?.no_of_rounds}
+          Training in progress. <br /> On round {currentRound}/{" "}
+          {totalRounds}
         </p>
       );
+    } else if (idx === 3) {
+      return (
+        <p>
+          Training completed. <br /> All {data?.federated_info?.no_of_rounds} rounds finished.
+        </p>
+      );
+    }
     return "--";
   };
 
   const extra_bar_filled_rounds =
-    ((data?.curr_round - 1) / data?.federated_info?.no_of_rounds) *
-    33.33333333333333;
+    data?.training_status === "COMPLETED"
+      ? 0
+      : ((data?.curr_round - 1) / data?.federated_info?.no_of_rounds) *
+        33.33333333333333;
   return (
     <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
       {/* Session Information Header */}

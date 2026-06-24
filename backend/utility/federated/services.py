@@ -46,6 +46,7 @@ def process_parquet_and_save_xy(
     input_columns: list,
     output_column: list,
     client_token: str,
+    username: str = None,
 ):
     """
     Copy and combine multiple parquet files from local storage,
@@ -55,6 +56,7 @@ def process_parquet_and_save_xy(
         filename: local filename or key in local storage containing parquet files
         session_id: Unique session ID for temp file management
         output_column: Column to be treated as output (target)
+        username: Optional username to make saved files unique
 
     Returns:
         dict: Information about the combined data and saved files
@@ -112,18 +114,19 @@ def process_parquet_and_save_xy(
 
     # print("First Array : ", type(X), getattr(X, 'shape', 'no shape'))
     # print("Second Array : ", type(X[0]), getattr(X[0], 'shape', 'no shape'))
-    # print("Third Array : ", type(X[0][0]), getattr(X[0][0], 'shape', 'no shape'))
-    # print("Third Array : ", type(X[0][0][0]), getattr(X[0][0][0], 'shape', 'no shape'))
+    # print("Third Array : ", type(X[0][0]), getattr(X[0][0], 'no shape'))
+    # print("Third Array : ", type(X[0][0][0]), getattr(X[0][0][0], 'no shape'))
     # print("Fourth Element : ", type(X[0][0][0][0]))
 
     # Save to local_dir
-    X_filename = os.path.join(local_dir, f"X_{session_id}.npy")
-    Y_filename = os.path.join(local_dir, f"Y_{session_id}.npy")
+    file_suffix = f"{session_id}_{username}" if username else session_id
+    X_filename = os.path.join(local_dir, f"X_{file_suffix}.npy")
+    Y_filename = os.path.join(local_dir, f"Y_{file_suffix}.npy")
 
     np.save(X_filename, X)
     np.save(Y_filename, Y)
 
     # Sending Model Initialization signal to server
-
-    send_client_initialize_model_signal(session_id, client_token)
+    base_session_id = int(str(session_id).split('_')[0])
+    send_client_initialize_model_signal(base_session_id, client_token)
     return

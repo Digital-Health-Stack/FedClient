@@ -84,12 +84,20 @@ export const updateColumnDescription = (
 export const acceptClientFilenameTraining = ({
   session_id,
   client_filename,
+  username,
 }: {
   session_id: number;
   client_filename: string;
+  username?: string;
 }) => {
   return PrivateHTTPService.post("/accept-client-filename-training", {
     session_id,
     client_filename,
+    username,
   });
+};
+
+export const getClientFilenameTraining = (session_id: number, username?: string) => {
+  const params = username ? `?username=${encodeURIComponent(username)}` : "";
+  return PrivateHTTPService.get(`/get-client-filename-training/${session_id}${params}`);
 };

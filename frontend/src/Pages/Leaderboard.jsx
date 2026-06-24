@@ -54,8 +54,12 @@ const Leaderboard = () => {
   }, [api, task_id]);
   const formatTimestamp = (timestamp) => {
     try {
-      const utcTimestamp = timestamp + "Z";
-      const date = new Date(utcTimestamp);
+      if (!timestamp) return "";
+      let isoStr = timestamp.replace(" ", "T");
+      if (!isoStr.includes("Z") && !isoStr.includes("+") && !isoStr.includes("-")) {
+        isoStr = isoStr + "+05:30";
+      }
+      const date = new Date(isoStr);
       return date.toLocaleString("en-IN", {
         dateStyle: "medium",
         timeStyle: "short",

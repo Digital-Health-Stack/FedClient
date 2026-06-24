@@ -13,3 +13,4 @@ class InitiateModelRequest(BaseModel):
 class AcceptClientFilenameTrainingRequest(BaseModel):
     session_id: int
     client_filename: str
+    username: str | None = None

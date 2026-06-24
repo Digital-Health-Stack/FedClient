@@ -408,6 +408,29 @@ def main(session_id, client_token):
         X_path = os.path.join("data", f"X_{session_id}.npy")
         Y_path = os.path.join("data", f"Y_{session_id}.npy")
 
+        # Extract username from JWT client_token to check for user-specific data files
+        username = None
+        try:
+            import base64
+            import json
+            parts = client_token.split('.')
+            if len(parts) == 3:
+                payload_b64 = parts[1]
+                payload_b64 += '=' * (-len(payload_b64) % 4)
+                payload_json = base64.b64decode(payload_b64).decode('utf-8')
+                payload = json.loads(payload_json)
+                username = payload.get("sub")
+        except Exception as jwt_err:
+            print(f"Error extracting username from token in training script: {jwt_err}")
+
+        if username:
+            user_X_path = os.path.join("data", f"X_{session_id}_{username}.npy")
+            user_Y_path = os.path.join("data", f"Y_{session_id}_{username}.npy")
+            if os.path.exists(user_X_path) and os.path.exists(user_Y_path):
+                X_path = user_X_path
+                Y_path = user_Y_path
+                print(f"Loading user-specific data files for {username}: {X_path}")
+
         # Load data
         X = np.load(X_path, allow_pickle=True)
         (
@@ -457,6 +480,54 @@ def main(session_id, client_token):
                     )
 
         Y = np.load(Y_path, allow_pickle=True)
+
+        # Convert non-numeric (string/object) columns in X to category codes and handle missing values
+        try:
+            import pandas as pd
+            if isinstance(X, np.ndarray) and X.ndim == 2:
+                df_X = pd.DataFrame(X)
+                modified = False
+                for col in df_X.columns:
+                    try:
+                        df_X[col] = pd.to_numeric(df_X[col], errors='raise')
+                    except Exception:
+                        df_X[col] = df_X[col].astype(str).astype('category').cat.codes
+                        modified = True
+                if modified:
+                    print("Automatically encoded categorical/string columns in X")
+                
+                # Fill missing/NaN values
+                if df_X.isnull().any().any():
+                    print("Handling missing/NaN values in X")
+                    df_X = df_X.ffill().bfill().fillna(0)
+                
+                X = df_X.values.astype(np.float32)
+        except Exception as preprocess_err:
+            print(f"Error preprocessing categorical/missing columns in X: {preprocess_err}")
+
+        # Convert non-numeric (string/object) target Y to category codes/integers and handle missing values
+        try:
+            import pandas as pd
+            if isinstance(Y, np.ndarray):
+                df_Y = pd.DataFrame(Y)
+                modified_y = False
+                for col in df_Y.columns:
+                    try:
+                        df_Y[col] = pd.to_numeric(df_Y[col], errors='raise')
+                    except Exception:
+                        df_Y[col] = df_Y[col].astype(str).astype('category').cat.codes
+                        modified_y = True
+                if modified_y:
+                    print("Automatically encoded categorical/string target in Y")
+                
+                # Fill missing/NaN values
+                if df_Y.isnull().any().any():
+                    print("Handling missing/NaN values in Y")
+                    df_Y = df_Y.ffill().bfill().fillna(0)
+                
+                Y = df_Y.values.astype(np.float32)
+        except Exception as preprocess_y_err:
+            print(f"Error preprocessing categorical/missing target in Y: {preprocess_y_err}")
 
         # ==== Load and update global parameters ====
         global_parameters = receive_global_parameters(get_url, session_id, client_token)

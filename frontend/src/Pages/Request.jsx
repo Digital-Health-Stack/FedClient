@@ -80,6 +80,21 @@ const clearSavedFormData = () => {
   }
 };
 
+// Helper function to migrate and normalize raw form data, ensuring model_info and no_of_rounds sync correctly
+const normalizeFormData = (data) => {
+  if (!data) return null;
+  const normalized = { ...data };
+  if (!normalized.model_info) {
+    normalized.model_info = { test_metrics: [], no_of_rounds: "" };
+  } else {
+    normalized.model_info = { ...normalized.model_info };
+  }
+  if (normalized.no_of_rounds && !normalized.model_info.no_of_rounds) {
+    normalized.model_info.no_of_rounds = normalized.no_of_rounds;
+  }
+  return normalized;
+};
+
 export default function Request() {
   const location = useLocation();
   const retryState = location?.state || {};
@@ -91,7 +106,10 @@ export default function Request() {
   );
 
   // Get saved form data or use retry prefill/defaults
-  const savedFormData = isRetry ? retryState.prefill : getSavedFormData();
+  const savedFormData = React.useMemo(() => {
+    const rawData = isRetry ? retryState.prefill : getSavedFormData();
+    return normalizeFormData(rawData);
+  }, [isRetry, retryState.prefill]);
 
   // Initialize form with saved data or default values
   const methods = useForm({
@@ -117,18 +135,9 @@ export default function Request() {
   // If retry with model info provided, ensure the form gets initialized with it once
   useEffect(() => {
     if (isRetry && retryState.prefill) {
-      methods.reset(retryState.prefill);
+      methods.reset(normalizeFormData(retryState.prefill));
     }
   }, [isRetry, retryState, methods]);
-
-  // Migrate old form data: move no_of_rounds from top level to model_info if needed
-  useEffect(() => {
-    const currentData = methods.getValues();
-    if (currentData.no_of_rounds && !currentData.model_info?.no_of_rounds) {
-      methods.setValue("model_info.no_of_rounds", currentData.no_of_rounds);
-      // Don't remove top-level no_of_rounds yet to avoid breaking existing saved data
-    }
-  }, [methods]);
 
   const [showStepInfo, setShowStepInfo] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
